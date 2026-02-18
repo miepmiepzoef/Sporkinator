@@ -14,16 +14,9 @@ h1, h2, h3 {
 }
 
 .top-line {
-    font-size: 24px;
+    font-size: 4px;
     margin: 10px 0 5px;
     text-align: center;
-}
-
-#pile-container {
-    position: relative;
-    height: 200px; /* adjust as needed */
-    width: 100%;
-    overflow: hidden;
 }
 
 .bottom-line {
@@ -42,4 +35,5 @@ h1, h2, h3 {
 }
 
 }
+
 
