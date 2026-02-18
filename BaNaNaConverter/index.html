@@ -14,12 +14,17 @@
 		function calculate() {
 			let m = parseFloat(document.getElementById('t_meter').value);
 			if (isNaN(m)) {
-				document.getElementById('result').innerText = "Enter meters.";
+				let resultSpan = document.getElementById('result');
+				resultSpan.innerText = "Please, enter a valid number";
+				resultSpan.classList.add('error');
 				return;
+			} else {
+				resultSpan.classList.remove('error');
 			}
 			let b = m / 0.13;
-			document.getElementById('result').innerText = b;
+			document.getElementById('result').innerText = b.toFixed(2);
 		}
 		</script>
 	</body>
 </html>
+
