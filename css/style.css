@@ -8,30 +8,43 @@ h1, h2, h3 {
 	color: #333;
 }
 
-.error {
-	color: red;
-	font-weight: bold;
+/* Center all content */
+body {
+    max-width: 800px;
+    margin: 0 auto; /* centers the whole page */
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    line-height: 1.6;
+    background-color: #fafafa;
 }
 
-.top-line {
-    font-size: 4px;
-    margin: 10px 0 5px;
+/* Header and footer styling */
+.site-header, .site-footer {
     text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid #ddd; /* optional for header */
 }
 
-.bottom-line {
-    font-size: 24px;
-    margin: 5px 0 20px;
-    text-align: center;
-}
-
-.footnote {
+.site-footer {
+    border-top: 1px solid #ddd; /* optional for footer */
     font-size: 14px;
     color: #666;
-    text-align: center;
+    margin-top: 30px;
 }
 
+/* Line under h1 (page title) */
+h1 {
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+    margin-bottom: 20px;
 }
+
+/* Any other global styles */
+.error {
+    color: red;
+}
+
 
 
 
