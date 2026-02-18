@@ -5,23 +5,19 @@
 		<link rel="stylesheet" href="../css/style.css">
 		<style>
 			#pile-container {
-   				width: 400px;
-    			height: 300px;
-    			border: 2px solid #aaa;
-    			background: #f0e68c;
     			position: relative;
+    			height: 200px; /* adjust as needed */
+   				width: 100%;
     			overflow: hidden;
-				border-radius: 10px;
-				margin-top: 20px;
 			}
 			.banana {
    				font-size: 30px; /* makes the emoji big */
     			position: absolute;
     			left: 0;
     			top: 0;
-    			transition: all 1s ease-in; /* we'll animate left and top */
-				animation: sway 2s infinite;
     			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+				animation: sway 2s infinite;
+				transition: all 1s ease-in;
 			}
 			@keyframes sway {
 				0% { transform: rotate(0deg); }
@@ -97,6 +93,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
