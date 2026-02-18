@@ -1,0 +1,28 @@
+<!doctype html>
+
+<html>
+<head>
+	<title> BaNaNa Converter </title>
+</head>
+<body>
+	<h1>BaNaNa Converter</h1>
+	<input type="number" id"t_meter" placeholder="Enter meters">
+	<button onclick="calculate() ">Add</button>
+	<p>Result: <span id="result"></span></p>
+
+	<script>
+		function calculate() {
+			//Get values from input fields
+			let t_meter = parseFloat(document.getElementById("t_meter").value)
+
+			//Calculation
+			let t_banana = t_meter / 0.184
+
+			//Display result
+			document.getElementbyId('result').innerText = t_banana
+		}
+	</script>
+</body>
+
+
+</html>
