@@ -6,12 +6,9 @@
 		<style>
 			#pile-container {
     			position: relative;
-    			height: 200px; /* adjust as needed */
+    			height: 300px; /* adjust as needed */
    				width: 100%;
     			overflow: hidden;
-				padding: 0;
-				margin: 0;
-				border: none;
 			}
 			.banana {
    				font-size: 30px; /* makes the emoji big */
@@ -28,17 +25,28 @@
 				75% { transform: rotate(-8deg); }
 				100% { transform: rotate(0deg); }
 			}
+			.converter-form {
+				text-align: center;
+				margin-bottom: 20px;
+			}
 		</style>
 	</head>
 	<body>
+		<div class="site-header">
+		</div>
+		
 		<h1>BaNaNa Converter</h1>
-		<div class="top-line"></div>
-		<input type="number" id="t_meter" placeholder="Enter meters">
-		<button onclick="calculate()">Convert</button>
-		<p>Result: <span id="result"></span></p>
 
+		<div class="converter-form">
+			<input type="number" id="t_meter" placeholder="Enter meters">
+			<button onclick="calculate()">Convert</button>
+			<p>Result: <span id="result"></span></p>
+		</div>	
+		
 		<div id="pile-container"></div>
-		<p class="footnote">Footnote</p>
+		
+		<p class="site-footer">
+			<p>&copy; 2026 Sporkicator. All rights reserved.</p>
 			
 		<script>
 			function calculate() {
@@ -95,6 +103,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
