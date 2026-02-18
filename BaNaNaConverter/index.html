@@ -79,7 +79,8 @@
 					const targetX = startX;
 
 					const duration = 0.8 + Math.random() * 1.2;
-					banana.style.transition = 'left ${duration}s ease-in, top ${duration}s ease-in';
+					const delay = Math.random() * 0.8;
+					banana.style.transition = 'left ${duration}s ease-in ${delay}s ,top ${duration}s ease-in ${delay}s';
 					
         			pile.appendChild(banana);
 
@@ -94,6 +95,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
