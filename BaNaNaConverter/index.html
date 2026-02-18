@@ -13,12 +13,17 @@
 		function calculate() {
 			//Get values from input fields
 			let t_meter = parseFloat(document.getElementById('t_meter').value);
+			if (isNaN(t_meter)) {
+				document.getElementById('result').innerText = "Please enter meters.";
+				return;
+			}
 			//Calculation
-			let t_banana = t_meter / 0.184;
+			let t_banana = t_meter / 0.13;
 			//Display result
 			document.getElementById('result').innerText = t_banana;
 		}
 	</script>
 </body>
 </html>
+
 
