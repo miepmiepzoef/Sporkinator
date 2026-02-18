@@ -45,10 +45,14 @@
 		
 		<div id="pile-container"></div>
 		
-		<div class="site-footer">
-			<p>&copy; 2026 Sporkicator. All rights reserved.</p>
-		</div>	
+		<div id="footer-placeholder"></div>	
+		
 		<script>
+			fetch('../footer.html')
+				.then(response => response.text())
+				.then(data => {
+					document.getElementById('footer-placeholder').innerHTML = data;
+				});
 			function calculate() {
 				let m = parseFloat(document.getElementById('t_meter').value);
 				let resultSpan = document.getElementById('result');
@@ -103,6 +107,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
