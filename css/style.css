@@ -12,7 +12,7 @@ body {
 .site-header, .site-footer {
     text-align: center;
     padding: 20px 0;
-    border-bottom: 1px solid #ddd; /* optional for header */
+    /* border-bottom: 1px solid #ddd; /* optional for header */
 }
 
 .site-footer {
@@ -34,6 +34,7 @@ h1 {
 .error {
     color: red;
 }
+
 
 
 
