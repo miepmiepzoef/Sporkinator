@@ -9,6 +9,9 @@
     			height: 200px; /* adjust as needed */
    				width: 100%;
     			overflow: hidden;
+				padding: 0;
+				margin: 0;
+				border: none;
 			}
 			.banana {
    				font-size: 30px; /* makes the emoji big */
@@ -76,7 +79,7 @@
 					const targetX = startX;
 
 					const duration = 0.8 + Math.random() * 1.2;
-					const delay = Math.random() * 0.8;
+					const delay = Math.random() * 1.5;
 					banana.style.transition = 'left ${duration}s ease-in ${delay}s ,top ${duration}s ease-in ${delay}s';
 					
         			pile.appendChild(banana);
@@ -92,6 +95,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
