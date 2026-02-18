@@ -1,8 +1,7 @@
 <!doctype html>
-
 <html>
 	<head>
-		<title> BaNaNa Converter </title>
+		<title>BaNaNa Converter</title>
 		<link rel="stylesheet" href="../css/style.css">
 		<style>
 			#game-area {
@@ -11,7 +10,6 @@
    				gap: 20px;
     			margin-top: 20px;
 			}
-
 			#donkey-kong {
    				width: 80px;
     			height: 100px;
@@ -23,7 +21,6 @@
     			font-size: 20px;
    				position: relative;
 			}
-
 			#pile-container {
    				width: 400px;
     			height: 300px;
@@ -55,18 +52,20 @@
 		<script>
 			function calculate() {
 				let m = parseFloat(document.getElementById('t_meter').value);
+				let resultSpan = document.getElementById('result');
+				resultSpan.classList.remove('error');
+				
 				if (isNaN(m)) {
-					let resultSpan = document.getElementById('result');
 					resultSpan.innerText = "Please, enter a valid number";
 					resultSpan.classList.add('error');
-					return;
-				} else {
-					resultSpan.classList.remove('error');
+					return;		
 				}
 				let b = m / 0.13;
 				resultSpan.innerText = b.toFixed(2);
+				
 				throwBananas(Math.floor(m));
 			}
+			
 			function throwBananas(count) {
     			const pile = document.getElementById('pile-container');
     			const dk = document.getElementById('donkey-kong');
@@ -101,11 +100,12 @@
         // Animate to target
         			banana.style.left = targetX + 'px';
         			banana.style.top = targetY + 'px';
-    			}
+				}
 			}
 		</script>
 	</body>
 </html>
+
 
 
 
