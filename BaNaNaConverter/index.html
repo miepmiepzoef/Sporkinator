@@ -6,24 +6,25 @@
 </head>
 <body>
 	<h1>BaNaNa Converter</h1>
-	<input type="number" id't_meter' placeholder="Enter meters">
-	<button onclick="calculate() ">Convert</button>
-	<p>Result: <span id='result'></span></p>
+	<input type="number" id"t_meter" placeholder="Enter meters">
+	<button onclick="calculate()">Convert</button>
+	<p>Result: <span id="result"></span></p>
 	<script>
 		function calculate() {
 			//Get values from input fields
-			let t_meter = parseFloat(document.getElementById('t_meter').value);
-			if (isNaN(t_meter)) {
-				document.getElementById('result').innerText = "Please enter meters.";
+			let m = parseFloat(document.getElementById('t_meter').value);
+			if (isNaN(m)) {
+				document.getElementById('result').innerText = "Enter meters.";
 				return;
 			}
 			//Calculation
-			let t_banana = t_meter / 0.13;
+			let b = m / 0.13;
 			//Display result
-			document.getElementById('result').innerText = t_banana;
+			document.getElementById('result').innerText = b;
 		}
 	</script>
 </body>
 </html>
+
 
 
