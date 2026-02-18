@@ -18,18 +18,17 @@
 			<li><a href="BaNaNaConverter/">BaNaNa Converter</a></li>
 		</ul>
 
-		<div class="footer-placeholder">
-		</div>
+		<div id="footer-placeholder"></div>
 
 		<script>
         // Load header and footer
-       		fetch('/header.html') // adjust path as needed
+       		fetch('header.html') // adjust path as needed
             	.then(response => response.text())
            		.then(data => {
                 	document.getElementById('header-placeholder').innerHTML = data;
            		});
 
-        	fetch('/footer.html')
+        	fetch('footer.html')
             	.then(response => response.text())
             	.then(data => {
                 	document.getElementById('footer-placeholder').innerHTML = data;
@@ -37,6 +36,7 @@
    		</script>
 	</body>
 </html>
+
 
 
 
