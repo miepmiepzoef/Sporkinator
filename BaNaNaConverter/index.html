@@ -32,8 +32,7 @@
 		</style>
 	</head>
 	<body>
-		<div class="site-header">
-		</div>
+		<div class="header-placeholder"></div>
 		
 		<h1>BaNaNa Converter</h1>
 
@@ -48,6 +47,10 @@
 		<div id="footer-placeholder"></div>	
 		
 		<script>
+			fetch('../header.html')
+				.then(response => response.text())
+				.then(data => {
+					document.getElementById('header-placeholder').innerHTML = data;
 			fetch('../footer.html')
 				.then(response => response.text())
 				.then(data => {
@@ -107,6 +110,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
