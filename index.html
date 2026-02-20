@@ -11,7 +11,7 @@
 	</head>
 
 	<body>
-		<div id="header-placeholder"></div>		
+		<div id="site-header"></div>		
 		<h1>Grab yourself a Spork and dig in</h1>
 		<p>Choose Wisely:</p>
 		<ul>
@@ -22,10 +22,10 @@
 
 		<script>
         // Load header and footer
-       		fetch('header.html') // adjust path as needed
-            	.then(response => response.text())
-           		.then(data => {
-                	document.getElementById('header-placeholder').innerHTML = data;
+       		//fetch('header.html') // adjust path as needed
+            	//.then(response => response.text())
+           		//.then(data => {
+                	//document.getElementById('header-placeholder').innerHTML = data;
            		});
 
         	fetch('footer.html')
@@ -36,6 +36,7 @@
    		</script>
 	</body>
 </html>
+
 
 
 
