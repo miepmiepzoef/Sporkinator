@@ -15,16 +15,16 @@
     			position: absolute;
     			left: 0;
     			top: 0;
-    			#filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
-				#animation: sway 2s infinite;
-				#transition: left 1s ease-in, top 1s ease-in;
+    			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+				animation: sway 2s infinite;
+				transition: left 1s ease-in, top 1s ease-in;
 			}
-			#@keyframes sway {
-				#0% { transform: rotate(0deg); }
-				#25% { transform: rotate(8deg); }
-				#75% { transform: rotate(-8deg); }
-				#100% { transform: rotate(0deg); }
-			#}
+			@keyframes sway {
+				0% { transform: rotate(0deg); }
+				25% { transform: rotate(8deg); }
+				75% { transform: rotate(-8deg); }
+				100% { transform: rotate(0deg); }
+			}
 			.converter-form {
 				text-align: center;
 				margin-bottom: 20px;
@@ -111,6 +111,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
