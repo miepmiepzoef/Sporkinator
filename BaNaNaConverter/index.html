@@ -41,6 +41,11 @@
 			<button onclick="calculate()">Convert</button>
 			<p>Result: <span id="result"></span></p>
 		</div>	
+		<div class="converter-form">
+			<input type="number" id="t_meter2" placeholder="Enter meters">
+			<button onclick="calculate()">Convert</button>
+			<p>Result: <span id="result"></span></p>
+		</div>	
 		
 		<div id="pile-container"></div>
 		
@@ -59,6 +64,7 @@
 				});
 			function calculate() {
 				let m = parseFloat(document.getElementById('t_meter').value);
+			
 				let resultSpan = document.getElementById('result');
 				resultSpan.classList.remove('error');
 				
@@ -111,6 +117,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
