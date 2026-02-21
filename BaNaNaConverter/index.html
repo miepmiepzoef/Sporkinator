@@ -15,8 +15,8 @@
     			position: absolute;
     			left: 0;
     			top: 0;
-    			#filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
-				animation: sway 2s infinite;
+    			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
+				#animation: sway 2s infinite;
 				transition: left 1s ease-in, top 1s ease-in;
 			}
 			@keyframes sway {
@@ -43,7 +43,7 @@
 		</div>	
 		<div class="converter-form">
 			<input type="number" id="t_meter2" placeholder="Enter meters">
-			<button onclick="calculate()">Convert</button>
+			<button onclick="calculate2()">Convert</button>
 			<p>Result: <span id="result"></span></p>
 		</div>	
 		
@@ -64,7 +64,7 @@
 				});
 			function calculate() {
 				let m = parseFloat(document.getElementById('t_meter').value);
-			
+				let m2 = parseFloat (document.getElementById('t_meter2').value);
 				let resultSpan = document.getElementById('result');
 				resultSpan.classList.remove('error');
 				
@@ -74,8 +74,8 @@
 					return;		
 				}
 				let b = m / 0.1699;
+				let b2 = m2 * m2 / 0.00642222
 				resultSpan.innerText = b.toFixed(2);
-				
 				dropBananas(Math.floor(b));
 			}
 			
@@ -117,6 +117,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
