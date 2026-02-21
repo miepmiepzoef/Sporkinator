@@ -122,8 +122,9 @@
 					return;		
 				}
 				let b3 = m3 / 136.33;
+				let b3a = b3 / 100
 				result3Span.innerText = b3.toFixed(2);
-				#dropBananas(Math.floor(b3));
+				dropBananas(Math.floor(b3a));
 			}
 			function calculate_kg() {
 				const mass = 139.65;
@@ -180,6 +181,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
