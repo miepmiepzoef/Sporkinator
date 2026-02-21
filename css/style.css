@@ -47,9 +47,6 @@ h1 {
     flex-wrap: wrap; /* allows wrapping on small screens */
     margin-bottom: 20px;
 }
-.converter-form input[type="number'] {
-   	width: 80px;
-}
 .rating-slider {
     text-align: center;
     margin: 30px 0;
@@ -109,6 +106,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
