@@ -149,12 +149,7 @@
 				dropBananas(Math.floor(b4));
 			}
 			function dropBananas(count) {
-    			const pile = document.getElementById('pile-container');
-    			if (!pile) return;
-				
-				const containerWidth = pile.clientWidth || 400;
-				const containerHeight || 300;
-				
+    			const pile = document.getElementById('pile-container');			
 				pile.innerHTML = ''; // clear previous bananas
 
     			for (let i = 0; i < count; i++) {
@@ -195,6 +190,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
