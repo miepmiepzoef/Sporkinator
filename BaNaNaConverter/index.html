@@ -175,20 +175,19 @@
 					const maxTop = containerHeight - 30;
 					const targetY = maxTop - Math.random() * 20;
 				
-					const duration = 0.8 + Math.random() * 1.5;
-					const delay = Math.random() * 2.5;
+					const duration = 1 + Math.random() * 2;
+					const delay = Math.random() * 4 * 1000;
 					
-					console.log('Bananas ${i}: delay=${delay.toFixed(2)}s');
-					bananas.style.transition = 'top ${duration}s ease-in ${delay}s';
+					//console.log('Bananas ${i}: delay=${delay.toFixed(2)}s');
+					bananas.style.transition = 'top ${duration}s ease-in';
 					
         			bananaZone.appendChild(bananas);
 					
 					bananas.offsetHeight;
 
 					setTimeout(() => {
-						requestAnimationFrame(() => {
-							bananas.style.top = targetY + 'px';
-						});
+						bananas.style.top = targetY + 'px';
+						}, delay);
 					});
 				
         // Force a reflow to ensure starting position is applied
@@ -198,6 +197,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
