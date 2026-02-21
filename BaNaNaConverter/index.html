@@ -177,9 +177,8 @@
         			bananas.offsetHeight;
 
 					requestAnimationFrame(() => {
-						requestAnimationFrame(() => {
-							bananas.style.left = targetX + 'px';
-							bananas.style.left = targetY + 'px';
+						bananas.style.left = targetX + 'px';
+						bananas.style.left = targetY + 'px';
 
         // Force a reflow to ensure starting position is applied
         	
@@ -188,6 +187,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
