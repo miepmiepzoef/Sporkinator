@@ -177,11 +177,15 @@
 
         // Force a reflow to ensure starting position is applied
         			bananas.getBoundingClientRect();
+
+					bananas.style.left = targetX + 'px';
+					bananas.style.top = targetY + 'px';
 				}
 			}
 		</script>
 	</body>
 </html>
+
 
 
 
