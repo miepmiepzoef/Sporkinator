@@ -6,7 +6,7 @@
 		<style>
 			#pile-container {
     			position: relative;
-    			height: 50px; /* adjust as needed */
+    			height: 300px; /* adjust as needed */
    				width: 100%;
     			overflow: hidden;
 			}
@@ -141,16 +141,13 @@
     			const pile = document.getElementById('pile-container');			
 				pile.innerHTML = ''; // clear previous bananas
 
-				const containerWidth = pile.clientWidth;
-				const conatinerHeight = pile.clientHeight;
-
     			for (let i = 0; i < count; i++) {
         			const bananas = document.createElement('div');
         			bananas.className = 'bananas';
        				bananas.textContent = '🍌';
 
         // Random start x
-        			const maxLeft = containerWidth - 30; // adjust for emoji size
+        			const maxLeft = pile.clientWidth - 30; // adjust for emoji size
         			const startX = Math.random() * maxLeft; 
 					bananas.style.left = startX + 'px';
 					
@@ -158,8 +155,10 @@
 					const startY = -30 - Math.random() * 10;
 					bananas.style.top = startY + 'px';
 
-					const maxTop = containerHeight - 30;
-					const targetY = maxTop - Math.random()* 30;
+					const maxTop = pile.clientHeight - 30;
+					const targetY = maxTop - Math.random() * 30;
+
+					const targetX = startX + (Math.random() - 0.5) * 20;
 				
 					const duration = 0.8 + Math.random() * 1.5;
 					const delay = Math.random() * 1.5;
@@ -183,6 +182,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
