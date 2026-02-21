@@ -224,12 +224,19 @@
 		const savedRating = localStorage.getItem('calculatorRating');
 		if (savedRating) {
     		ratingSlider.value = savedRating;
+			updateBananaPosition();
 		}
 
 // Update on input
 		ratingSlider.addEventListener('input', function() {
     		updateBananaPosition();
     		localStorage.setItem('calculatorRating', this.value);
+
+			fetch('https://formspree.io/f/mnjbgdre, {
+				  method: 'POST',
+				  headers: { 'CContent-Type': 'application/json },
+				  body: JSON.stringify({ rating: this.value })
+			}).catch(error => console.log('Rating send failed:', error));
 		});
 
 // Update on window resize
@@ -241,6 +248,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
