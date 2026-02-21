@@ -37,7 +37,7 @@
 				transition: top 1s ease-in;
 			}
 			.converter-form input[type="number"] {
-   				width: 70px;
+   				width: 50px;
 			}
 		</style>
 	</head>
@@ -55,19 +55,22 @@
 				<span><span id="result"></span> bananas</span>
 			</div>	
 			<div class="converter-form">
-				<input type="number" id="meters2" placeholder="Enter meters">
+				<span>For</span><input type="number" id="meters2" placeholder="Enter meters">
+				<span>meter<sup>2</sup>, </span>
 				<button onclick="calculate_meters2()">Convert</button>
-				<span>Result: <span id="result2"></span></span>
+				<span><span id="result2"></span> bananas</span>
 			</div>	
 			<div class="converter-form">
-				<input type="number" id="meters3" placeholder="Enter meters">
+				<span>For</span><input type="number" id="meters3" placeholder="Enter meters">
+				<span>meter<sup>3</sup>, </span>
 				<button onclick="calculate_meters3()">Convert</button>
-				<span>Result: <span id="result3"></span></span>
+				<span><span id="result3"></span> bananas</span>
 			</div>			
 			<div class="converter-form">
-				<input type="number" id="kg" placeholder="Enter Kg">
+				<span>For</span><input type="number" id="kg" placeholder="Enter Kg">
+				<span>Kg, </span>
 				<button onclick="calculate_kg()">Convert</button>
-				<span>Result: <span id="result4"></span></span>
+				<span><span id="result4"></span> bananas</span>
 			</div>
 			<div id="banana-zone"></div>
 		</div>	
@@ -248,6 +251,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
