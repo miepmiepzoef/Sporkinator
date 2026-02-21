@@ -182,7 +182,7 @@
 					const maxTop = containerHeight - 30;
 					const targetY = maxTop - Math.random() * 20;
 				
-					const duration = 1 + Math.random() * 2;
+					const duration = 0.3 + Math.random() * 0.7;
 					
 					
 					//console.log('Bananas ${i}: delay=${delay.toFixed(2)}s');
@@ -191,7 +191,7 @@
         			bananaZone.appendChild(bananas);
 					
 					bananas.offsetHeight;
-					const delay = Math.random() * 4000;
+					const delay = Math.random() * 2 * 1000;
 
 					setTimeout(() => {
 						bananas.style.top = targetY + 'px';
@@ -235,6 +235,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
