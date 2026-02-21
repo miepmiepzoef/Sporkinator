@@ -63,6 +63,9 @@ h1 {
     top: 10px;
     left: 0;
     z-index: 2;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
 }
 #banana-pointer {
     position: absolute;
@@ -103,6 +106,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
