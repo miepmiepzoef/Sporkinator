@@ -8,7 +8,7 @@
     			position: relative;
     			height: 300px; /* adjust as needed */
    				width: 100%;
-    			#overflow: hidden;
+    			overflow: hidden;
 			}
 			.bananas {
    				font-size: 30px; /* makes the emoji big */
@@ -56,7 +56,12 @@
 			<button onclick="calculate_kg()">Convert</button>
 			<p>Result: <span id="result4"></span></p>
 		</div>	
+		
 		<div id="pile-container"></div>
+		
+		<div class="slidecontainer">
+ 			<input type="range" min="1" max="100" value="50" class="slider" id="myRange">
+		</div>
 		
 		<div id="footer-placeholder"></div>	
 		
@@ -177,6 +182,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
