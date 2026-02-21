@@ -8,9 +8,9 @@
     			position: relative;
     			height: 300px; /* adjust as needed */
    				width: 100%;
-    			overflow: hidden;
+    			#overflow: hidden;
 			}
-			.banana {
+			#.banana {
    				font-size: 30px; /* makes the emoji big */
     			position: absolute;
     			left: 0;
@@ -84,7 +84,7 @@
 				let result2Span = document.getElementById('result2');
 				result2Span.classList.remove('error');
 				
-				if (isNaN(m)) {
+				if (isNaN(m2)) {
 					result2Span.innerText = "Please, enter a valid number";
 					result2Span.classList.add('error');
 					return;		
@@ -131,6 +131,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
