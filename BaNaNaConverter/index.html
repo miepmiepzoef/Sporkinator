@@ -149,6 +149,7 @@
 				dropBananas(Math.floor(b4));
 			}
 			function dropBananas(count) {
+				console.log('pile container size:', pile.clientWidth,'x', pile.clientHeight);
     			const pile = document.getElementById('pile-container');
     			pile.innerHTML = ''; // clear previous bananas
 
@@ -173,18 +174,21 @@
 					const delay = Math.random() * 1.5;
 					bananas.style.transition = 'left ${duration}s ease-in ${delay}s ,top ${duration}s ease-in ${delay}s';
 					
-        			pile.appendChild(bananas);
+        			bananas.offsetHeight;
+
+					requestAnimationFrame(() => {
+						requestAnimationFrame(() => {
+							bananas.style.left = targetX + 'px';
+							bananas.style.left = targetY + 'px';
 
         // Force a reflow to ensure starting position is applied
-        			bananas.getBoundingClientRect();
-
-					bananas.style.left = targetX + 'px';
-					bananas.style.top = targetY + 'px';
+        	
 				}
 			}
 		</script>
 	</body>
 </html>
+
 
 
 
