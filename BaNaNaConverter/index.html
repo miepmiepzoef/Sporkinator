@@ -44,7 +44,7 @@
 		<div class="converter-form">
 			<input type="number" id="meters2" placeholder="Enter meters<sub>2">
 			<button onclick="calculate_meters2()">Convert</button>
-			<p>Result: <span id="result"></span></p>
+			<p>Result: <span id="result2"></span></p>
 		</div>	
 		
 		<div id="pile-container"></div>
@@ -73,22 +73,21 @@
 					return;		
 				}
 				let b = m / 0.1699;
-				let b2 = m2 * m2 / 0.00642222
 				resultSpan.innerText = b.toFixed(2);
 				dropBananas(Math.floor(b));
 			}
 			function calculate_meters2() {
 				let m2 = parseFloat(document.getElementById('meters2').value);
-				let resultSpan = document.getElementById('result');
-				resultSpan.classList.remove('error');
+				let result2Span = document.getElementById('result2');
+				result2Span.classList.remove('error');
 				
 				if (isNaN(m)) {
-					resultSpan.innerText = "Please, enter a valid number";
-					resultSpan.classList.add('error');
+					result2Span.innerText = "Please, enter a valid number";
+					result2Span.classList.add('error');
 					return;		
 				}
 				let b2 = m2 * m2 / 0.00642222
-				resultSpan.innerText = b2.toFixed(2);
+				result2Span.innerText = b2.toFixed(2);
 				dropBananas(Math.floor(b2));
 			}
 			function dropBananas(count) {
@@ -129,6 +128,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
