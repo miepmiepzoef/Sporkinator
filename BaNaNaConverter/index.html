@@ -4,7 +4,7 @@
 		<title>BaNaNa Converter</title>
 		<link rel="stylesheet" href="../css/style.css">
 		<style>
-			#.pile-container {
+			.pile-container {
     			position: relative;
     			height: 300px; /* adjust as needed */
    				width: 100%;
@@ -46,7 +46,16 @@
 			<button onclick="calculate_meters2()">Convert</button>
 			<p>Result: <span id="result2"></span></p>
 		</div>	
-		
+		<div class="converter-form">
+			<input type="number" id="meters3" placeholder="Enter meters<sup>3</sup>">
+			<button onclick="calculate_meters3()">Convert</button>
+			<p>Result: <span id="result3"></span></p>
+		</div>	
+		<div class="converter-form">
+			<input type="number" id="kg" placeholder="Enter Kg">
+			<button onclick="calculate_kg()">Convert</button>
+			<p>Result: <span id="result4"></span></p>
+		</div>	
 		<div id="pile-container"></div>
 		
 		<div id="footer-placeholder"></div>	
@@ -84,7 +93,7 @@
 				const width = 3.78;
 				const banana = 16.99 * 3.78;
 				const meters2 = parseFloat(document.getElementById('meters2').value);
-				const m2 = meters2 * 100;
+				const m2 = meters2 * 10000;
 				
 				let	result2Span = document.getElementById('result2');
 				result2Span.classList.remove('error');
@@ -97,6 +106,40 @@
 				let b2 = m2 / banana;
 				result2Span.innerText = b2.toFixed(2);
 				dropBananas(Math.floor(b2));
+			}
+			function calculate_meters3() {
+				const volume = 136.33;
+				const meters3 = parseFloat(document.getElementById('meters3').value);
+				const m3 = meters3 * 10000;
+				
+				let result3Span = document.getElementById('result3');
+				resultSpan3.classList.remove('error');
+				
+				if (isNaN(m3)) {
+					result3Span.innerText = "Please, enter a valid number";
+					result3Span.classList.add('error');
+					return;		
+				}
+				let b3 = m3 / 136.33;
+				result3Span.innerText = b3.toFixed(2);
+				dropBananas(Math.floor(b3));
+			}
+			function calculate_meters2() {
+				const mass = 139.65;
+				const kg = parseFloat(document.getElementById('kg').value);
+				const kgb = kg * 1000;
+				
+				let	result4Span = document.getElementById('result4');
+				result4Span.classList.remove('error');
+				
+				if (isNaN(m4)) {
+					result4Span.innerText = "Please, enter a valid number";
+					result4Span.classList.add('error');
+					return;		
+				}
+				let b4 = kgb / banana;
+				result4Span.innerText = b4.toFixed(2);
+				dropBananas(Math.floor(b4));
 			}
 			function dropBananas(count) {
     			const pile = document.getElementById('pile-container');
@@ -136,6 +179,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
