@@ -69,9 +69,10 @@ h1 {
 }
 #banana-pointer {
     position: absolute;
-    top: 0;
+    top: -8px;
     left: 0;
     font-size: 30px;
+    line-height: 1;
     pointer-events: none;
     z-index: 3;
     transform: translateX(-15px); /* center over thumb */
@@ -106,6 +107,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
