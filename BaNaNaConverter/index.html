@@ -200,9 +200,42 @@
         	
 				}
 			}
+		// Rating slider with banana pointer
+		const ratingSlider = document.getElementById('rating');
+		const bananaPointer = document.getElementById('banana-pointer');
+		const ratingSpan = document.getElementById('rating-value');
+
+		function updateBananaPosition() {
+    		const percent = (ratingSlider.value - ratingSlider.min) / (ratingSlider.max - ratingSlider.min);
+    		const sliderWidth = ratingSlider.offsetWidth;
+   			const bananaWidth = 30; // approximate
+   		 	const newLeft = percent * (sliderWidth - bananaWidth);
+   			bananaPointer.style.left = newLeft + 'px';
+   			ratingSpan.textContent = ratingSlider.value;
+		}
+
+// Load saved rating
+		const savedRating = localStorage.getItem('calculatorRating');
+		if (savedRating) {
+    		ratingSlider.value = savedRating;
+		}
+
+// Update on input
+		ratingSlider.addEventListener('input', function() {
+    		updateBananaPosition();
+    		localStorage.setItem('calculatorRating', this.value);
+		});
+
+// Update on window resize
+		window.addEventListener('resize', updateBananaPosition);
+
+// Initial update
+		updateBananaPosition();
+
 		</script>
 	</body>
 </html>
+
 
 
 
