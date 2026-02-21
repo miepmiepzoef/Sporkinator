@@ -7,7 +7,7 @@
 			#pile-container {
     			position: relative;
     			height: 100px; /* adjust as needed */
-   				width: 100%;
+   				width: 300%;
     			overflow: hidden;
 			}
 			.bananas {
@@ -166,7 +166,7 @@
 					const startY = -30 - Math.random() * 10;
 					bananas.style.top = startY + 'px';
 
-					const maxTop = containerHeight - 30;
+					const maxTop = pile.clientHeight - 30;
 					const targetY = maxTop - Math.random()*30;
 
 					const targetX = startX + (Math.random() - 0.5) * 20;
@@ -177,19 +177,19 @@
 					
         			pile.appendChild(bananas);
 					
-					bananas.offsetHeight;
+					banana.getBoundingClientRect();
 
-					requestAnimationFrame(() => {
-						bananas.style.left = targetX + 'px';
-						bananas.style.left = targetY + 'px';
+					bananas.style.left = targetX + 'px';
+					bananas.style.left = targetY + 'px';
 
         // Force a reflow to ensure starting position is applied
         	
-				});
-			});
+				}
+			}
 		</script>
 	</body>
 </html>
+
 
 
 
