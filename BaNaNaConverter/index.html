@@ -167,11 +167,12 @@
 					bananas.style.top = startY + 'px';
 
 					const maxTop = pile.clientHeight - 30;
-					const targetY = maxTop - Math.random()*30;
+					const targetY = maxTop - Math.random()* 30;
 					const targetX = startX + (Math.random() - 0.5) * 20;
 
-					const duration = 0.8 + Math.random() * 1.2;
+					const duration = 0.8 + Math.random() * 1.5;
 					const delay = Math.random() * 1.5;
+					
 					bananas.style.transition = 'left ${duration}s ease-in ${delay}s, top ${duration}s ease-in ${delay}s';
 					
         			pile.appendChild(bananas);
@@ -188,6 +189,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
