@@ -165,7 +165,7 @@
 
         // Random start x
         			const maxLeft = containerWidth - 30; // adjust for emoji size
-        			const startX = Math.random() * Math.max(maxLeft,0); 
+        			const startX = Math.random() * Math.max(maxLeft, 0); 
 					bananas.style.left = startX + 'px';
 					
 					// start above container
@@ -173,18 +173,19 @@
 					bananas.style.top = startY + 'px';
 
 					const maxTop = containerHeight - 30;
-					const targetY = maxTop - Math.random() * 30;
+					const targetY = maxTop - Math.random() * 20;
 				
 					const duration = 0.8 + Math.random() * 1.5;
 					const delay = Math.random() * 2.5;
 					
+					console.log('Bananas ${i}: delay=${delay.toFixed(2)}s');
 					bananas.style.transition = 'top ${duration}s ease-in ${delay}s';
 					
         			bananaZone.appendChild(bananas);
 					
 					bananas.offsetHeight;
 
-					requestAnimationFrame(() => {
+					setTimeout(() => {
 						requestAnimationFrame(() => {
 							bananas.style.top = targetY + 'px';
 						});
@@ -197,6 +198,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
