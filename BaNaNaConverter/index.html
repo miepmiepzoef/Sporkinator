@@ -10,16 +10,16 @@
    				width: 100%;
     			overflow: hidden;
 			}
-			.banana {
+			#.banana {
    				font-size: 30px; /* makes the emoji big */
     			position: absolute;
     			left: 0;
     			top: 0;
     			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
 				animation: sway 2s infinite;
-				#transition: left 1s ease-in, top 1s ease-in;
+				transition: left 1s ease-in, top 1s ease-in;
 			}
-			@keyframes sway {
+			#@keyframes sway {
 				0% { transform: rotate(0deg); }
 				25% { transform: rotate(8deg); }
 				75% { transform: rotate(-8deg); }
@@ -63,7 +63,10 @@
 					document.getElementById('footer-placeholder').innerHTML = data;
 				});
 			function calculate_meters() {
-				let m = parseFloat(document.getElementById('meters').value);
+				const length = 16.99;
+				const m = parseFloat(document.getElementById('meters').value);
+				const meters = m * 100;
+				
 				let resultSpan = document.getElementById('result');
 				resultSpan.classList.remove('error');
 				
@@ -72,7 +75,7 @@
 					resultSpan.classList.add('error');
 					return;		
 				}
-				let b = m / 0.1699;
+				let b = meters / 16.99;
 				resultSpan.innerText = b.toFixed(2);
 				dropBananas(Math.floor(b));
 			}
@@ -128,6 +131,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
