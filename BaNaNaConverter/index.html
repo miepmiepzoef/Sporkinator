@@ -4,7 +4,7 @@
 		<title>BaNaNa Converter</title>
 		<link rel="stylesheet" href="../css/style.css">
 		<style>
-			.pile-container {
+			#.pile-container {
     			position: relative;
     			height: 300px; /* adjust as needed */
    				width: 100%;
@@ -89,7 +89,7 @@
 					result2Span.classList.add('error');
 					return;		
 				}
-				let b2 = m2 * m2 / 0.00642222
+				let b2 = m2 * m2 / 0.00642222;
 				result2Span.innerText = b2.toFixed(2);
 				dropBananas(Math.floor(b2));
 			}
@@ -131,6 +131,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
