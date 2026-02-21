@@ -232,7 +232,7 @@
     		updateBananaPosition();
     		localStorage.setItem('calculatorRating', this.value);
 
-			fetch('https://formspree.io/f/mnjbgdre, {
+			fetch('https://formspree.io/f/mnjbgdre', {
 				  method: 'POST',
 				  headers: { 'Content-Type': 'application/json' },
 				  body: JSON.stringify({ rating: this.value })
@@ -248,6 +248,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
