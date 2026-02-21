@@ -1,38 +1,50 @@
-.slidecontainer {
-  width: 100%; /* Width of the outside container */
+.slider-section {
+  text-align: center;
+  margin: 20px 0;
+  padding: 10px;
+  z-index: 5;
+  position: relative; /*  outside container */
+}
+/*style slider track*/
+#banana-slider {
+  width: 80%;
+  max-width: 400px;
+  height: 8px;
+  background: #ddd;
+  border-radius: 4px;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 /* The slider itself */
-.slider {
-  -webkit-appearance: none;  /* Override default CSS styles */
+#banana-slider::-webkit-slider-thumb {  
+  -webkit-appearance: none; /* Override default CSS styles */
   appearance: none;
-  width: 100%; /* Full-width */
-  height: 25px; /* Specified height */
-  background: #d3d3d3; /* Grey background */
-  outline: none; /* Remove outline */
-  opacity: 0.7; /* Set transparency (for mouse-over effects on hover) */
-  -webkit-transition: .2s; /* 0.2 seconds transition on hover */
-  transition: opacity .2s;
+  width: 30px; 
+  height: 30px; /* Specified height */
+  background: transparent;
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 30px;
+  text-align: center;
+  color: #000;
 }
 
-/* Mouse-over effects */
-.slider:hover {
-  opacity: 1; /* Fully shown on mouse-over */
-}
 
 /* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
-.slider::-webkit-slider-thumb {
-  -webkit-appearance: none; /* Override default look */
-  appearance: none;
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: ‎'🍌';
-  cursor: pointer; /* Cursor on hover */
+#banana-slider::-webkit-slider-thumb::before {
+  content: "🍌";
+  position: absolute;
+  top: -10px;
+  left: 0;
 }
 
-.slider::-moz-range-thumb {
-  width: 25px; /* Set a specific slider handle width */
-  height: 25px; /* Slider handle height */
-  background: '🍌'; /* Green background */
+#banana-slider::-moz-range-thumb {
+  width: 30px; /* Set a specific slider handle width */
+  height:30px; /* Slider handle height */
+  background: transparent; 
   cursor: pointer; /* Cursor on hover */
+  font-size: 24px;
+  border: none;
+  border-radius: 0;
 }
