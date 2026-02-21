@@ -142,9 +142,12 @@
 				result4Span.innerText = b4.toFixed(2);
 				dropBananas(Math.floor(b4));
 			}
-			function dropBananas(count) {
+						function dropBananas(count) {
     			const pile = document.getElementById('pile-container');			
 				pile.innerHTML = ''; // clear previous bananas
+
+				const containerWidth = pile.clientWidth;
+				const conatinerHeight = pile.clientHeight;
 
     			for (let i = 0; i < count; i++) {
         			const bananas = document.createElement('div');
@@ -152,7 +155,7 @@
        				bananas.textContent = '🍌';
 
         // Random start x
-        			const maxLeft = pile.clientWidth - 30; // adjust for emoji size
+        			const maxLeft = containerWidth - 30; // adjust for emoji size
         			const startX = Math.random() * maxLeft; 
 					bananas.style.left = startX + 'px';
 					
@@ -160,10 +163,8 @@
 					const startY = -30 - Math.random() * 10;
 					bananas.style.top = startY + 'px';
 
-					const maxTop = pile.clientHeight - 30;
-					const targetY = maxTop - Math.random() * 30;
-
-					const targetX = startX + (Math.random() - 0.5) * 20;
+					const maxTop = containerHeight - 30;
+					const targetY = maxTop - Math.random()* 30;
 				
 					const duration = 0.8 + Math.random() * 1.5;
 					const delay = Math.random() * 1.5;
@@ -172,10 +173,13 @@
 					
         			pile.appendChild(bananas);
 					
-					bananas.getBoundingClientRect();
+					bananas.offsetHeight;
 
-					bananas.style.left = targetX + 'px';
-					bananas.style.top = targetY + 'px';
+					requestAnimationFrame(() => {
+						requestAnimationFrame(() => {
+							banana.style.top = targetY + 'px';
+						});
+					});
 				
         // Force a reflow to ensure starting position is applied
         	
@@ -184,6 +188,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
