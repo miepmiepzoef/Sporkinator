@@ -37,13 +37,13 @@
 		<h1>BaNaNa Converter</h1>
 
 		<div class="converter-form">
-			<input type="number" id="t_meter" placeholder="Enter meters">
-			<button onclick="calculate()">Convert</button>
+			<input type="number" id="meters" placeholder="Enter meters">
+			<button onclick="calculate_meters()">Convert</button>
 			<p>Result: <span id="result"></span></p>
 		</div>	
 		<div class="converter-form">
-			<input type="number" id="t_meter2" placeholder="Enter meters">
-			<button onclick="calculate2()">Convert</button>
+			<input type="number" id="meters2" placeholder="Enter meters<sub>2">
+			<button onclick="calculate_meters2()">Convert</button>
 			<p>Result: <span id="result"></span></p>
 		</div>	
 		
@@ -62,9 +62,8 @@
 				.then(data => {
 					document.getElementById('footer-placeholder').innerHTML = data;
 				});
-			function calculate() {
-				let m = parseFloat(document.getElementById('t_meter').value);
-				let m2 = parseFloat (document.getElementById('t_meter2').value);
+			function calculate_meters() {
+				let m = parseFloat(document.getElementById('meters').value);
 				let resultSpan = document.getElementById('result');
 				resultSpan.classList.remove('error');
 				
@@ -78,7 +77,20 @@
 				resultSpan.innerText = b.toFixed(2);
 				dropBananas(Math.floor(b));
 			}
-			
+			function calculate_meters2() {
+				let m2 = parseFloat(document.getElementById('meters2').value);
+				let resultSpan = document.getElementById('result');
+				resultSpan.classList.remove('error');
+				
+				if (isNaN(m)) {
+					resultSpan.innerText = "Please, enter a valid number";
+					resultSpan.classList.add('error');
+					return;		
+				}
+				let b2 = m2 * m2 / 0.00642222
+				resultSpan.innerText = b2.toFixed(2);
+				dropBananas(Math.floor(b2));
+			}
 			function dropBananas(count) {
     			const pile = document.getElementById('pile-container');
     			pile.innerHTML = ''; // clear previous bananas
@@ -117,6 +129,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
