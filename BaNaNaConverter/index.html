@@ -10,16 +10,16 @@
    				width: 100%;
     			#overflow: hidden;
 			}
-			/*.banana {
+			.banana {
    				font-size: 30px; /* makes the emoji big */
     			position: absolute;
     			left: 0;
     			top: 0;
     			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
 				animation: sway 2s infinite;
-				transition: left 1s ease-in, top 1s ease-in;
+				#transition: left 1s ease-in, top 1s ease-in;
 			}
-			#@keyframes sway {
+			@keyframes sway {
 				0% { transform: rotate(0deg); }
 				25% { transform: rotate(8deg); }
 				75% { transform: rotate(-8deg); }
@@ -113,7 +113,7 @@
 				const m3 = meters3 * 10000;
 				
 				let result3Span = document.getElementById('result3');
-				resultSpan3.classList.remove('error');
+				result3Span.classList.remove('error');
 				
 				if (isNaN(m3)) {
 					result3Span.innerText = "Please, enter a valid number";
@@ -124,7 +124,7 @@
 				result3Span.innerText = b3.toFixed(2);
 				dropBananas(Math.floor(b3));
 			}
-			function calculate_meters2() {
+			function calculate_kg() {
 				const mass = 139.65;
 				const kg = parseFloat(document.getElementById('kg').value);
 				const kgb = kg * 1000;
@@ -132,7 +132,7 @@
 				let	result4Span = document.getElementById('result4');
 				result4Span.classList.remove('error');
 				
-				if (isNaN(m4)) {
+				if (isNaN(kgb)) {
 					result4Span.innerText = "Please, enter a valid number";
 					result4Span.classList.add('error');
 					return;		
@@ -179,6 +179,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
