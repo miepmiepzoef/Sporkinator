@@ -1,12 +1,12 @@
 .slidecontainer {
-  width: 70%; /* Width of the outside container */
+  width: 100%; /* Width of the outside container */
 }
 
 /* The slider itself */
 .slider {
   -webkit-appearance: none;  /* Override default CSS styles */
   appearance: none;
-  width: 70%; /* Full-width */
+  width: 80%; /* Full-width */
   height: 25px; /* Specified height */
   background: #d3d3d3; /* Grey background */
   outline: none; /* Remove outline */
