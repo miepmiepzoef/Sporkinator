@@ -6,11 +6,19 @@
 		<style>
 			#pile-container {
     			position: relative;
-    			height: 200px; /* adjust as needed */
+    			height: 100px; /* adjust as needed */
    				width: 100%;
     			overflow: hidden;
 				z-index: 1;
 				margin-top: 0;
+			}
+			.converter-form {
+				text-align: center;
+				padding-top: 20px;
+				position: relative;
+				z-index: 2;
+				background: transparant;
+				pointer-events: auto;
 			}
 			.bananas {
    				font-size: 30px; /* makes the emoji big */
@@ -21,14 +29,6 @@
 				transition: left 1s ease-in, top 1s ease-in;
 				z-index: 10;
 				pointer-events: none;
-			}
-			.converter-form {
-				text-align: center;
-				padding-top: 20px;
-				position: relative;
-				z-index: 2;
-				background: transparant;
-				pointer-events: auto;
 			}
 		</style>
 	</head>
@@ -190,6 +190,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
