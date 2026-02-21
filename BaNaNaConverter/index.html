@@ -234,7 +234,7 @@
 
 			fetch('https://formspree.io/f/mnjbgdre, {
 				  method: 'POST',
-				  headers: { 'CContent-Type': 'application/json },
+				  headers: { 'Content-Type': 'application/json' },
 				  body: JSON.stringify({ rating: this.value })
 			}).catch(error => console.log('Rating send failed:', error));
 		});
@@ -248,6 +248,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
