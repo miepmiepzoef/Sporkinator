@@ -93,12 +93,12 @@
 				}
 				let b = m / 16.99;
 				resultSpan.innerText = b.toFixed(2);
-				dropBananas(Math.floor(b));
+				dropBananas(Math.ceil(b));
 			}
 			function calculate_meters2() {
 				const length = 16.99;
 				const width = 3.78;
-				const banana = 16.99 * 3.78;
+				const wholebanana = 16.99 * 3.78;
 				const meters2 = parseFloat(document.getElementById('meters2').value);
 				const m2 = meters2 * 10000;
 				
@@ -110,9 +110,9 @@
 					result2Span.classList.add('error');
 					return;		
 				}
-				let b2 = m2 / banana;
+				let b2 = m2 / wholebanana;
 				result2Span.innerText = b2.toFixed(2);
-				dropBananas(Math.floor(b2));
+				dropBananas(Math.ceil(b2));
 			}
 			function calculate_meters3() {
 				const volume = 136.33;
@@ -131,7 +131,7 @@
 				let b3 = m3 / 136.33;
 				let b3a = b3 / 100
 				result3Span.innerText = b3.toFixed(2);
-				dropBananas(Math.floor(b3a));
+				dropBananas(Math.ceil(b3a));
 			}
 			function calculate_kg() {
 				const mass = 139.65;
@@ -148,7 +148,7 @@
 				}
 				let b4 = kgb / mass;
 				result4Span.innerText = b4.toFixed(2);
-				dropBananas(Math.floor(b4));
+				dropBananas(Math.ceil(b4));
 			}
 				function dropBananas(count) {
     			const bananaZone = document.getElementById('banana-zone');			
@@ -187,9 +187,7 @@
 
 					setTimeout(() => {
 						bananas.style.top = targetY + 'px';
-						}, delay);
-					});
-				
+						}, delay);				
         // Force a reflow to ensure starting position is applied
         	
 				}
@@ -197,6 +195,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
