@@ -55,6 +55,238 @@
 		
 		<div id="pile-container"></div>
 		
+		<div class="slidecontainer">
+ 			<input type="range" min="1" max="33" value="1" class="slider" id="banana-slider">
+		</div>
+		
+		<div id="footer-placeholder"></div>	
+		
+		<script>
+			fetch('../header.html')
+				.then(response => response.text())
+				.then(data => {
+					document.getElementById('header-placeholder').innerHTML = data;
+				});
+			fetch('../footer.html')
+				.then(response => response.text())
+				.then(data => {
+					document.getElementById('footer-placeholder').innerHTML = data;
+				});
+			function calculate_meters() {
+				const length = 16.99;
+				const meters = parseFloat(document.getElementById('meters').value);
+				const m = meters * 100;
+				
+				let resultSpan = document.getElementById('result');
+				resultSpan.classList.remove('error');
+				
+				if (isNaN(m)) {
+					resultSpan.innerText = "Please, enter a valid number";
+					resultSpan.classList.add('error');
+					return;		
+				}
+				let b = m / 16.99;
+				resultSpan.innerText = b.toFixed(2);
+				dropBananas(Math.floor(b));
+			}
+			function calculate_meters2() {
+				const length = 16.99;
+				const width = 3.78;
+				const banana = 16.99 * 3.78;
+				const meters2 = parseFloat(document.getElementById('meters2').value);
+				const m2 = meters2 * 10000;
+				
+				let	result2Span = document.getElementById('result2');
+				result2Span.classList.remove('error');
+				
+				if (isNaN(m2)) {
+					result2Span.innerText = "Please, enter a valid number";
+					result2Span.classList.add('error');
+					return;		
+				}
+				let b2 = m2 / banana;
+				result2Span.innerText = b2.toFixed(2);
+				dropBananas(Math.floor(b2));
+			}
+			function calculate_meters3() {
+				const volume = 136.33;
+				//const v2 = 136.33 / 100
+				const meters3 = parseFloat(document.getElementById('meters3').value);
+				const m3 = meters3 * 1000000;
+				
+				let result3Span = document.getElementById('result3');
+				result3Span.classList.remove('error');
+				
+				if (isNaN(m3)) {
+					result3Span.innerText = "Please, enter a valid number";
+					result3Span.classList.add('error');
+					return;		
+				}
+				let b3 = m3 / 136.33;
+				let b3a = b3 / 100
+				result3Span.innerText = b3.toFixed(2);
+				dropBananas(Math.floor(b3a));
+			}
+			function calculate_kg() {
+				const mass = 139.65;
+				const kg = parseFloat(document.getElementById('kg').value);
+				const kgb = kg * 1000;
+				
+				let	result4Span = document.getElementById('result4');
+				result4Span.classList.remove('error');
+				
+				if (isNaN(kgb)) {
+					result4Span.innerText = "Please, enter a valid number";
+					result4Span.classList.add('error');
+					return;		
+				}
+				let b4 = kgb / mass;
+				result4Span.innerText = b4.toFixed(2);
+				dropBananas(Math.floor(b4));
+			}
+			function dropBananas(count) {
+    			const pile = document.getElementById('pile-container');			
+				pile.innerHTML = ''; // clear previous bananas
+
+    			for (let i = 0; i < count; i++) {
+        			const bananas = document.createElement('div');
+        			bananas.className = 'bananas';
+       				bananas.textContent = '🍌';
+
+        // Random start x
+        			const maxLeft = pile.clientWidth - 30; // adjust for emoji size
+        			const startX = Math.random() * maxLeft; 
+					bananas.style.left = startX + 'px';
+					
+					// start above container
+					const startY = -30 - Math.random() * 10;
+					bananas.style.top = startY + 'px';
+
+					const maxTop = pile.clientHeight - 30;
+					const targetY = maxTop - Math.random()* 30;
+					const targetX = startX + (Math.random() - 0.5) * 20;
+
+					const duration = 0.8 + Math.random() * 1.5;
+					const delay = Math.random() * 1.5;
+					
+					bananas.style.transition = 'left ${duration}s ease-in ${delay}s, top ${duration}s ease-in ${delay}s';
+					
+        			pile.appendChild(bananas);
+					
+					bananas.getBoundingClientRect();
+
+					bananas.style.left = targetX + 'px';
+					bananas.style.left = targetY + 'px';
+
+        // Force a reflow to ensure starting position is applied
+        	
+				}
+			}
+		</script>
+	</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		<div id="footer-placeholder"></div>	
 		
 		<script>
@@ -187,6 +419,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
