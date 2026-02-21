@@ -36,7 +36,7 @@
     			filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.3));
 				transition: top 1s ease-in;
 			}
-			.converter-form input[type="number'] {
+			.converter-form input[type="number"] {
    				width: 80px;
 			}
 		</style>
@@ -52,15 +52,15 @@
 				<span>For</span><input type="number" id="meters" placeholder="0,1,..">
 				<span>meter, </span>
 				<button onclick="calculate_meters()">you'll need..</button>
-				<span><span id="result"> bananas</span></span>
+				<span><span id="result"> </span>bananas</span>
 			</div>	
 			<div class="converter-form">
-				<input type="number" id="meters2" placeholder="Enter meters<sup>2</sup>">
+				<input type="number" id="meters2" placeholder="Enter meters">
 				<button onclick="calculate_meters2()">Convert</button>
 				<span>Result: <span id="result2"></span></span>
 			</div>	
 			<div class="converter-form">
-				<input type="number" id="meters3" placeholder="Enter meters<sup>3</sup>">
+				<input type="number" id="meters3" placeholder="Enter meters">
 				<button onclick="calculate_meters3()">Convert</button>
 				<span>Result: <span id="result3"></span></span>
 			</div>			
@@ -241,5 +241,6 @@
 		</script>
 	</body>
 </html>
+
 
 
