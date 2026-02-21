@@ -64,8 +64,8 @@
 				});
 			function calculate_meters() {
 				const length = 16.99;
-				const m = parseFloat(document.getElementById('meters').value);
-				const meters = m * 100;
+				const meters = parseFloat(document.getElementById('meters').value);
+				const m = meters * 100;
 				
 				let resultSpan = document.getElementById('result');
 				resultSpan.classList.remove('error');
@@ -75,13 +75,19 @@
 					resultSpan.classList.add('error');
 					return;		
 				}
-				let b = meters / 16.99;
+				let b = m / 16.99;
 				resultSpan.innerText = b.toFixed(2);
 				dropBananas(Math.floor(b));
 			}
 			function calculate_meters2() {
-				let m2 = parseFloat(document.getElementById('meters2').value);
-				let result2Span = document.getElementById('result2');
+				const length = 16.99;
+				const width = 3.78;
+				const banana = 16.99 * 3.78;
+				const meters2 = parseFloat(document.getElementById('meters2').value);
+				const meters2b = meters2 * 100;
+				const m2 = meters2b * meters2b
+				
+				let	result2Span = document.getElementById('result2');
 				result2Span.classList.remove('error');
 				
 				if (isNaN(m2)) {
@@ -89,7 +95,7 @@
 					result2Span.classList.add('error');
 					return;		
 				}
-				let b2 = m2 * m2 / 0.00642222;
+				let b2 = m2 / banana;
 				result2Span.innerText = b2.toFixed(2);
 				dropBananas(Math.floor(b2));
 			}
@@ -131,6 +137,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
