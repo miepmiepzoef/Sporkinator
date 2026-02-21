@@ -159,7 +159,7 @@
 
         // Random start x
         			const maxLeft = pile.clientWidth - 30; // adjust for emoji size
-        			const startX = Math.random() * Math.max(maxLeft, 0); 
+        			const startX = Math.random() * maxLeft; 
 					bananas.style.left = startX + 'px';
 					
 					// start above container
@@ -168,7 +168,6 @@
 
 					const maxTop = pile.clientHeight - 30;
 					const targetY = maxTop - Math.random()*30;
-
 					const targetX = startX + (Math.random() - 0.5) * 20;
 
 					const duration = 0.8 + Math.random() * 1.2;
@@ -177,7 +176,7 @@
 					
         			pile.appendChild(bananas);
 					
-					banana.getBoundingClientRect();
+					bananas.getBoundingClientRect();
 
 					bananas.style.left = targetX + 'px';
 					bananas.style.left = targetY + 'px';
@@ -189,6 +188,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
