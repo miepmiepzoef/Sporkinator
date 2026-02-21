@@ -42,32 +42,33 @@
 		<div id="header-placeholder"></div>
 		
 		<h1>BaNaNa Converter</h1>
+		<p class="instructions">textl45</p>
 		<div id="pile-container">
 			<div class="converter-form">
 				<input type="number" id="meters" placeholder="Enter meters">
 				<button onclick="calculate_meters()">Convert</button>
-				<p>Result: <span id="result"></span></p>
+				<span>Result: <span id="result"></span></span>
 			</div>	
 			<div class="converter-form">
 				<input type="number" id="meters2" placeholder="Enter meters<sup>2</sup>">
 				<button onclick="calculate_meters2()">Convert</button>
-				<p>Result: <span id="result2"></span></p>
+				<span>Result: <span id="result2"></span></span>
 			</div>	
 			<div class="converter-form">
 				<input type="number" id="meters3" placeholder="Enter meters<sup>3</sup>">
 				<button onclick="calculate_meters3()">Convert</button>
-				<p>Result: <span id="result3"></span></p>
-			</div>	
+				<span>Result: <span id="result3"></span></span>
+			</div>			
 			<div class="converter-form">
 				<input type="number" id="kg" placeholder="Enter Kg">
 				<button onclick="calculate_kg()">Convert</button>
-				<p>Result: <span id="result4"></span></p>
+				<span>Result: <span id="result4"></span></span>
 			</div>
 			<div id="banana-zone"></div>
 		</div>	
 		<div class="rating-slider">
 			<div class="slider-container">
-				<input type="range" id="rating" min="1" max="10" value="5">
+				<input type="range" id="rating" min="0" max="32" step="3" value="0">
 				<div id="banana-pointer">🍌</div>
 		 	</div>
 			<p>Rating: <span id="rating-value">3</span>/33</p>
@@ -235,6 +236,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
