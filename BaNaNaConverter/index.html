@@ -42,12 +42,15 @@
 		<div id="header-placeholder"></div>
 		
 		<h1>BaNaNa Converter</h1>
-		<p class="instructions">textl45</p>
+		
 		<div id="pile-container">
+			<p class="instructions">How many bananas??</p>
 			<div class="converter-form">
-				<input type="number" id="meters" placeholder="Enter meters">
-				<button onclick="calculate_meters()">Convert</button>
-				<span>Result: <span id="result"></span></span>
+				<p></p>How many bananas per meter:</p>
+				<span>For</span><input type="number" id="meters" placeholder="0,1,..">
+				<span>m</span>
+				<button onclick="calculate_meters()">you'll need..</button>
+				<span><span id="result"> bananas</span></span>
 			</div>	
 			<div class="converter-form">
 				<input type="number" id="meters2" placeholder="Enter meters<sup>2</sup>">
@@ -236,6 +239,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
