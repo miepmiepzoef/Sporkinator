@@ -6,7 +6,7 @@
 		<style>
 			#pile-container {
     			position: relative;
-    			height: 500px; /* adjust as needed */
+    			height: 600px; /* adjust as needed */
    				width: 100%;
 				overflow: hidden;
 				z-index: 1;
@@ -64,15 +64,14 @@
 				<p>Result: <span id="result4"></span></p>
 			</div>
 			<div id="banana-zone"></div>
-			<div class="rating-slider">
-    			<div class="slider-container">
-        			<input type="range" id="rating" min="1" max="10" value="5">
-        			<div id="banana-pointer">🍌</div>
-  		 		 </div>
-   				<p>Rating: <span id="rating-value">3</span>/33</p>
-			</div>
 		</div>	
-		
+		<div class="rating-slider">
+			<div class="slider-container">
+				<input type="range" id="rating" min="1" max="10" value="5">
+				<div id="banana-pointer">🍌</div>
+		 	</div>
+			<p>Rating: <span id="rating-value">3</span>/33</p>
+		</div>
 		<div id="footer-placeholder"></div>	
 		
 		<script>
@@ -236,6 +235,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
