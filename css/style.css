@@ -60,7 +60,7 @@ h1 {
 #rating {
     width: 100%;
     position: absolute;
-    top: 33px;
+    top: 10px;
     left: 0;
     z-index: 2;
 }
@@ -72,6 +72,36 @@ h1 {
     pointer-events: none;
     z-index: 3;
     transform: translateX(-15px); /* center over thumb */
+}
+/* Hide the default thumb in WebKit browsers */
+#rating::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 1px; /* make it tiny */
+    height: 1px;
+    background: transparent;
+}
+
+/* Hide in Firefox */
+#rating::-moz-range-thumb {
+    width: 1px;
+    height: 1px;
+    background: transparent;
+    border: none;
+}
+
+/* Keep the track visible */
+#rating {
+    background: #ddd;
+    height: 8px;
+    border-radius: 4px;
+}
+
+/* For Firefox, also need to set track color */
+#rating::-moz-range-track {
+    background: #ddd;
+    height: 8px;
+    border-radius: 4px;
 }
 
 
