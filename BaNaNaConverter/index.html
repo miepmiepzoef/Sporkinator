@@ -148,16 +148,16 @@
     			pile.innerHTML = ''; // clear previous bananas
 
     			for (let i = 0; i < count; i++) {
-        			const banana = document.createElement('div');
-        			banana.className = 'banana';
-       				banana.textContent = '🍌';
+        			const bananas = document.createElement('div');
+        			bananas.className = 'bananas';
+       				bananas.textContent = '🍌';
 
         // Random target in pile (with some variation for pile effect)
         			const maxLeft = pile.clientWidth - 30; // adjust for emoji size
         			const startX = Math.random() * maxLeft; // near bottom
-					banana.style.left = startX + 'px';
+					bananas.style.left = startX + 'px';
 					const startY = -30 - Math.random() * 10;
-					banana.style.top = startY + 'px';
+					bananas.style.top = startY + 'px';
 
 					const maxTop = pile.clientHeight - 30;
 					const targetY = maxTop - Math.random()*30;
@@ -166,21 +166,18 @@
 
 					const duration = 0.8 + Math.random() * 1.2;
 					const delay = Math.random() * 1.5;
-					banana.style.transition = 'left ${duration}s ease-in ${delay}s ,top ${duration}s ease-in ${delay}s';
+					bananas.style.transition = 'left ${duration}s ease-in ${delay}s ,top ${duration}s ease-in ${delay}s';
 					
-        			pile.appendChild(banana);
+        			pile.appendChild(bananas);
 
         // Force a reflow to ensure starting position is applied
-        			banana.getBoundingClientRect();
-
-        // Animate to target
-        			banana.style.left = targetX + 'px';
-        			banana.style.top = targetY + 'px';
+        			bananas.getBoundingClientRect();
 				}
 			}
 		</script>
 	</body>
 </html>
+
 
 
 
