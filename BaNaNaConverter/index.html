@@ -6,9 +6,11 @@
 		<style>
 			#pile-container {
     			position: relative;
-    			height: 200px; /* adjust as needed */
+    			height: 400px; /* adjust as needed */
    				width: 100%;
     			overflow: hidden;
+				z-index: 1;
+				margin-top: 0;
 			}
 			.bananas {
    				font-size: 30px; /* makes the emoji big */
@@ -20,7 +22,11 @@
 			}
 			.converter-form {
 				text-align: center;
-				margin-bottom: 20px;
+				padding-top 20px;
+				position: relative;
+				z-index: 2;
+				background: transparant;
+				pointer-events: auto;
 			}
 		</style>
 	</head>
@@ -28,6 +34,7 @@
 		<div id="header-placeholder"></div>
 		
 		<h1>BaNaNa Converter</h1>
+		<div id="pile-container"></div>
 
 		<div class="converter-form">
 			<input type="number" id="meters" placeholder="Enter meters">
@@ -49,8 +56,6 @@
 			<button onclick="calculate_kg()">Convert</button>
 			<p>Result: <span id="result4"></span></p>
 		</div>	
-		
-		<div id="pile-container"></div>
 		
 		<div id="footer-placeholder"></div>	
 		
@@ -179,6 +184,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
