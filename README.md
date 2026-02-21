@@ -1,2 +1,1 @@
-# Sporkinator
-Sporkinator
+# All Rights reserved by the Sporkinator
