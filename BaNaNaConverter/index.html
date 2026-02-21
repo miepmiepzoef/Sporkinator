@@ -167,14 +167,11 @@
 					
         			pile.appendChild(bananas);
 					
-					bananas.offsetHeight;
+					bananas.getBoundingClientRect();
 
-					requestAnimationFrame(() => {
-						requestAnimationFrame(() => {
-							banana.style.top = targetY + 'px';
-						});
-					});
-
+					bananas.style.left = targetX + 'px';
+					bananas.style.top = targetY + 'px';
+				
         // Force a reflow to ensure starting position is applied
         	
 				}
@@ -182,6 +179,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
