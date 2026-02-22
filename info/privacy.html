@@ -12,7 +12,7 @@
 		<p>However, bound by law, I hereby declare that I have no idea how to even collect your info, let alone using it.
 		I don't collect cookies, <a href="https://paypal.me/overlevenmetkarin">but bananas are welcome.</a></p>
 		<div id="footer-placeholder"></div>
-		<div id="banner"></div>
+		<div id="footer-banner"></div>
 		
 		<script>
        // Load header and footer
@@ -31,12 +31,13 @@
 			fetch('../footer-banner.html')
 				.then(response => response.text())
             	.then(data => {
-                	document.getElementById('banner').innerHTML = data;
+                	document.getElementById('footer-banner').innerHTML = data;
             	});
    		</script>
 	</body>
 
 </html>
+
 
 
 
