@@ -32,23 +32,25 @@ h1 {
 
 /* Any other global styles */
 .banner {
-    width: 100vw;
+    width: 100%;
+    margin: 0;
+    padding: 0;
    /* height: 0; 
     padding-bottom: 30%;
     background-size: cover;
-    background-position: center; */
+    background-position: center; 
     position: relative;
     left: 50%;
     right: 50%;
     margin-left: -50vw;
-    overflow: hidden;
+    overflow: hidden;*/
 }
 .banner-icon {
     width: 100%;
     height: auto;
     display: block;
 }
-@media (max-width: 768px) {
+/*@media (max-width: 768px) {
     /*.banner {
         padding-bottom: 20%
     }*/
@@ -60,12 +62,7 @@ h1 {
         height: 100%;
         max-height: 200px;
         object-fit: cover;
-    }
-}
-/*.banner-icon {
-    width: 100%;
-    height: auto;
-    
+    }   
 }*/
 .error {
     color: red;
@@ -149,6 +146,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
