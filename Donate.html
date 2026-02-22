@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+	<head>
+		<title> Donate </title>
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+
+	<body>
+		<div id="header-placeholder"></div>		
+		<h1>Donate a banana</h1>
+		<p>The Sporkinator runs on bananas. Literally.</p>
+    <p>You can support this, by donating bananas*.</p>
+    <p><a href="LINK"> Send a couple bananas</a></p>
+    <p> *By donating bananas you'll become a Bananefactor </p>
+    
+
+		<div id="footer-placeholder"></div>
+
+		<script>
+       // Load header and footer
+       		  fetch('../header.html') // adjust path as needed
+            	 .then(response => response.text())
+           		 .then(data => {
+                	document.getElementById('header-placeholder').innerHTML = data;
+           		  });
+
+        	fetch('../footer.html')
+            	.then(response => response.text())
+            	.then(data => {
+                	document.getElementById('footer-placeholder').innerHTML = data;
+            	});
+   		</script>
+	</body>
+</html>
