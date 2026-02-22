@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+	<head>
+		<title> Thank You! </title>
+		<link rel="stylesheet" href="css/style.css">
+	</head>
+
+	<body>
+		<div id="header-placeholder"></div>		
+		<h1>Thank You!</h1>
+		<p1>Your bananas are keeping the Sporkinator alive. Thank you very much!</p1>
+
+		<div id="footer-placeholder"></div>
+
+		<script>
+       // Load header and footer
+       		  fetch('../header.html') // adjust path as needed
+            	 .then(response => response.text())
+           		 .then(data => {
+                	document.getElementById('header-placeholder').innerHTML = data;
+           		  });
+
+        	fetch('../footer.html')
+            	.then(response => response.text())
+            	.then(data => {
+                	document.getElementById('footer-placeholder').innerHTML = data;
+            	});
+   		</script>
+	</body>
+</html>
