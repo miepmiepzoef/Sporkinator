@@ -33,18 +33,24 @@ h1 {
 /* Any other global styles */
 .banner {
     width: 100vw;
+    height: 0;
+    padding-bottom: 30%;
+    background-size: cover;
+    background-position: center;
     position: relative;
     left: 50%;
-    right: 50%;
     margin-left: -50vw;
 }
-.banner img {
+/*.banner img {
     width: 100%;
     height: auto;
     display: block;
-}
+}*/
 @media (max-width: 768px) {
     .banner {
+        padding-bottom: 20%
+    }
+    /*.banner {
         height: 200px;
     }
     .banner img {
@@ -57,7 +63,7 @@ h1 {
     width: 100%;
     height: auto;
     
-}
+}*/
 .error {
     color: red;
 }
@@ -140,6 +146,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
