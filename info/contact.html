@@ -60,13 +60,13 @@
             <button type="submit">Send Message</button>
         </form>
     </div>
-
+	
 	<div id="footer-placeholder"></div>
+			<div id="banner-placeholder"></div>
 		
-
-	<script>
+		<script>
        // Load header and footer
-       		fetch('../header.html') // adjust path as needed
+       		  fetch('../header.html') // adjust path as needed
             	 .then(response => response.text())
            		 .then(data => {
                 	document.getElementById('header-placeholder').innerHTML = data;
@@ -77,6 +77,13 @@
             	.then(data => {
                 	document.getElementById('footer-placeholder').innerHTML = data;
             	});
-   	</script>
+
+			fetch('../footer-banner.html')
+				.then(response => response.text())
+            	.then(data => {
+                	document.getElementById('banner-placeholder').innerHTML = data;
+            	});	
+
+	<script>
 </body>
 </html>
