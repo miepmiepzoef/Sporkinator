@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<title> Contact </title>
-		<link rel="stylesheet" href="css/style.css">
+		<link rel="stylesheet" href="../css/style.css">
 		<style>
 /* Simple contact form styling */
         .contact-form {
@@ -39,7 +39,7 @@
 <body>
   	<div id="header-placeholder"></div>		
 	<h1>Contact the Sporkinator</h1>
-	<p>Send me a message using the form below.</p>
+	
 
    	<div class="contact-form">
         <form action="https://formspree.io/f/mdalwbnq" method="POST">
@@ -55,7 +55,7 @@
             <textarea id="message" name="message" rows="5" required></textarea>
 
             <!-- Optional: redirect after submission -->
-            <input type="hidden" name="_next" value="https://thesporkinator.com/Thnx!.html">
+            <input type="hidden" name="_next" value="https://thesporkinator.com/MessageReceived.html">
 
             <button type="submit">Send Message</button>
         </form>
