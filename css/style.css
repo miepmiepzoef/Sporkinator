@@ -32,7 +32,7 @@ h1 {
 
 /* Any other global styles */
 .banner-icon {
-    width: 30px;
+    width: auto;
     height: auto;
     vertical-align: middle;
     margin-right: 8px;
@@ -119,6 +119,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
