@@ -40,7 +40,7 @@ h1 {
 
 }
 .banner-icon {
-    width: 200px;
+    width: 100%;
     height: auto;
     vertical-align: middle;
 }
@@ -126,6 +126,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
