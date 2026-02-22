@@ -36,7 +36,7 @@ h1 {
 }
 .instructions {
     text-align: center;
-    margin: 10px 0;
+    margin: 5px 0;
     font-style: italic;
 }
 .converter-form {
@@ -107,6 +107,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
