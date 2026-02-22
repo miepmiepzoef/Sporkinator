@@ -31,10 +31,11 @@ h1 {
 }
 
 /* Any other global styles */
-.footer-banner {
-    padding: 15px;
+.footer-banner img {
+    weight: 30px;
+    height: auto;
     margin-top: 20px;
-    text-align: center;
+    vertical-align: middle;
 }
 .banner-icon {
     width: 30px;
@@ -124,6 +125,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
