@@ -39,6 +39,12 @@ h1 {
     margin: 5px 0;
     font-style: italic;
 }
+.citation {
+    text-align: center;
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
+}
 .converter-form {
     display: flex;
     align-items: center;
@@ -107,6 +113,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
