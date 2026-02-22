@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+	<head>
+		<title> Thnx! </title>
+		<link rel="stylesheet" href="css/style.css">
+	<style>
+	.center {
+  		display: flex;
+  		justify-content: center;
+  		align-items: center;
+  		height: 50px;
+	}
+	</style>
+	</head>
+
+	<body>
+		<div id="header-placeholder"></div>		
+		<h1>We'll get back to you soon!</h1>
+		<div class="center">
+			<p1>Your message is send to the Sporkinator.</p1>
+		</div>
+
+		<div id="footer-placeholder"></div>
+
+		<script>
+       // Load header and footer
+       		  fetch('../header.html') // adjust path as needed
+            	 .then(response => response.text())
+           		 .then(data => {
+                	document.getElementById('header-placeholder').innerHTML = data;
+           		  });
+
+        	fetch('../footer.html')
+            	.then(response => response.text())
+            	.then(data => {
+                	document.getElementById('footer-placeholder').innerHTML = data;
+            	});
+   		</script>
+	</body>
+</html>
