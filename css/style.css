@@ -42,7 +42,7 @@ h1 {
 .banner-icon {
     width: 100%;
     height: auto;
-    vertical-align: middle;
+    
 }
 .error {
     color: red;
@@ -126,6 +126,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
