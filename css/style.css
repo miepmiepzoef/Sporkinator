@@ -56,7 +56,7 @@ h1 {
     .banner img {
         width: 100%;
         height: auto;
-        max-heeight: 200px;
+        max-height: 200px;
         object-fit: contain;
     }
 }
@@ -147,6 +147,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
