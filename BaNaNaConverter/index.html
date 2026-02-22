@@ -84,17 +84,27 @@
 		<p class="citation"><small>Sultan, S., Rangaraju, V., Nambi, E., Chandrasekar, V. 2018. Mathematical modeling of physical properties of banana fruit for machine vision systems using image processing method. <em>Journal of Advanced Research in Dynamical and Control Systems,</em> 10: 611-617. </small></p>
 		<div id="footer-placeholder"></div>	
 		
+				<div id="banner-placeholder"></div>
+		
 		<script>
-			fetch('../header.html')
+       // Load header and footer
+       		  fetch('../header.html') // adjust path as needed
+            	 .then(response => response.text())
+           		 .then(data => {
+                	document.getElementById('header-placeholder').innerHTML = data;
+           		  });
+
+        	fetch('../footer.html')
+            	.then(response => response.text())
+            	.then(data => {
+                	document.getElementById('footer-placeholder').innerHTML = data;
+            	});
+
+			fetch('../footer-banner.html')
 				.then(response => response.text())
-				.then(data => {
-					document.getElementById('header-placeholder').innerHTML = data;
-				});
-			fetch('../footer.html')
-				.then(response => response.text())
-				.then(data => {
-					document.getElementById('footer-placeholder').innerHTML = data;
-				});
+            	.then(data => {
+                	document.getElementById('banner-placeholder').innerHTML = data;
+            	});
 			function calculate_meters() {
 				const length = 16.99;
 				const meters = parseFloat(document.getElementById('meters').value);
@@ -252,6 +262,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
