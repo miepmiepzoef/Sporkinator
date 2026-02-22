@@ -48,7 +48,6 @@ h1 {
     width: 200px;
     height: auto;
     vertical-align: middle;
-    margin-right: 8px;
 }
 .error {
     color: red;
@@ -132,6 +131,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
