@@ -32,9 +32,9 @@ h1 {
 
 /* Any other global styles */
 .footer-banner img {
-    weight: 30px;
+    width: 60px;
+    max-width: 100%;
     height: auto;
-    margin-top: 20px;
     vertical-align: middle;
 }
 .banner-icon {
@@ -125,6 +125,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
