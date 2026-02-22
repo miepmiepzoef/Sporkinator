@@ -37,7 +37,7 @@ h1 {
     text-align: center;
 }
 .banner-icon {
-    width: auto;
+    width: 30px;
     height: auto;
     vertical-align: middle;
     margin-right: 8px;
@@ -124,6 +124,7 @@ h1 {
     height: 8px;
     border-radius: 4px;
 }
+
 
 
 
