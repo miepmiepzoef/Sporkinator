@@ -126,13 +126,14 @@
 				}
 				let b = m / 16.99;
 				let bananaCount = Math.ceil(b);
-				const MAX_BANANAS = 10;
+				let bananaDrop = Math.min (bananaCount, 10);
+				/*const MAX_BANANAS = 10;
 
 				if (bananaCount > MAX_BANANAS) {
 					bananaCount = MAX_BANANAS;
-				}
+				}*/
 				resultSpan.innerText = bananaCount;
-				dropBananas(bananaCount);
+				dropBananas(bananaDrop);
 			}
 			function calculate_meters2() {
 				const length = 16.99;
@@ -278,6 +279,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
