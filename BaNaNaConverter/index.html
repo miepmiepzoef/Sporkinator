@@ -250,12 +250,16 @@
 		ratingSlider.addEventListener('input', function() {
     		updateBananaPosition();
     		localStorage.setItem('calculatorRating', this.value);
-
+		});
+		document.getElementById('submit-rating').addEventListener('click', function() {
+			const rating = ratingSlider.value;
 			fetch('https://formspree.io/f/mnjbgdre', {
 				  method: 'POST',
 				  headers: { 'Content-Type': 'application/json' },
-				  body: JSON.stringify({ rating: this.value })
-			}).catch(error => console.log('Rating send failed:', error));
+				  body: JSON.stringify({ rating: rating })
+			}).then(() => (
+				  alert('Thanks for rating!');
+			}).catch(err => console.log('Rating send failed:', err));
 		});
 
 // Update on window resize
@@ -267,6 +271,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
