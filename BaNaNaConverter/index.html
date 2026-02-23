@@ -126,12 +126,8 @@
 				}
 				let b = m / 16.99;
 				let bananaCount = Math.ceil(b);
-				let bananaDrop = Math.min (bananaCount, 10);
-				/*const MAX_BANANAS = 10;
-
-				if (bananaCount > MAX_BANANAS) {
-					bananaCount = MAX_BANANAS;
-				}*/
+				let bananaDrop = Math.min (bananaCount, 1000);
+				
 				resultSpan.innerText = bananaCount;
 				dropBananas(bananaDrop);
 			}
@@ -151,8 +147,11 @@
 					return;		
 				}
 				let b2 = m2 / wholebanana;
-				result2Span.innerText = b2.toFixed(2);
-				dropBananas(Math.ceil(b2));
+				let bananaCount2 = Math.ceil(b2);
+				let bananaDrop2 = Math.min (bananaCount2, 1000);
+				
+				resultSpan.innerText = bananaCount2;
+				dropBananas(bananaDrop2);
 			}
 			function calculate_meters3() {
 				const volume = 136.33;
@@ -169,9 +168,11 @@
 					return;		
 				}
 				let b3 = m3 / 136.33;
-				let b3a = b3 / 100
-				result3Span.innerText = b3.toFixed(2);
-				dropBananas(Math.ceil(b3a));
+				let bananaCount3 = Math.ceil(b3);
+				let bananaDrop3 = Math.min (bananaCount3, 1000);
+				
+				resultSpan.innerText = bananaCount3;
+				dropBananas(bananaDrop3);
 			}
 			function calculate_kg() {
 				const mass = 139.65;
@@ -187,8 +188,11 @@
 					return;		
 				}
 				let b4 = kgb / mass;
-				result4Span.innerText = b4.toFixed(2);
-				dropBananas(Math.ceil(b4));
+				let bananaCount4 = Math.ceil(b4);
+				let bananaDrop4 = Math.min (bananaCount4, 1000);
+				
+				resultSpan.innerText = bananaCount4;
+				dropBananas(bananaDrop4);
 			}
 				function dropBananas(count) {
     			const bananaZone = document.getElementById('banana-zone');			
@@ -279,6 +283,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
