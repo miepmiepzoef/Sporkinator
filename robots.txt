@@ -1,5 +1,5 @@
 User-agent: *
-Disallow: /thank-you.html
+Disallow: /ThankYou.html
 Disallow: /MessageReceived.html
 
 Sitemap: https://thesporkinator.com/sitemap.xml
