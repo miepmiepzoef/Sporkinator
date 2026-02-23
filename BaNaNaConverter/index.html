@@ -258,7 +258,7 @@
 				  method: 'POST',
 				  headers: { 'Content-Type': 'application/json' },
 				  body: JSON.stringify({ rating: rating })
-			}).then(() => (
+			}).then(() => {
 				  alert('Thanks for rating!');
 			}).catch(err => console.log('Rating send failed:', err));
 		});
@@ -272,6 +272,7 @@
 		</script>
 	</body>
 </html>
+
 
 
 
