@@ -103,7 +103,7 @@
 				<span>For</span><input type="number" id="kg">
 				<span>Kg, </span>
 				<button onclick="calculate_kg()">you'll need</button>
-				<span><span id="result4">...</span> bananas</span>
+				<span><span id="result4"> ... </span> bananas</span>
 				<div id="error-kg" class="error-msg"></div>
 			</div>
 			<div id="banana-zone"></div>
@@ -189,8 +189,8 @@
 				}
 				const cm2 = meters2 * 10000;
 				let bananas = cm2 / wholebanana;
-				let bananaCount2 = Math.ceil(bananas);
-				let bananaDrop2 = Math.min (bananaCount, MAX_FALLING_BANANAS);
+				let bananaCount = Math.ceil(bananas);
+				let bananaDrop = Math.min (bananaCount, MAX_FALLING_BANANAS);
 				
 				resultSpan.innerText = bananaCount;
 				dropBananas(bananaDrop);
@@ -199,8 +199,7 @@
 				const volume = 136.33;
 				//const v2 = 136.33 / 100
 				const meters3 = parseFloat(document.getElementById('meters3').value);
-				/*const m3 = meters3 * 1000000;*/
-				
+				/*const m3 = meters3 * 1000000;*/	
 				const resultSpan = document.getElementById('result3');
 				const errorDiv = document.getElementById( 'error-meters3');
 				errorDiv.innerText = '';
@@ -235,7 +234,7 @@
 				const grams = kg * 1000;
 				let bananas = grams / mass;
 				let bananaCount = Math.ceil(bananas);
-				let bananaDrop4 = Math.min (bananaCount, MAX_FALLING_BANANAS);
+				let bananaDrop = Math.min (bananaCount, MAX_FALLING_BANANAS);
 				
 				resultSpan.innerText = bananaCount;
 				dropBananas(bananaDrop);
