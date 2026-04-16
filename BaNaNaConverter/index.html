@@ -77,6 +77,7 @@
 				<span>meter, </span>
 				<button onclick="calculate_meters()">you'll need</button>
 				<span><span id="result"> ... </span> bananas</span>
+				<div id="error-meters" class="error-msg"></div>
 			</div>	
 			<div class="converter-form">
 				<span>For</span><input type="number" id="meters2">
@@ -168,12 +169,14 @@
 				const meters2 = parseFloat(document.getElementById('meters2').value);
 				
 				
-				resultSpan = document.getElementById('result2');
+				const resultSpan = document.getElementById('result2');
+				const errorDiv = document.getElementById(error-meters2)
+				errorDiv.innerText = '';
 				resultSpan.classList.remove('error');
 				
 				if (isNaN(meters2) || meters2 < 0) {
-					resultSpan.innerText = "Please, enter a valid number";
-					resultSpan.classList.add('error');
+					errorDiv.innertext = "Please, enter a positive number";
+					resultSpan.innerText= '...';
 					return;		
 				}
 				const cm2 = meters2 * 10000;
