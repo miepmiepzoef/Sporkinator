@@ -144,13 +144,14 @@
 				const length = 16.99;
 				const meters = parseFloat(document.getElementById('meters').value);
 				const resultSpan = document.getElementById('result');
-				/*resultSpan.classList.remove('error');*/
-				clearError(resultSpan);
+				const errorDiv = document.getElementById(error-meters2)
+				errorDiv.innerText = '';
+				resultSpan.classList.remove('error');
+			
 				
 				if (isNaN(meters) || meters < 0) {
-					/*resultSpan.innerText = "Please, enter a valid number";
-					resultSpan.classList.add('error');*/
-					showError(resultSpan, "Enter a positive number");
+					errorDiv.innertext = "Please, enter a positive number";
+					resultSpan.innerText= '...';
 					return;		
 				}
 				/*let b = m / 16.99;*/
