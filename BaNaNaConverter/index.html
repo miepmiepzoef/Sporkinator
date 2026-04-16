@@ -207,7 +207,7 @@
 				resultSpan.classList.remove('error');
 				
 				if (isNaN(meters3) || meters3 < 0) {
-					errorDiv.innerText = "Please, enter a valid number";
+					errorDiv.innerText = "Please, enter a positive number";
 					resultSpan.innerText= "...";
 					return;		
 				}
