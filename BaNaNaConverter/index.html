@@ -79,11 +79,11 @@
 		<div id="pile-container">
 			<p class="instructions">How many bananas does one need??</p>
 			<div class="converter-form">
-				<span>For</span><input type="number" id="meters">
+				<span>For</span><input type="number" id="meters1">
 				<span>meter, </span>
 				<button onclick="calculate_meters()">you'll need</button>
-				<span><span id="result"> ... </span> bananas</span>
-				<div id="error-meters" class="error-msg"></div>
+				<span><span id="result1"> ... </span> bananas</span>
+				<div id="error-meters1" class="error-msg"></div>
 			</div>	
 			<div class="converter-form">
 				<span>For</span><input type="number" id="meters2">
@@ -149,23 +149,23 @@
 				element.classList.remove('error');
 			}
 */			
-			function calculate_meters() {
+			function calculate_meters1() {
 				const length = 16.99;
-				const meters = parseFloat(document.getElementById('meters').value);
-				const resultSpan = document.getElementById('result');
-				const errorDiv = document.getElementById('error-meters')
+				const meters1 = parseFloat(document.getElementById('meters1').value);
+				const resultSpan = document.getElementById('result1');
+				const errorDiv = document.getElementById('error-meters1')
 				errorDiv.innerText = '';
 				resultSpan.classList.remove('error');
 			
 				
-				if (isNaN(meters) || meters < 0) {
+				if (isNaN(meters1) || meters1 < 0) {
 					errorDiv.innertext = "Please, enter a positive number";
 					resultSpan.innerText= "...";
 					return;		
 				}
 				/*let b = m / 16.99;*/
-				const cm = meters * 100;
-				let bananas = cm / length;
+				const cm1 = meters1 * 100;
+				let bananas = cm1 / length;
 				let bananaCount = Math.ceil(bananas);
 				let bananaDrop = Math.min (bananaCount, MAX_FALLING_BANANAS);
 				
