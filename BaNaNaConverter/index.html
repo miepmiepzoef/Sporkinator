@@ -130,22 +130,26 @@
             	.then(data => {
                 	document.getElementById('banner-placeholder').innerHTML = data;
             	});
+			const MAX_FALLING_BANANAS = 200;
+			
 			function calculate_meters() {
 				const length = 16.99;
 				const meters = parseFloat(document.getElementById('meters').value);
-				const m = meters * 100;
+				const resultSpan = document.getElementById('result');
+				/*resultSpan.classList.remove('error');*/
+				/*clearError(resultSpan);*/
 				
-				let resultSpan = document.getElementById('result');
-				resultSpan.classList.remove('error');
-				
-				if (isNaN(m)) {
-					resultSpan.innerText = "Please, enter a valid number";
-					resultSpan.classList.add('error');
+				if (isNaN(meters) || meters < 0) {
+					/*resultSpan.innerText = "Please, enter a valid number";
+					resultSpan.classList.add('error');*/
+					showError(resultSpan, "Enter a positive number");
 					return;		
 				}
-				let b = m / 16.99;
-				let bananaCount = Math.ceil(b);
-				let bananaDrop = Math.min (bananaCount, 1000);
+				/*let b = m / 16.99;*/
+				const cm = meters * 100;
+				let bananas = cm / length;
+				let bananaCount = Math.ceil(bananas);
+				let bananaDrop = Math.min (bananaCount, MAX_FALLING_BANANAS);
 				
 				resultSpan.innerText = bananaCount;
 				dropBananas(bananaDrop);
@@ -155,63 +159,66 @@
 				const width = 3.78;
 				const wholebanana = 16.99 * 3.78;
 				const meters2 = parseFloat(document.getElementById('meters2').value);
-				const m2 = meters2 * 10000;
 				
-				let	result2Span = document.getElementById('result2');
-				result2Span.classList.remove('error');
 				
-				if (isNaN(m2)) {
-					result2Span.innerText = "Please, enter a valid number";
-					result2Span.classList.add('error');
+				resultSpan = document.getElementById('result2');
+				resultSpan.classList.remove('error');
+				
+				if (isNaN(meters2) || meters2 < 0) {
+					resultSpan.innerText = "Please, enter a valid number";
+					resultSpan.classList.add('error');
 					return;		
 				}
-				let b2 = m2 / wholebanana;
-				let bananaCount2 = Math.ceil(b2);
-				let bananaDrop2 = Math.min (bananaCount2, 1000);
+				const cm2 = meters2 * 10000;
+				let bananas = cm2 / wholebanana;
+				let bananaCount2 = Math.ceil(bananas);
+				let bananaDrop2 = Math.min (bananaCount, MAX_FALLING_BANANAS);
 				
-				resultSpan.innerText = bananaCount2;
-				dropBananas(bananaDrop2);
+				resultSpan.innerText = bananaCount;
+				dropBananas(bananaDrop);
 			}
 			function calculate_meters3() {
 				const volume = 136.33;
 				//const v2 = 136.33 / 100
 				const meters3 = parseFloat(document.getElementById('meters3').value);
-				const m3 = meters3 * 1000000;
+				/*const m3 = meters3 * 1000000;*/
 				
-				let result3Span = document.getElementById('result3');
-				result3Span.classList.remove('error');
+				const resultSpan = document.getElementById('result3');
+				resultSpan.classList.remove('error');
 				
-				if (isNaN(m3)) {
-					result3Span.innerText = "Please, enter a valid number";
-					result3Span.classList.add('error');
+				if (isNaN(meters3) || meters2 < 0) {
+					resultSpan.innerText = "Please, enter a valid number";
+					resultSpan.classList.add('error');
 					return;		
 				}
-				let b3 = m3 / 136.33;
-				let bananaCount3 = Math.ceil(b3);
-				let bananaDrop3 = Math.min (bananaCount3, 1000);
+				const cm3 = meters3 * 1000000;
+				let bananas = cm3 / volume;
+				let bananaCount3 = Math.ceil(bananas);
+				let bananaDrop3 = Math.min (bananaCount, MAX_FALLING_BANANAS);
 				
-				resultSpan.innerText = bananaCount3;
-				dropBananas(bananaDrop3);
+				resultSpan.innerText = bananaCount;
+				dropBananas(bananaDrop);
 			}
 			function calculate_kg() {
 				const mass = 139.65;
 				const kg = parseFloat(document.getElementById('kg').value);
-				const kgb = kg * 1000;
 				
-				let	result4Span = document.getElementById('result4');
-				result4Span.classList.remove('error');
 				
-				if (isNaN(kgb)) {
+				const resultSpan = document.getElementById('result4');
+				resultSpan.classList.remove('error');
+				
+				if (isNaN(kg) || kg < 0) {
 					result4Span.innerText = "Please, enter a valid number";
 					result4Span.classList.add('error');
 					return;		
 				}
-				let b4 = kgb / mass;
-				let bananaCount4 = Math.ceil(b4);
-				let bananaDrop4 = Math.min (bananaCount4, 1000);
+				const grams = kg * 1000;
+				let bananas = grams / mass;
+				let bananaCount = Math.ceil(bananas);
+				let bananaDrop4 = Math.min (bananaCount, MAX_FALLING_BANANAS);
 				
-				resultSpan.innerText = bananaCount4;
-				dropBananas(bananaDrop4);
+				resultSpan.innerText = bananaCount;
+				dropBananas(bananaDrop);
 			}
 				function dropBananas(count) {
     			const bananaZone = document.getElementById('banana-zone');			
@@ -247,7 +254,7 @@
         			bananaZone.appendChild(bananas);
 					
 					bananas.offsetHeight;
-					const delay = Math.random() * 2 * 1000;
+					const delay = Math.random() * 2000;
 
 					setTimeout(() => {
 						bananas.style.top = targetY + 'px';
