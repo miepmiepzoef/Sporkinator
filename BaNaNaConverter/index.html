@@ -153,7 +153,7 @@
 				const length = 16.99;
 				const meters1 = parseFloat(document.getElementById('meters1').value);
 				const resultSpan = document.getElementById('result1');
-				const errorDiv = document.getElementById('error-meters1')
+				const errorDiv = document.getElementById('error-meters1');
 				errorDiv.innerText = '';
 				resultSpan.classList.remove('error');
 			
@@ -175,7 +175,7 @@
 			function calculate_meters2() {
 				const length = 16.99;
 				const width = 3.78;
-				const wholebanana = 16.99 * 3.78;
+				const wholebanana = width * length;
 				const meters2 = parseFloat(document.getElementById('meters2').value);
 				const resultSpan = document.getElementById('result2');
 				const errorDiv = document.getElementById( 'error-meters2');
@@ -212,8 +212,8 @@
 				}
 				const cm3 = meters3 * 1000000;
 				let bananas = cm3 / volume;
-				let bananaCount3 = Math.ceil(bananas);
-				let bananaDrop3 = Math.min (bananaCount, MAX_FALLING_BANANAS);
+				let bananaCount = Math.ceil(bananas);
+				let bananaDrop = Math.min (bananaCount, MAX_FALLING_BANANAS);
 				
 				resultSpan.innerText = bananaCount;
 				dropBananas(bananaDrop);
