@@ -131,6 +131,13 @@
                 	document.getElementById('banner-placeholder').innerHTML = data;
             	});
 			const MAX_FALLING_BANANAS = 200;
+			function showError (element, msg) {
+				element.innerText = msg;
+				element.classList.add('error');
+			}
+			function clearError(element,msg){
+				element.classList.remove('error');
+			}
 			
 			function calculate_meters() {
 				const length = 16.99;
