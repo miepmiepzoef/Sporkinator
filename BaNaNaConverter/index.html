@@ -141,14 +141,14 @@
                 	document.getElementById('banner-placeholder').innerHTML = data;
             	});
 			const MAX_FALLING_BANANAS = 200;
-			function showError (element, msg) {
+			/*function showError (element, msg) {
 				element.innerText = msg;
 				element.classList.add('error');
 			}
 			function clearError(element,msg){
 				element.classList.remove('error');
 			}
-			
+*/			
 			function calculate_meters() {
 				const length = 16.99;
 				const meters = parseFloat(document.getElementById('meters').value);
@@ -210,7 +210,7 @@
 				
 				if (isNaN(meters3) || meters3 < 0) {
 					errorDiv.innerText = "Please, enter a valid number";
-					resultSpan.innerText= "....";
+					resultSpan.innerText= "...";
 					return;		
 				}
 				const cm3 = meters3 * 1000000;
@@ -224,14 +224,14 @@
 			function calculate_kg() {
 				const mass = 139.65;
 				const kg = parseFloat(document.getElementById('kg').value);
-				
-				
 				const resultSpan = document.getElementById('result4');
+				const errorDiv = document.getElementById( 'error-meters4');
+				errorDiv.innerText = '';
 				resultSpan.classList.remove('error');
 				
 				if (isNaN(kg) || kg < 0) {
-					result4Span.innerText = "Please, enter a valid number";
-					result4Span.classList.add('error');
+					errorDiv.innerText = "Please, enter a valid number";
+					resultSpan.innerText= "...";
 					return;		
 				}
 				const grams = kg * 1000;
