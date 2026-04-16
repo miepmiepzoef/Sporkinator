@@ -84,18 +84,21 @@
 				<span>meter<sup>2</sup>, </span>
 				<button onclick="calculate_meters2()">you'll need</button>
 				<span><span id="result2"> ... </span> bananas</span>
+				<div id="error-meters2" class="error-msg"></div>
 			</div>	
 			<div class="converter-form">
 				<span>For</span><input type="number" id="meters3">
 				<span>meter<sup>3</sup>, </span>
 				<button onclick="calculate_meters3()">you'll need</button>
 				<span><span id="result3"> ... </span> bananas</span>
+				<div id="error-meters3" class="error-msg"></div>
 			</div>			
 			<div class="converter-form">
 				<span>For</span><input type="number" id="kg">
 				<span>Kg, </span>
 				<button onclick="calculate_kg()">you'll need</button>
 				<span><span id="result4">...</span> bananas</span>
+				<div id="error-kg" class="error-msg"></div>
 			</div>
 			<div id="banana-zone"></div>
 		</div>	
@@ -144,7 +147,7 @@
 				const length = 16.99;
 				const meters = parseFloat(document.getElementById('meters').value);
 				const resultSpan = document.getElementById('result');
-				const errorDiv = document.getElementById(error-meters2)
+				const errorDiv = document.getElementById(error-meters)
 				errorDiv.innerText = '';
 				resultSpan.classList.remove('error');
 			
