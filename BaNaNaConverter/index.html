@@ -204,11 +204,13 @@
 				/*const m3 = meters3 * 1000000;*/
 				
 				const resultSpan = document.getElementById('result3');
+				const errorDiv = document.getElementById( 'error-meters3');
+				errorDiv.innerText = '';
 				resultSpan.classList.remove('error');
 				
-				if (isNaN(meters3) || meters2 < 0) {
-					resultSpan.innerText = "Please, enter a valid number";
-					resultSpan.classList.add('error');
+				if (isNaN(meters3) || meters3 < 0) {
+					errorDiv.innerText = "Please, enter a valid number";
+					resultSpan.innerText= "....";
 					return;		
 				}
 				const cm3 = meters3 * 1000000;
