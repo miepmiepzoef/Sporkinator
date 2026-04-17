@@ -159,8 +159,8 @@
 			
 				
 				if (isNaN(meters1) || meters1 < 0) {
-					errorDiv.innertext = "Please, enter a positive number1";
-					resultSpan.innerText= "..d.";
+					errorDiv.innertext = "Please, enter a positive number";
+					resultSpan.innerText= "...";
 					return;		
 				}
 				/*let b = m / 16.99;*/
@@ -178,7 +178,7 @@
 				const wholebanana = width * length;
 				const meters2 = parseFloat(document.getElementById('meters2').value);
 				const resultSpan = document.getElementById('result2');
-				const errorDiv = document.getElementById( 'error-meters2');
+				const errorDiv = document.getElementById('error-meters2');
 				errorDiv.innerText = '';
 				resultSpan.classList.remove('error');
 				
