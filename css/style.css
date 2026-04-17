@@ -9,7 +9,7 @@ body {
 }
 
 /* Header and footer styling */
-.site-header, .site-footer {
+.site-header/*, .site-footer*/ {
     text-align: center;
     padding: 20px 0;
     /* border-bottom: 1px solid #ddd; /* optional for header */
