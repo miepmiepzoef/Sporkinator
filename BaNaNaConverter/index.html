@@ -155,7 +155,7 @@
 				const resultSpan = document.getElementById('result1');
 				const errorDiv = document.getElementById('error-meters1');
 				errorDiv.innerText = '';
-				resultSpan.innerText= "...";
+				resultSpan.innerText= '...';
 				resultSpan.classList.remove('error');
 				
 				
@@ -180,7 +180,7 @@
 				const resultSpan = document.getElementById('result2');
 				const errorDiv = document.getElementById('error-meters2');
 				errorDiv.innerText = '';
-				resultSpan.innerText= "...";
+				resultSpan.innerText= '...';
 				resultSpan.classList.remove('error');
 				
 				if (isNaN(meters2) || meters2 < 0) {
@@ -224,11 +224,11 @@
 				const resultSpan = document.getElementById('result4');
 				const errorDiv = document.getElementById( 'error-kg');
 				errorDiv.innerText = '';
+				resultSpan.innerText= '...';
 				resultSpan.classList.remove('error');
 				
 				if (isNaN(kg) || kg < 0) {
 					errorDiv.innerText = "Please, enter a positive number";
-					resultSpan.innerText= "...";
 					return;		
 				}
 				const grams = kg * 1000;
