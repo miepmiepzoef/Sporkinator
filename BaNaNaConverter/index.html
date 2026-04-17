@@ -227,7 +227,7 @@
 				resultSpan.classList.remove('error');
 				
 				if (isNaN(kg) || kg < 0) {
-					errorDiv.innerText = "Please, enter a valid number";
+					errorDiv.innerText = "Please, enter a positive number";
 					resultSpan.innerText= "...";
 					return;		
 				}
