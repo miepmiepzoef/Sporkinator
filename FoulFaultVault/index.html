@@ -262,8 +262,7 @@
         <button id="saveAnalysisBtn" style="margin-top:12px; background:#0a1c2f;">💾 Save this analysis</button>
     </div>
 </div>
-<div id="footer-placeholder"></div>	
-		
+<div id="footer-placeholder"></div>		
 <div id="banner-placeholder"></div>
 <script>
        // Load header and footer
@@ -304,6 +303,7 @@
     const lensesField = document.getElementById('lensesField');
     const confidenceField = document.getElementById('confidenceField');
     const saveAnalysisBtn = document.getElementById('saveAnalysisBtn');
+	const autoAnalyzeBtn = document.getElementByID('autoAnalyzeBtn');
 
     let currentAnalysisTarget = null;
     let analyses = [];
@@ -335,7 +335,7 @@
         }
         const keyword = keywordInput.value.trim();
         statusDiv.innerHTML = `🔍 Searching Wikipedia for "${year}" ${keyword ? `+ "${keyword}"` : '...'}`;
-        resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading results from Wikipedia...</div>';
+        resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
 
         try {
             const results = await searchWikipedia(year, keyword);
@@ -347,7 +347,7 @@
         }
     }
 
-	 function displayResults(results, year) {
+	function displayResults(results, year) {
         if (!results.length) {
             resultsContainer.innerHTML = `<div style="padding:24px;text-align:center;">❌ No results for ${year}.</div>`;
             return;
