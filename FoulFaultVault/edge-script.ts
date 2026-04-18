@@ -80,7 +80,34 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
       },
     });
   }
+  
+// ----- Fetch any URL (to get article content, avoids CORS) -----
+if (path === "/fetch" && request.method === "GET") {
+  const targetUrl = url.searchParams.get("url");
+  if (!targetUrl) {
+    return new Response(JSON.stringify({ error: "Missing 'url' parameter" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
+  }
+  try {
+    const response = await fetch(targetUrl);
+    const text = await response.text();
+    return new Response(text, {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain",
+        "Access-Control-Allow-Origin": "*",
+      },
+    });
+  } catch (err) {
+    return new Response(JSON.stringify({ error: "Failed to fetch URL" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
+    });
+  }
+}
 
-  // No matching route
-  return new Response("Not found", { status: 404 });
+// No matching route
+return new Response("Not found", { status: 404 });
 });
