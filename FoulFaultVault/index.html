@@ -412,7 +412,7 @@
             if (!openAiRes.ok) throw new Error(`OpenAI proxy error: ${data.error || data.message || 'Unknown'}`);
             if (!data.choices || !data.choices[0]) throw new Error('Invalid response from proxy. Check OpenAI key.');
             const parsed = JSON.parse(data.choices[0].message.content);
-            document.getElementById('shoutField).value = parsed.shout || '';
+            document.getElementById('shoutField').value = parsed.shout || '';
             document.getElementById('whisperField').value = parsed.whisper || '';
             document.getElementById('thirdLayerField').value = parsed.thirdLayer || '';
             document.getElementById('sacrificialField').value = parsed.sacrificial || '';
