@@ -9,19 +9,19 @@
 		<meta name="author" content="Muppet">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <style>
-        * {
+       /* * {
             box-sizing: border-box;
         }
         body {
             background: #f0f2f5;
             margin: 0;
             padding: 20px;
-        }
+        }*/
         .container {
             max-width: 1400px;
             margin: 0 auto;
         }
-        .card {
+       /* .card {
             background: white;
             border-radius: 28px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.05);
@@ -32,7 +32,7 @@
             background: #0a1c2f;
             color: white;
             padding: 24px 32px;
-        }*/
+        }
         .header h1 {
             margin: 0;
             font-weight: 600;
@@ -41,7 +41,7 @@
             margin: 8px 0 0;
             opacity: 0.8;
             font-size: 0.9rem;
-        }
+        }*/
         .search-area {
             padding: 24px 32px;
             background: #f8fafc;
@@ -221,12 +221,8 @@
 <h1>FoulFaultVault</h1>
 <p class="citation">Search for yourself</p>
 <div class="container">
-    <div class="card">
-       
-            <h1>🔍 foulfaultvault · AI‑assisted analysis</h1>
-            <p>Search live articles (Wikipedia, NewsAPI, Google CSE). Then click <strong>Auto‑analyze (AI)</strong> to automatically apply the 4‑layer protocol using GPT. Manual editing also possible.</p>
-        </div>
-        <div class="search-area">
+    <p class="instructions">Roadmap; uses real data (Wikipedia, NewsAPI, Google CSE) to draw you a map.
+            <div class="search-area">
             <div class="input-group">
                 <label>📅 Year (required)</label>
                 <input type="number" id="yearInput" placeholder="e.g., 2005" value="2005">
