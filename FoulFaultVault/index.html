@@ -422,16 +422,17 @@ Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacri
             });
             const data = await response.json();
             const parsed = JSON.parse(data.choices[0].message.content);
-            shoutField.value = parsed.shout || '';
-            whisperField.value = parsed.whisper || '';
-            thirdLayerField.value = parsed.thirdLayer || '';
-            sacrificialField.value = parsed.sacrificial || '';
-            lensesField.value = parsed.lenses || '';
-            confidenceField.value = parsed.confidence || '';
-            statusDiv.innerHTML = '✅ AI analysis complete.';
+            document.getElementById('shoutField').value = parsed.shout || '';
+            document.getElementById('whisperField').value = parsed.whisper || '';
+            document.getElementById('thirdLayerField').value = parsed.thirdLayer || '';
+            document.getElementById('sacrificialField').value = parsed.sacrificial || '';
+            document.getElementById('lensesField').value = parsed.lenses || '';
+            document.getElementById('confidenceField').value = parsed.confidence || '';
+            document.getElementById('statusMsg').innerHTML = '✅ AI analysis complete.';
         } catch (err) {
+			console.error(err);
             alert('Auto-analysis failed: ' + err.message);
-            statusDiv.innerHTML = '❌ Auto-analysis failed. Check console.';
+            document.getElementById('statusMsg').innerHTML = '❌ Auto-analysis failed. Check console.';
         } finally {
             autoAnalyzeBtn.disabled = false;
             autoAnalyzeBtn.textContent = '🤖 Auto‑analyze (AI)';
