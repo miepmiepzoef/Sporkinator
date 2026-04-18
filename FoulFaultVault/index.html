@@ -302,7 +302,7 @@
     const lensesField = document.getElementById('lensesField');
     const confidenceField = document.getElementById('confidenceField');
     const saveAnalysisBtn = document.getElementById('saveAnalysisBtn');
-	const autoAnalyzeBtn = document.getElementByID('autoAnalyzeBtn');
+	
 
     let currentAnalysisTarget = null;
     let analyses = [];
@@ -377,7 +377,7 @@
     function escapeHtml(str) { return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
 
-	
+	const autoAnalyzeBtn = document.getElementById('autoAnalyzeBtn');
 		autoAnalyzeBtn.addEventListener('click', async () => {
         if (!currentAnalysisTarget) {
 			alert('No article selected. Please click "Analyze" on a result first.');
