@@ -389,10 +389,11 @@
 		}
         autoAnalyzeBtn.disabled = true;
         autoAnalyzeBtn.textContent = '⏳ Analyzing...';
-		const statusDiv - document.getElementbyId('statusMsg');
+		const statusDiv = document.getElementbyId('statusMsg');
         statusDiv.innerHTML = '🤖 Analyzing...';
+			
         try {
-			const fetchUrl = '${PROXY_URL}/fetch?url=${encodeURIComponent(currentAnalysisTarget.url)}`);
+			const fetchUrl = '${PROXY_URL}/fetch?url=${encodeURIComponent(currentAnalysisTarget.url)}`;
 			console.log('Fetching article from: ', fetchUrl);
             const articleResponse = await fetch(fetchUrl);
 			if (!articleResponse.ok) {
