@@ -412,13 +412,13 @@
             if (!openAiRes.ok) throw new Error(`OpenAI proxy error: ${data.error || data.message || 'Unknown'}`);
             if (!data.choices || !data.choices[0]) throw new Error('Invalid response from proxy. Check OpenAI key.');
             const parsed = JSON.parse(data.choices[0].message.content);
-            shoutField.value = parsed.shout || '';
-            whisperField.value = parsed.whisper || '';
-            thirdLayerField.value = parsed.thirdLayer || '';
-            sacrificialField.value = parsed.sacrificial || '';
-            lensesField.value = parsed.lenses || '';
-            confidenceField.value = parsed.confidence || '';
-            statusDiv.innerHTML = '✅ Analysis complete.';
+            document.getElementById('shoutField).value = parsed.shout || '';
+            document.getElementById('whisperField').value = parsed.whisper || '';
+            document.getElementById('thirdLayerField').value = parsed.thirdLayer || '';
+            document.getElementById('sacrificialField').value = parsed.sacrificial || '';
+            document.getElementById('lensesField').value = parsed.lenses || '';
+            document.getElementById('confidenceField').value = parsed.confidence || '';
+            document.getElementById('statusmsg').innerHTML = '✅ Analysis complete.';
         } catch (err) {
             console.error(err);
             alert('Auto‑analyze error: ' + err.message);
