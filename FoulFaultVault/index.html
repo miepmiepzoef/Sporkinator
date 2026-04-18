@@ -241,8 +241,8 @@
             <button id="resetBtn" class="reset-btn">⟳ Reset</button>
             <button id="exportBtn" class="export-btn">📤 Export analyses</button>
         </div>
-        <div class="status" id="statusMsg">⚡ Enter a year and click Search.</div>
-        <div class="results" id="resultsContainer"></div>
+        	<div class="status" id="statusMsg">⚡ Enter a year and click Search. Then click "Analyze" and use "Auto‑analyze (AI)".</div>
+        	<div class="results" id="resultsContainer"></div>
     </div>
     <p class="citation">FoulFaultVault v1.1</p>
 </div>
@@ -250,7 +250,7 @@
 <div id="analysisModal" class="analysis-modal">
     <div class="modal-content">
         <button class="close-modal" id="closeModalBtn">&times;</button>
-        <h3>📝 foulfaultvault analysis</h3>
+        <h3>📝 FoulFault analysis</h3>
         <p><strong>Case:</strong> <span id="modalCaseTitle"></span><br><small>🔗 <a id="modalCaseUrl" href="#" target="_blank">open Wikipedia article</a></small></p>
         <hr>
         <div class="layer-field"><label>📢 SHOUT (official narrative)</label><textarea id="shoutField" rows="2" placeholder="Quote the most prominent official statement..."></textarea></div>
@@ -285,6 +285,7 @@
                 	document.getElementById('banner-placeholder').innerHTML = data;
             	});
    // DOM elements
+	const PROXY_URL = 'https://vault-d9s2z.b-cdn.net';
     const searchBtn = document.getElementById('searchBtn');
     const resetBtn = document.getElementById('resetBtn');
     const exportBtn = document.getElementById('exportBtn');
@@ -306,7 +307,7 @@
 
     let currentAnalysisTarget = null;
     let analyses = [];
-	const PROXY_URL = 'https://vault-d9s2z.b-cdn.net';
+	
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
         let searchTerm = `${year}`;
@@ -346,21 +347,19 @@
         }
     }
 
-    function displayResults(results, year) {
-        if (!results || results.length === 0) {
-            resultsContainer.innerHTML = `<div style="padding:24px; text-align:center; color:#5a6e8a;">❌ No results found for year ${year}. Try a different keyword.</div>`;
+	 function displayResults(results, year) {
+        if (!results.length) {
+            resultsContainer.innerHTML = `<div style="padding:24px;text-align:center;">❌ No results for ${year}.</div>`;
             return;
         }
         let html = '';
         for (const res of results) {
-            html += `
-                <div class="result-item">
-                    <div class="result-title"><a href="${res.url}" target="_blank">${escapeHtml(res.title)}</a></div>
-                    <div class="result-meta">📄 ${res.source} · ${year}</div>
-                    <div class="result-snippet">${res.snippet}...</div>
-                    <button class="analyze-btn" data-title="${escapeHtml(res.title)}" data-url="${res.url}">🧩 Analyze with foulfaultvault</button>
-                </div>
-            `;
+            html += `<div class="result-item">
+                <div class="result-title"><a href="${res.url}" target="_blank">${escapeHtml(res.title)}</a></div>
+                <div class="result-meta">📄 ${res.source} · ${year}</div>
+                <div class="result-snippet">${res.snippet}...</div>
+                <button class="analyze-btn" data-title="${escapeHtml(res.title)}" data-url="${res.url}">🧩 Analyze</button>
+            </div>`;
         }
         resultsContainer.innerHTML = html;
         document.querySelectorAll('.analyze-btn').forEach(btn => {
@@ -369,32 +368,69 @@
                 const url = btn.getAttribute('data-url');
                 modalCaseTitle.innerText = title;
                 modalCaseUrl.href = url;
-                // clear previous fields
-                shoutField.value = '';
-                whisperField.value = '';
-                thirdLayerField.value = '';
-                sacrificialField.value = '';
-                lensesField.value = '';
-                confidenceField.value = '';
+                shoutField.value = whisperField.value = thirdLayerField.value = sacrificialField.value = lensesField.value = confidenceField.value = '';
                 currentAnalysisTarget = { title, url };
                 modal.style.display = 'flex';
             });
         });
     }
 
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
-    }
+    function escapeHtml(str) { return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
-    // Save analysis from modal
+    autoAnalyzeBtn.addEventListener('click', async () => {
+        if (!currentAnalysisTarget) return;
+        autoAnalyzeBtn.disabled = true;
+        autoAnalyzeBtn.textContent = '⏳ Analyzing...';
+        statusDiv.innerHTML = '🤖 Fetching article and calling AI...';
+        try {
+            const proxyFetch = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(currentAnalysisTarget.url)}`);
+            const proxyData = await proxyFetch.json();
+            let articleText = proxyData.contents || '';
+            if (articleText.length > 8000) articleText = articleText.substring(0, 8000) + '…';
+
+            const systemPrompt = `You are the foulfaultvault engine. Extract from the article:
+SHOUT: official statement (quote with source/date)
+WHISPER: safe criticism
+THIRD LAYER: hidden operation (requires ≥2 sources)
+SACRIFICIAL LAYER: what was offered up
+LENSES: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan
+CONFIDENCE: High (≥3 sources), Medium (2-3), Low (1 or speculative)
+Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacrificial":"...","lenses":"...","confidence":"..."}`;
+
+            const response = await fetch(`${PROXY_URL}/openai`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: `Title: ${currentAnalysisTarget.title}\nURL: ${currentAnalysisTarget.url}\n\nText:\n${articleText}` }
+                    ],
+                    temperature: 0.3,
+                    response_format: { type: "json_object" }
+                })
+            });
+            const data = await response.json();
+            const parsed = JSON.parse(data.choices[0].message.content);
+            shoutField.value = parsed.shout || '';
+            whisperField.value = parsed.whisper || '';
+            thirdLayerField.value = parsed.thirdLayer || '';
+            sacrificialField.value = parsed.sacrificial || '';
+            lensesField.value = parsed.lenses || '';
+            confidenceField.value = parsed.confidence || '';
+            statusDiv.innerHTML = '✅ AI analysis complete.';
+        } catch (err) {
+            alert('Auto-analysis failed: ' + err.message);
+            statusDiv.innerHTML = '❌ Auto-analysis failed. Check console.';
+        } finally {
+            autoAnalyzeBtn.disabled = false;
+            autoAnalyzeBtn.textContent = '🤖 Auto‑analyze (AI)';
+        }
+    });
+
     saveAnalysisBtn.addEventListener('click', () => {
         if (!currentAnalysisTarget) return;
-        const analysis = {
+        analyses.push({
             timestamp: new Date().toISOString(),
             caseTitle: currentAnalysisTarget.title,
             caseUrl: currentAnalysisTarget.url,
@@ -404,57 +440,28 @@
             sacrificial: sacrificialField.value,
             lenses: lensesField.value,
             confidence: confidenceField.value
-        };
-        analyses.push(analysis);
-        alert('✅ Analysis saved. Use Export button to download all analyses as JSON/CSV.');
+        });
+        alert('✅ Analysis saved.');
         modal.style.display = 'none';
     });
 
-    // Export analyses
     exportBtn.addEventListener('click', () => {
-        if (analyses.length === 0) {
-            alert('No analyses saved yet. Please analyze at least one case first.');
-            return;
-        }
-        const format = confirm('Click OK to export as JSON, Cancel for CSV.') ? 'json' : 'csv';
-        if (format === 'json') {
-            const dataStr = JSON.stringify(analyses, null, 2);
-            const blob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `foulfaultvault_analyses_${new Date().toISOString().slice(0,19)}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-        } else {
+        if (!analyses.length) { alert('No analyses saved.'); return; }
+        const isJson = confirm('OK = JSON, Cancel = CSV');
+        const blob = new Blob([isJson ? JSON.stringify(analyses, null, 2) : (() => {
             const headers = ['timestamp','caseTitle','caseUrl','shout','whisper','thirdLayer','sacrificial','lenses','confidence'];
-            const rows = analyses.map(a => [
-                a.timestamp, a.caseTitle, a.caseUrl,
-                `"${a.shout.replace(/"/g, '""')}"`,
-                `"${a.whisper.replace(/"/g, '""')}"`,
-                `"${a.thirdLayer.replace(/"/g, '""')}"`,
-                `"${a.sacrificial.replace(/"/g, '""')}"`,
-                `"${a.lenses.replace(/"/g, '""')}"`,
-                a.confidence
-            ]);
-            const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
-            const blob = new Blob([csvContent], {type: 'text/csv'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `foulfaultvault_analyses_${new Date().toISOString().slice(0,19)}.csv`;
-            a.click();
-            URL.revokeObjectURL(url);
-        }
+            const rows = analyses.map(a => [a.timestamp, a.caseTitle, a.caseUrl, `"${a.shout.replace(/"/g, '""')}"`, `"${a.whisper.replace(/"/g, '""')}"`, `"${a.thirdLayer.replace(/"/g, '""')}"`, `"${a.sacrificial.replace(/"/g, '""')}"`, `"${a.lenses.replace(/"/g, '""')}"`, a.confidence]);
+            return [headers, ...rows].map(row => row.join(',')).join('\n');
+        })()], {type: isJson ? 'application/json' : 'text/csv'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `foulfaultvault_${new Date().toISOString().slice(0,19)}.${isJson ? 'json' : 'csv'}`;
+        a.click();
+        URL.revokeObjectURL(blob);
     });
 
     searchBtn.addEventListener('click', performSearch);
-    resetBtn.addEventListener('click', () => {
-        yearInput.value = '';
-        keywordInput.value = '';
-        resultsContainer.innerHTML = '<div style="padding:24px; text-align:center; color:#5a6e8a;">🔎 Enter a year and click Search to see Wikipedia results.</div>';
-        statusDiv.innerHTML = '⚡ Enter a year and click Search. Results come from live Wikipedia (no key required).';
-    });
+    resetBtn.addEventListener('click', () => { yearInput.value = ''; keywordInput.value = ''; resultsContainer.innerHTML = ''; statusDiv.innerHTML = '⚡ Ready.'; });
     closeModalBtn.addEventListener('click', () => modal.style.display = 'none');
     window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
 </script>
