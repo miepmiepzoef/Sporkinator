@@ -2,7 +2,7 @@ name: Deploy to Bunny.net
 
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   deploy:
