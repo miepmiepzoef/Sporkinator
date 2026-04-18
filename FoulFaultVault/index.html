@@ -233,7 +233,7 @@
 <h1>FoulFaultVault</h1>
 <p class="citation">Search for yourself</p>
 <div class="container">
-    <p class="instructions">Roadmap; uses real data (Wikipedia, NewsAPI, Google CSE) to draw you a map.
+    <p class="instructions">Roadmap; use real data to draw a map.
 <div class="search-area">
             <div class="input-group"><label>📅 Year (required)</label><input type="number" id="yearInput" placeholder="e.g., 2005" value="2005"></div>
             <div class="input-group"><label>🏷️ Keyword (optional)</label><input type="text" id="keywordInput" placeholder="scandal, cover‑up, leak..."></div>
@@ -241,10 +241,10 @@
             <button id="resetBtn" class="reset-btn">⟳ Reset</button>
             <button id="exportBtn" class="export-btn">📤 Export analyses</button>
         </div>
-        <div class="status" id="statusMsg">⚡ Enter a year and click Search. Results come from live Wikipedia (no key required).</div>
+        <div class="status" id="statusMsg">⚡ Enter a year and click Search.</div>
         <div class="results" id="resultsContainer"></div>
     </div>
-    <footer>foulfaultvault protocol v1.1 – manual analysis. Fill in the four layers, then save & export.</footer>
+    <p class="citation">FoulFaultVault v1.1</p>
 </div>
 
 <div id="analysisModal" class="analysis-modal">
@@ -306,7 +306,7 @@
 
     let currentAnalysisTarget = null;
     let analyses = [];
-	const PROXY_URL = 'https://vault-arnju.b-cdn.net';
+	const PROXY_URL = 'https://vault-d9s2z.b-cdn.net';
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
         let searchTerm = `${year}`;
