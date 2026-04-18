@@ -469,9 +469,10 @@
     });
     const closeModalBtn = document.getElementById('closeModalBtn');
 	if (closeModalBtn) {
-		closeModal.addEventListener('click', () =>
+		closeModalBtn.addEventListener('click', () => {
 		document.getElementById('analysisModal').style.display = 'none';
 		});
+	}
 	window.addEventListener('click', (event) => {
     	const modal = document.getElementById('analysisModal');
 		if (event.target === modal) {
