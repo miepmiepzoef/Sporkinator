@@ -260,6 +260,7 @@
         <div class="layer-field"><label>🔎 Lenses (Black Box, Zombie File, etc.)</label><input type="text" id="lensesField" placeholder="e.g., Fog Machine, Protective Shield"></div>
         <div class="layer-field"><label>🎯 Confidence (High / Medium / Low)</label><input type="text" id="confidenceField" placeholder="High"></div>
         <button id="saveAnalysisBtn" style="margin-top:12px; background:#0a1c2f;">💾 Save this analysis</button>
+		<button id="autoAnalyzeBtn" class="auto-btn"> Auto-Analyze (AI)</button>
     </div>
 </div>
 <div id="footer-placeholder"></div>		
@@ -377,8 +378,17 @@
 
     function escapeHtml(str) { return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
-    autoAnalyzeBtn.addEventListener('click', async () => {
-        if (!currentAnalysisTarget) return;
+  	const autoAnalyzeBtn = document.getElementById('autoAnalyzeBtn');
+	
+	autoAnalyzeBtn.addEventListener('click', async () => {
+        if (!currentAnalysisTarget) {
+			alert('No article selected. Please click "Analyze" on a result first.');
+			return;
+		}
+		if (!PROXU_URL) {
+			alert ('https:////vault-d9s2z.b-cdn.net');
+			return;
+		}
         autoAnalyzeBtn.disabled = true;
         autoAnalyzeBtn.textContent = '⏳ Analyzing...';
         statusDiv.innerHTML = '🤖 Fetching article and calling AI...';
