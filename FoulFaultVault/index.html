@@ -398,7 +398,7 @@
 			}
             let articleText = await articleResponse.text();
             if (articleText.length > 8000) articleText = articleText.substring(0, 8000) + '…';
-			console.log('Article fetched, kength:', articleText.length);
+			console.log('Article fetched, length:', articleText.length);
 
 			statusDiv.innerHTML = '🤖 Asking for help';
 
