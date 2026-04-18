@@ -1,13 +1,16 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="css/style.css">
     <title>FoulFaultVault</title>
+		<link rel="stylesheet" href="../css/style.css">
+		<meta charset="UTF-8> 
+		<meta name="description" content="Foul, Fault, Vault, Search Engine">
+		<meta name="keywords" content="Bananas, Sporkinator, Cutlery, Foul, Fault, Vault, Search Engine"> 
+		<meta name="author" content="Muppet">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <style>
         * {
             box-sizing: border-box;
-            font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
         }
         body {
             background: #f0f2f5;
@@ -25,11 +28,11 @@
             overflow: hidden;
             margin-bottom: 24px;
         }
-        .header {
+        /*.header {
             background: #0a1c2f;
             color: white;
             padding: 24px 32px;
-        }
+        }*/
         .header h1 {
             margin: 0;
             font-weight: 600;
@@ -201,21 +204,27 @@
         .settings-panel input {
             width: 300px;
         }
-        footer {
+        /*footer {
             text-align: center;
             padding: 24px;
             font-size: 0.75rem;
             color: #5a6e8a;
+        }*/
+        .auto-btn {
+            background: #0f5c6b;
+            margin-left: 10px;
         }
     </style>
 </head>
 <body>
-<div id="header-placeholder"></div>	
+<div id="header-placeholder"></div>
+<h1>FoulFaultVault</h1>
+<p class="citation">Search for yourself</p>
 <div class="container">
     <div class="card">
-        <div class="header">
-            <h1>🔍 foulfaultvault · live search & analysis</h1>
-            <p>Search real articles from Wikipedia (free), NewsAPI (requires key), or Google CSE (requires key). Apply the 4‑layer protocol manually and export your analyses.</p>
+       
+            <h1>🔍 foulfaultvault · AI‑assisted analysis</h1>
+            <p>Search live articles (Wikipedia, NewsAPI, Google CSE). Then click <strong>Auto‑analyze (AI)</strong> to automatically apply the 4‑layer protocol using GPT. Manual editing also possible.</p>
         </div>
         <div class="search-area">
             <div class="input-group">
@@ -253,48 +262,52 @@
                     <label>Google CSE cx (search engine ID)</label>
                     <input type="text" id="googleCx" placeholder="cx" style="width: 200px;">
                 </div>
+                <div class="input-group">
+                    <label>OpenAI API key (for auto‑analyze)</label>
+                    <input type="text" id="openaiKey" placeholder="sk-..." style="width: 300px;">
+                </div>
                 <button id="saveKeysBtn" style="background:#2c5a2e;">Save keys</button>
             </div>
-            <p style="font-size:0.7rem; margin-top:12px; color:#5a6e8a;">Keys are stored only in your browser (localStorage). Free tiers: NewsAPI 100/day, Google CSE 100/day.</p>
+            <p style="font-size:0.7rem; margin-top:12px; color:#5a6e8a;">Keys stored only in browser localStorage. Free tiers: NewsAPI 100/day, Google CSE 100/day, OpenAI pay‑as‑you‑go.</p>
         </div>
         <div class="status" id="statusMsg">
-            ⚡ Enter a year and click Search. For NewsAPI or Google CSE, add your API keys first (⚙ API Keys).
+            ⚡ Enter a year and click Search. For auto‑analysis, add your OpenAI API key in settings.
         </div>
         <div class="results" id="resultsContainer">
             <!-- dynamic results -->
         </div>
     </div>
-    <footer>
-        foulfaultvault protocol v1.1 – manual analysis. Export saves all analyses from this session.
-    </footer>
+    <p class="citation">FoulFaultVault v1.1 – Analysis uses GPT. Manual analysis also possible. Export saves all analyses.</p>
+    
 </div>
 
-<!-- Modal for manual analysis -->
+<!-- Modal for analysis -->
 <div id="analysisModal" class="analysis-modal">
     <div class="modal-content">
         <button class="close-modal" id="closeModalBtn">&times;</button>
-        <h3>📝 foulfaultvault analysis template</h3>
+        <h3>📝 foulfaultvault analysis</h3>
         <p><strong>Case:</strong> <span id="modalCaseTitle"></span><br>
         <small>🔗 <a id="modalCaseUrl" href="#" target="_blank">open original article</a></small></p>
+        <button id="autoAnalyzeBtn" class="auto-btn">🤖 Auto‑analyze (AI)</button>
         <hr>
         <div class="layer-field">
             <label>📢 SHOUT (official narrative)</label>
-            <textarea id="shoutField" rows="2" placeholder="Quote the most prominent official statement..."></textarea>
+            <textarea id="shoutField" rows="2" placeholder="Will be auto‑filled by AI..."></textarea>
         </div>
         <div class="layer-field">
             <label>🤫 WHISPER (safe criticism)</label>
-            <textarea id="whisperField" rows="2" placeholder="Criticism that doesn't challenge institutional authority..."></textarea>
+            <textarea id="whisperField" rows="2" placeholder="..."></textarea>
         </div>
         <div class="layer-field">
             <label>🕳️ THIRD LAYER (hidden operation) – requires ≥2 sources</label>
-            <textarea id="thirdLayerField" rows="3" placeholder="Describe the concealed activity with evidence..."></textarea>
+            <textarea id="thirdLayerField" rows="3" placeholder="..."></textarea>
         </div>
         <div class="layer-field">
             <label>🐑 SACRIFICIAL LAYER (what was offered up)</label>
-            <textarea id="sacrificialField" rows="2" placeholder="Apology, low-level employee, inquiry, compensation..."></textarea>
+            <textarea id="sacrificialField" rows="2" placeholder="..."></textarea>
         </div>
         <div class="layer-field">
-            <label>🔎 Lenses (Black Box, Zombie File, Limited Hangout, etc.)</label>
+            <label>🔎 Lenses (Black Box, Zombie File, etc.)</label>
             <input type="text" id="lensesField" placeholder="e.g., Fog Machine, Protective Shield">
         </div>
         <div class="layer-field">
@@ -302,25 +315,33 @@
             <input type="text" id="confidenceField" placeholder="High">
         </div>
         <div class="save-note">
-            💾 Click "Save analysis" – it will be stored in memory and available for export.
+            💾 Click "Save analysis" – stored for export.
         </div>
         <button id="saveAnalysisBtn" style="margin-top: 12px; background:#0a1c2f;">💾 Save this analysis</button>
     </div>
 </div>
-<div id="footer-placeholder"></div>
+<div id="footer-placeholder"></div>	
+		
+<div id="banner-placeholder"></div>
 <script>
-   // Load header and footer
-      fetch('../header.html') // adjust path as needed
-         .then(response => response.text())
-         .then(data => {
-            document.getElementById('header-placeholder').innerHTML = data;
-          });
+       // Load header and footer
+       		  fetch('../header.html') // adjust path as needed
+            	 .then(response => response.text())
+           		 .then(data => {
+                	document.getElementById('header-placeholder').innerHTML = data;
+           		  });
 
-        fetch('../footer.html')
-            .then(response => response.text())
-            .then(data => {
-                document.getElementById('footer-placeholder').innerHTML = data;
-            });
+        	fetch('../footer.html')
+            	.then(response => response.text())
+            	.then(data => {
+                	document.getElementById('footer-placeholder').innerHTML = data;
+            	});
+
+			fetch('../footer-banner.html')
+				.then(response => response.text())
+            	.then(data => {
+                	document.getElementById('banner-placeholder').innerHTML = data;
+            	});
     // ---------- DOM elements ----------
     const searchBtn = document.getElementById('searchBtn');
     const resetBtn = document.getElementById('resetBtn');
@@ -335,6 +356,7 @@
     const newsapiKeyInput = document.getElementById('newsapiKey');
     const googleApiKeyInput = document.getElementById('googleApiKey');
     const googleCxInput = document.getElementById('googleCx');
+    const openaiKeyInput = document.getElementById('openaiKey');
     const saveKeysBtn = document.getElementById('saveKeysBtn');
 
     // Modal elements
@@ -349,24 +371,24 @@
     const lensesField = document.getElementById('lensesField');
     const confidenceField = document.getElementById('confidenceField');
     const saveAnalysisBtn = document.getElementById('saveAnalysisBtn');
+    const autoAnalyzeBtn = document.getElementById('autoAnalyzeBtn');
 
     // Data storage
     let currentAnalysisTarget = null; // { title, url }
     let analyses = []; // array of saved analyses
 
-    // Load saved keys from localStorage
+    // Load keys from localStorage
     function loadKeys() {
-        const newsKey = localStorage.getItem('newsapi_key');
-        const googleKey = localStorage.getItem('google_api_key');
-        const cx = localStorage.getItem('google_cx');
-        if (newsKey) newsapiKeyInput.value = newsKey;
-        if (googleKey) googleApiKeyInput.value = googleKey;
-        if (cx) googleCxInput.value = cx;
+        newsapiKeyInput.value = localStorage.getItem('newsapi_key') || '';
+        googleApiKeyInput.value = localStorage.getItem('google_api_key') || '';
+        googleCxInput.value = localStorage.getItem('google_cx') || '';
+        openaiKeyInput.value = localStorage.getItem('openai_key') || '';
     }
     function saveKeys() {
         localStorage.setItem('newsapi_key', newsapiKeyInput.value);
         localStorage.setItem('google_api_key', googleApiKeyInput.value);
         localStorage.setItem('google_cx', googleCxInput.value);
+        localStorage.setItem('openai_key', openaiKeyInput.value);
         statusDiv.innerHTML = '✅ API keys saved (localStorage).';
     }
     loadKeys();
@@ -377,7 +399,7 @@
         settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'block' : 'none';
     });
 
-    // ---------- Search functions ----------
+    // ---------- Search functions (unchanged from previous) ----------
     async function searchWikipedia(year, keyword) {
         let searchTerm = `${year}`;
         if (keyword && keyword.trim() !== '') {
@@ -398,10 +420,9 @@
 
     async function searchNewsAPI(year, keyword) {
         const apiKey = localStorage.getItem('newsapi_key');
-        if (!apiKey) throw new Error('NewsAPI key missing. Click ⚙ API Keys and save your key.');
+        if (!apiKey) throw new Error('NewsAPI key missing.');
         let query = `${year}`;
         if (keyword) query += ` ${keyword}`;
-        // NewsAPI free tier only recent 30 days – we'll just search and note limitation
         const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(query)}&sortBy=relevancy&pageSize=25&apiKey=${apiKey}`;
         const resp = await fetch(url);
         const data = await resp.json();
@@ -417,7 +438,7 @@
     async function searchGoogleCSE(year, keyword) {
         const apiKey = localStorage.getItem('google_api_key');
         const cx = localStorage.getItem('google_cx');
-        if (!apiKey || !cx) throw new Error('Google CSE key or cx missing. Click ⚙ API Keys and save both.');
+        if (!apiKey || !cx) throw new Error('Google CSE key or cx missing.');
         let query = `${year}`;
         if (keyword) query += ` ${keyword}`;
         const url = `https://www.googleapis.com/customsearch/v1?key=${apiKey}&cx=${cx}&q=${encodeURIComponent(query)}&num=10`;
@@ -455,7 +476,7 @@
                 results = await searchGoogleCSE(year, keyword);
             }
             displayResults(results, year);
-            statusDiv.innerHTML = `✅ Found ${results.length} results from ${source}. Click "Analyze" to apply the protocol.`;
+            statusDiv.innerHTML = `✅ Found ${results.length} results from ${source}. Click "Analyze" to open the analysis modal.`;
         } catch (err) {
             statusDiv.innerHTML = `❌ Error: ${err.message}`;
             resultsContainer.innerHTML = `<div style="padding:24px; text-align:center; color:red;">${err.message}</div>`;
@@ -479,7 +500,6 @@
             `;
         }
         resultsContainer.innerHTML = html;
-        // attach analyze events
         document.querySelectorAll('.analyze-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 const title = btn.getAttribute('data-title');
@@ -512,8 +532,95 @@
         yearInput.value = '';
         keywordInput.value = '';
         resultsContainer.innerHTML = '<div style="padding:24px; text-align:center; color:#5a6e8a;">🔎 Enter a year and click Search to see live results.</div>';
-        statusDiv.innerHTML = '⚡ Enter a year and click Search. For NewsAPI or Google CSE, add your API keys first.';
+        statusDiv.innerHTML = '⚡ Enter a year and click Search. For auto‑analysis, add your OpenAI API key in settings.';
     }
+
+    // ---------- Auto‑analysis using OpenAI ----------
+    autoAnalyzeBtn.addEventListener('click', async () => {
+        const openaiKey = localStorage.getItem('openai_key');
+        if (!openaiKey) {
+            alert('Please save your OpenAI API key in the settings panel first.');
+            return;
+        }
+        const articleUrl = currentAnalysisTarget.url;
+        if (!articleUrl) return;
+
+        statusDiv.innerHTML = '🤖 Fetching article content for AI analysis...';
+        autoAnalyzeBtn.disabled = true;
+        autoAnalyzeBtn.textContent = '⏳ Analyzing...';
+
+        try {
+            // Fetch article text via CORS proxy (allorigins)
+            const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(articleUrl)}`;
+            const proxyResp = await fetch(proxyUrl);
+            const proxyData = await proxyResp.json();
+            let articleText = proxyData.contents || '';
+            // Truncate to ~8000 characters to avoid token limits
+            if (articleText.length > 8000) articleText = articleText.substring(0, 8000) + '…';
+
+            const systemPrompt = `You are the foulfaultvault analysis engine. Given an article about a scandal or cover-up, extract the following four layers according to the protocol:
+
+SHOUT: The most prominent official statement (quote with source and date if possible).
+WHISPER: The "safe" criticism that does not challenge institutional authority.
+THIRD LAYER: The hidden operation, supported by at least two independent sources (mention them if available in the article).
+SACRIFICIAL LAYER: What the institution offered up (apology, inquiry, low-level employee, compensation).
+LENSES: One or more of: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan.
+CONFIDENCE: High (≥3 sources), Medium (2-3), Low (1 source or speculative).
+
+Respond with a JSON object exactly like this:
+{
+  "shout": "...",
+  "whisper": "...",
+  "thirdLayer": "...",
+  "sacrificial": "...",
+  "lenses": "...",
+  "confidence": "..."
+}`;
+
+            const userPrompt = `Article title: ${currentAnalysisTarget.title}\nArticle URL: ${articleUrl}\n\nArticle text:\n${articleText}`;
+
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${openaiKey}`
+                },
+                body: JSON.stringify({
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: userPrompt }
+                    ],
+                    temperature: 0.3,
+                    response_format: { type: "json_object" }
+                })
+            });
+
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.error?.message || 'OpenAI API error');
+            }
+            const data = await response.json();
+            const content = data.choices[0].message.content;
+            const parsed = JSON.parse(content);
+
+            shoutField.value = parsed.shout || '';
+            whisperField.value = parsed.whisper || '';
+            thirdLayerField.value = parsed.thirdLayer || '';
+            sacrificialField.value = parsed.sacrificial || '';
+            lensesField.value = parsed.lenses || '';
+            confidenceField.value = parsed.confidence || '';
+
+            statusDiv.innerHTML = '✅ AI analysis complete. You can edit fields before saving.';
+        } catch (err) {
+            console.error(err);
+            alert('Auto-analysis failed: ' + err.message);
+            statusDiv.innerHTML = '❌ Auto-analysis failed. Check console for details.';
+        } finally {
+            autoAnalyzeBtn.disabled = false;
+            autoAnalyzeBtn.textContent = '🤖 Auto‑analyze (AI)';
+        }
+    });
 
     // Save analysis from modal
     saveAnalysisBtn.addEventListener('click', () => {
@@ -551,7 +658,6 @@
             a.click();
             URL.revokeObjectURL(url);
         } else {
-            // CSV
             const headers = ['timestamp','caseTitle','caseUrl','shout','whisper','thirdLayer','sacrificial','lenses','confidence'];
             const rows = analyses.map(a => [
                 a.timestamp, a.caseTitle, a.caseUrl,
