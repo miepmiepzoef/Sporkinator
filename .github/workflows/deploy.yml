@@ -21,4 +21,4 @@ jobs:
         with:
           script_id: ${{ secrets.SCRIPT_ID }}
           deploy_key: ${{ secrets.DEPLOY_KEY }}
-          file: "../FoulFaultVault/edge-script.ts"
+          file: "FoulFaultVault/edge-script.ts"
