@@ -434,7 +434,7 @@ Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacri
 				const errorMsg = data.error || data.message || JSON.stringify(data);
 				throw new Error ('OpenAI proxy error (${openAiResponse.status}): ${errorMsg}');
 			}
-			if (!data.choices || !data.choices[0].message.content) {
+			if (!datachoices || !data.choices[0] || !data.choices[0].message) {
 				throw new Error('Invalid response from proxy: missing choices');
 			}
             const parsed = JSON.parse(data.choices[0].message.content);
