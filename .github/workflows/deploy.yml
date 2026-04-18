@@ -14,4 +14,4 @@ jobs:
         with:
           script_id: 71738
           deploy_key: 99410579-cb92-4627-87d87abe466b-4984-4bb1
-          file: "../Foul/Fault/Vault/edge-script.ts"
+          file: "../FoulFaultVault/edge-script.ts"
