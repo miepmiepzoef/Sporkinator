@@ -312,9 +312,12 @@
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
         let query = `${year}`;
-        if (keyword) query +=`${year} ${keyword}`;
-        else query = `scandal OR cover-up OR corruption OR whistleblower`;
-        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
+        if (keyword && keyword.trim() !==''){
+			query +=` ${keyword}`;
+		} else {
+			query = `scandal OR cover-up OR corruption OR whistleblower`;
+		}
+		const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         const resp = await fetch(url);
         const data = await resp.json();
         return data.query.search.map(page => ({
