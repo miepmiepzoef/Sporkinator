@@ -394,10 +394,10 @@
 			
         try {
 			const fetchUrl = '${PROXY_URL}/fetch?url=${encodeURIComponent(currentAnalysisTarget.url)}`;
-			console.log('Fetching article from: ', fetchUrl);
             const articleResponse = await fetch(fetchUrl);
 			if (!articleResponse.ok) {
-				throw new Error('Article fetch failed: ${articleResponse.status} ${articleResponse.statusText)');
+				const errorText = await articleResponse.text();
+				throw new Error('Article fetch failed: (${articleResponse.status}): ${errorText.substring(0, 200)}');
 			}
             let articleText = await articleResponse.text();
             if (articleText.length > 8000) articleText = articleText.substring(0, 8000) + '…';
