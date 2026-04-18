@@ -378,7 +378,7 @@
 
   	const autoAnalyzeBtn = document.getElementById('autoAnalyzeBtn');
 	
-	autoAnalyzeBtn.addEventListener('click', async () => {
+		autoAnalyzeBtn.addEventListener('click', async () => {
         if (!currentAnalysisTarget) {
 			alert('No article selected. Please click "Analyze" on a result first.');
 			return;
@@ -464,7 +464,7 @@ Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacri
         })()], {type: isJson ? 'application/json' : 'text/csv'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `foulfaultvault_${new Date().toISOString().slice(0,19)}.${isJson ? 'json' : 'csv'}`;
+        a.download = `FoulFaultVault_${new Date().toISOString().slice(0,19)}.${isJson ? 'json' : 'csv'}`;
         a.click();
         URL.revokeObjectURL(blob);
     });
