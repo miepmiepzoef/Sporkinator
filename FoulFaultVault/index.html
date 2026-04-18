@@ -250,7 +250,8 @@
         <button class="close-modal" id="closeModalBtn">&times;</button>
         <h3>📝 FoulFault analysis</h3>
         <p><strong>Case:</strong> <span id="modalCaseTitle"></span><br><small>🔗 <a id="modalCaseUrl" href="#" target="_blank">open Wikipedia article</a></small></p>
-        <hr>
+        <button id="autoAnalyzeBtn" class="auto-btn"> Auto-Analyze (AI)</button>
+		<hr>
         <div class="layer-field"><label>📢 SHOUT (official narrative)</label><textarea id="shoutField" rows="2" placeholder="Quote the most prominent official statement..."></textarea></div>
         <div class="layer-field"><label>🤫 WHISPER (safe criticism)</label><textarea id="whisperField" rows="2" placeholder="Criticism that does not challenge institutional authority..."></textarea></div>
         <div class="layer-field"><label>🕳️ THIRD LAYER (hidden operation) – requires ≥2 sources</label><textarea id="thirdLayerField" rows="3" placeholder="Describe the concealed activity with evidence..."></textarea></div>
@@ -258,8 +259,7 @@
         <div class="layer-field"><label>🔎 Lenses (Black Box, Zombie File, etc.)</label><input type="text" id="lensesField" placeholder="e.g., Fog Machine, Protective Shield"></div>
         <div class="layer-field"><label>🎯 Confidence (High / Medium / Low)</label><input type="text" id="confidenceField" placeholder="High"></div>
         <button id="saveAnalysisBtn" style="margin-top:12px; background:#0a1c2f;">💾 Save this analysis</button>
-		<button id="autoAnalyzeBtn" class="auto-btn"> Auto-Analyze (AI)</button>
-    </div>
+	</div>
 </div>
 <div id="footer-placeholder"></div>		
 <div id="banner-placeholder"></div>
@@ -310,11 +310,8 @@
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
         let searchTerm = `${year}`;
-        if (keyword && keyword.trim() !== '') {
-            searchTerm = `${year} ${keyword}`;
-        } else {
-            searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower`;
-        }
+        if (keyword && keyword.trim() searchTerm = `${year} ${keyword}`;
+        else searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower`;
         const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         const resp = await fetch(url);
         const data = await resp.json();
