@@ -398,11 +398,9 @@
 			}
             let articleText = await articleResponse.text();
             if (articleText.length > 8000) articleText = articleText.substring(0, 8000) + '…';
-			console.log('Article fetched, length:', articleText.length);
-
 			statusDiv.innerHTML = '🤖 Asking for help';
 
-            const systemPrompt = `You are the FoulFaultVault Engine. Extract from the article pls:
+			const systemPrompt = `You are the FoulFaultVault Engine. Extract from the article pls:
 SHOUT: official statement (quote with source/date)
 WHISPER: safe criticism
 THIRD LAYER: hidden operation (requires ≥2 sources)
@@ -411,7 +409,7 @@ LENSES: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machi
 CONFIDENCE: High (≥3 sources), Medium (2-3), Low (1 or speculative)
 Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacrificial":"...","lenses":"...","confidence":"..."}`;
 
-            const openAiResponse = await fetch(`${PROXY_URL}/openai`, {
+			const openAiResponse = await fetch(`${PROXY_URL}/openai`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -424,7 +422,8 @@ Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacri
                     response_format: { type: "json_object" }
                 })
             });
-            const data = await openAiResponse.json();
+           
+			const data = await openAiResponse.json();
 			console.log('OpenAi response:', data);
 
 			if (!OpenAiResponse.ok) {
@@ -451,7 +450,16 @@ Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacri
             autoAnalyzeBtn.textContent = '🤖 Auto‑analyze (AI)';
         }
     });
+/*const systemPrompt = `You are the FoulFaultVault Engine. Extract from the article pls:
+SHOUT: official statement (quote with source/date)
+WHISPER: safe criticism
+THIRD LAYER: hidden operation (requires ≥2 sources)
+SACRIFICIAL LAYER: what was offered up
+LENSES: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan
+CONFIDENCE: High (≥3 sources), Medium (2-3), Low (1 or speculative)
+Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacrificial":"...","lenses":"...","confidence":"..."}`;
 
+*/
     saveAnalysisBtn.addEventListener('click', () => {
         if (!currentAnalysisTarget) return;
         analyses.push({
