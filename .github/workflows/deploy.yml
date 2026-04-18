@@ -8,10 +8,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-       - uses: actions/checkout@v4
+       - uses: actions/checkout@v1
        - name: Deploy Script to Bunny Edge Scripting
         uses: BunnyWay/actions/deploy-script@main
         with:
           script_id: 71738
           deploy_key: 99410579-cb92-4627-87d87abe466b-4984-4bb1
-          file: "Foul/Fault/Vault/edge-script.ts"
+          file: "../Foul/Fault/Vault/edge-script.ts"
