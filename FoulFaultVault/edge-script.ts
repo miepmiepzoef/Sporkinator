@@ -76,7 +76,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
       status: response.status,
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Origin": "*"
       },
     });
   }
