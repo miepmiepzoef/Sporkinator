@@ -391,9 +391,8 @@
         autoAnalyzeBtn.textContent = '⏳ Analyzing...';
         statusDiv.innerHTML = '🤖 Fetching article and calling AI...';
         try {
-            const proxyFetch = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(currentAnalysisTarget.url)}`);
-            const proxyData = await proxyFetch.json();
-            let articleText = proxyData.contents || '';
+            const articleResponse = await fetch(`https://corsproxy.io?${encodeURIComponent(currentAnalysisTarget.url)}`);
+            let articleText = await articleResponse.text();
             if (articleText.length > 8000) articleText = articleText.substring(0, 8000) + '…';
 
             const systemPrompt = `You are the foulfaultvault engine. Extract from the article:
