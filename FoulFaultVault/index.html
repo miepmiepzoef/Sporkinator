@@ -311,11 +311,11 @@
 
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
-        let query = `${year}`;
+        let query = year;
         if (keyword && keyword.trim() !==''){
-			query +=` ${keyword}`;
+			query = year + '' + keyword;
 		} else {
-			query = `scandal OR cover-up OR corruption OR whistleblower`;
+			query = year + `scandal OR cover-up OR corruption OR whistleblower`;
 		}
 		const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         const resp = await fetch(url);
