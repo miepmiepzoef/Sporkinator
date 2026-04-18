@@ -399,7 +399,6 @@
 			if (!articleResponse.ok) {
 				throw new Error('Article fetch failed: ${articleResponse.status} ${articleResponse.statusText)');
 			}
-			/*(`${PROXY_URL}/fetch?url=${encodeURIComponent(currentAnalysisTarget.url)}`);*/
             let articleText = await articleResponse.text();
             if (articleText.length > 8000) articleText = articleText.substring(0, 8000) + '…';
 			console.log('Article fetched, kength:', articleText.length);
