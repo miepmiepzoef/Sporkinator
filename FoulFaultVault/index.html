@@ -310,7 +310,7 @@
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
         let searchTerm = `${year}`;
-        if (keyword && keyword.trim() searchTerm = `${year} ${keyword}`;
+        if (keyword && keyword.trim()) searchTerm = `${year} ${keyword}`;
         else searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower`;
         const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         const resp = await fetch(url);
