@@ -376,7 +376,7 @@
 
     function escapeHtml(str) { return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
 
-  	const autoAnalyzeBtn = document.getElementById('autoAnalyzeBtn');
+
 	
 		autoAnalyzeBtn.addEventListener('click', async () => {
         if (!currentAnalysisTarget) {
