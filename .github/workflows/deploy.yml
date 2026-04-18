@@ -1,5 +1,17 @@
-name: Deploy Script to Bunny Edge Scripting
-uses: BunnyWay/actions/deploy-script@main
-  with:
-    script_id: 71728
-    file: "script.ts"
+name: Deploy Script to Bunny.net
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      -uses: actions/checkout@v4
+      -name: Deploy Script to Bunny Edge Scripting
+       uses: BunnyWay/actions/deploy-script@main
+       with:
+        script_id: 71728
+        deploy_key: d0afca3c-5eb3-4e8b-a508a6af50df-c798-4937
+        file: "FoulFaultVault/edge-script.ts"
