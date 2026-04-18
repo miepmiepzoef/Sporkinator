@@ -383,19 +383,29 @@
 			alert('No article selected. Please click "Analyze" on a result first.');
 			return;
 		}
-		if (!PROXY_URL) {
-			alert ('https:////vault-d9s2z.b-cdn.net');
+		if (!PROXY_URL || PROXY_URL === 'https://vault-d9s2z.bunny.run') {
+			alert ('PROXY_URL is not set correctly');
 			return;
 		}
         autoAnalyzeBtn.disabled = true;
         autoAnalyzeBtn.textContent = '⏳ Analyzing...';
-        statusDiv.innerHTML = '🤖 Fetching article and calling AI...';
+		const statusDiv - document.getElementbyId('statusMsg');
+        statusDiv.innerHTML = '🤖 Analyzing...';
         try {
-            const articleResponse = await fetch(`${PROXY_URL}/fetch?url=${encodeURIComponent(currentAnalysisTarget.url)}`);
+			const fetchUrl = '${PROXY_URL}/fetch?url=${encodeURIComponent(currentAnalysisTarget.url)}`);
+			console.log('Fetching article from: ', fetchUrl);
+            const articleResponse = await fetch(fetchUrl);
+			if (!articleResponse.ok) {
+				throw new Error('Article fetch failed: ${articleResponse.status} ${articleResponse.statusText)');
+			}
+			/*(`${PROXY_URL}/fetch?url=${encodeURIComponent(currentAnalysisTarget.url)}`);*/
             let articleText = await articleResponse.text();
             if (articleText.length > 8000) articleText = articleText.substring(0, 8000) + '…';
+			console.log('Article fetched, kength:', articleText.length);
 
-            const systemPrompt = `You are the foulfaultvault engine. Extract from the article:
+			statusDiv.innerHTML = '🤖 Asking for help';
+
+            const systemPrompt = `You are the FoulFaultVault Engine. Extract from the article pls:
 SHOUT: official statement (quote with source/date)
 WHISPER: safe criticism
 THIRD LAYER: hidden operation (requires ≥2 sources)
@@ -404,7 +414,7 @@ LENSES: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machi
 CONFIDENCE: High (≥3 sources), Medium (2-3), Low (1 or speculative)
 Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacrificial":"...","lenses":"...","confidence":"..."}`;
 
-            const response = await fetch(`${PROXY_URL}/openai`, {
+            const openAiResponse = await fetch(`${PROXY_URL}/openai`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -417,7 +427,16 @@ Respond with JSON only: {"shout":"...","whisper":"...","thirdLayer":"...","sacri
                     response_format: { type: "json_object" }
                 })
             });
-            const data = await response.json();
+            const data = await openAiResponse.json();
+			console.log('OpenAi response:', data);
+
+			if (!OpenAiResponse.ok) {
+				const errorMsg = data.error || data.message || JSON.stringify(data);
+				throw new Error ('OpenAI proxy error (${openAiResponse.status}): ${errorMsg}');
+			}
+			if (!data.choices || !data.choices[0].message.content) {
+				throw new Error('Invalid response from proxy: missing choices');
+			}
             const parsed = JSON.parse(data.choices[0].message.content);
             document.getElementById('shoutField').value = parsed.shout || '';
             document.getElementById('whisperField').value = parsed.whisper || '';
