@@ -362,8 +362,8 @@
             document.querySelectorAll('.analyze-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     currentCase = { title: btn.dataset.title, url: btn.dataset.url };
-                    modalTitle.innerText = currentCase.title;
-                    modalUrl.href = currentCase.url;
+                    modalCaseTitle.innerText = currentCase.title;
+                    modalCaseUrl.href = currentCase.url;
                     // clear fields
                     shoutField.value = whisperField.value = thirdLayerField.value = sacrificialField.value = lensesField.value = confidenceField.value = '';
                     modal.style.display = 'flex';
