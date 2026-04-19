@@ -15,11 +15,10 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     });
   }
 
-  // Fetch any URL (to get article content)
   if (path === "/fetch" && request.method === "GET") {
     const targetUrl = url.searchParams.get("url");
     if (!targetUrl) {
-      return new Response(JSON.stringify({ error: "Missing url parameter" }), {
+      return new Response(JSON.stringify({ error: "Missing url" }), {
         status: 400,
         headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       });
@@ -39,7 +38,6 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     }
   }
 
-  // OpenAI proxy
   if (path === "/openai" && request.method === "POST") {
     const openaiKey = Deno.env.get("OPENAI_API_KEY");
     if (!openaiKey) {
@@ -66,4 +64,3 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
 
   return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
 });
-
