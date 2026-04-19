@@ -283,7 +283,7 @@
                 	document.getElementById('banner-placeholder').innerHTML = data;
             	});
    
-	const PROXY_URL = 'https://vault-d9s2z.bunny.net';
+	const PROXY_URL = 'https://vault-d9s2z.b-cdn.net';
 	
 	let currentCase = null;
 	let analyses = [];
@@ -384,7 +384,7 @@
             alert('No article selected. Click "Analyze" first.');
             return;
         }
-        if (!PROXY_URL || PROXY_URL === 'https://vault-d9s2z.bunny.net') {
+        if (!PROXY_URL || PROXY_URL === 'https://vault-d9s2z.b-cdn.net') {
             alert('PROXY_URL not set. Edit the HTML and put your bunny.net script URL.');
             return;
         }
