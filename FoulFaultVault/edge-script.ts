@@ -42,9 +42,9 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
 
   // Gemini proxy (replaces OpenAI)
   if (path === "/openai" && request.method === "POST") {
-    const geminiKey = Deno.env.get("OPENAI_API_KEY");
+    const geminiKey = Deno.env.get("GEMINI_AI_KEY");
     if (!geminiKey) {
-      return new Response(JSON.stringify({ error: "Missing OPENAI_API_KEY" }), {
+      return new Response(JSON.stringify({ error: "Missing GEMINI_API_KEY" }), {
         status: 500,
         headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       });
