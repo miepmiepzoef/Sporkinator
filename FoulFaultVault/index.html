@@ -310,7 +310,7 @@
 	const autoAnalyzeBtn = document.getElementById('autoAnalyzeBtn');
 
 	const modalTitle = document.getElementById('modalCaseTitle');
-
+	const modal = document.getElementByID('analysisModal');
 
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
@@ -449,7 +449,7 @@
             confidence: confidenceField.value
         });
         alert('Analysis saved.');
-        modal.style.display = 'none';
+        modal.style.display = 'flex';
     });
 
     exportBtn.addEventListener('click', () => {
@@ -479,7 +479,7 @@
 	window.addEventListener('click', (event) => {
     	const modal = document.getElementById('analysisModal');
 		if (event.target === modal) {
-			modal.style.display = 'none';
+			modal.style.display = 'flex;
 		}
 	});
 </script>
