@@ -309,13 +309,16 @@
     const saveAnalysisBtn = document.getElementById('saveAnalysisBtn');
 	const autoAnalyzeBtn = document.getElementById('autoAnalyzeBtn');
 
+	const modalTitle = document.getElementByID('modalCaseTitle');
+	const modalCaseUrl = document.getElementById('modalCaseUrl');
+
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
-        let searchTerm = '${year}';
+        let searchTerm = `${year}`;
         if (keyword && keyword.trim() !==''){
-			searchTerm = '${year} ${keyword}';
+			searchTerm = `${year} ${keyword}`;
 		} else {
-			searchTerm = '${year} scandal OR cover-up OR corruption OR whistleblower`;
+			searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower`;
 		}
 		const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         const resp = await fetch(url);
@@ -341,7 +344,7 @@
         try {
             const results = await searchWikipedia(year, keyword);
 			if (!results.length) {
-			resultsDiv.innerHTML = '<p>No results. Try different keyword</p>';
+			resultsContainer.innerHTML = '<p>No results. Try different keyword</p>';
 				statusDiv.innerHTML = 'No results.';
 				return;
 			}
@@ -353,7 +356,7 @@
                     <button class="analyze-btn" data-title="${escapeHtml(r.title)}" data-url="${r.url}">🧩 Analyze</button>
                 </div>`;
             }
-            resultsDiv.innerHTML = html;
+            resultsContainer.innerHTML = html;
             statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze" then "Auto‑analyze (AI)".`;
             // attach analyze buttons
             document.querySelectorAll('.analyze-btn').forEach(btn => {
@@ -421,7 +424,7 @@
             document.getElementById('sacrificialField').value = parsed.sacrificial || '';
             document.getElementById('lensesField').value = parsed.lenses || '';
             document.getElementById('confidenceField').value = parsed.confidence || '';
-            document.getElementById('statusmsg').innerHTML = '✅ Analysis complete.';
+            statusDiv.innerHTML = '✅ Analysis complete.';
         } catch (err) {
             console.error(err);
             alert('Auto‑analyze error: ' + err.message);
