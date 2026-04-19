@@ -315,7 +315,7 @@
     // Wikipedia search (free, no key)
     async function searchWikipedia(year, keyword) {
         let searchTerm = `${year}`;
-        if (keyword && keyword.trim() !==''){
+        if (keyword && keyword.trim() !=='') {  
 			searchTerm = `${year} ${keyword}`;
 		} else {
 			searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower`;
