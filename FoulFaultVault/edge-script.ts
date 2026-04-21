@@ -41,7 +41,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
   }
 
   // Gemini proxy (replaces OpenAI)
-  if (path === "/openai" && request.method === "POST") {
+  if (path === "/gemini" && request.method === "POST") {
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiKey) {
       return new Response(JSON.stringify({ error: "Missing GEMINI_API_KEY" }), {
@@ -51,7 +51,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     }
 
     const body = await request.json();
-    // Extract the user message from OpenAI‑style request
+    // Extract the user message from Gemini‑style request
     const userMessage = body.messages?.find(m => m.role === "user")?.content || "";
     const systemPrompt = body.messages?.find(m => m.role === "system")?.content || "";
 
@@ -73,7 +73,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     const geminiData = await response.json();
 
     // Transform Gemini response to OpenAI format
-    let openAiStyleResponse = {
+    let geminiStyleResponse = {
       choices: [
         {
           message: {
