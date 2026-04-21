@@ -79,7 +79,7 @@ h1 {
     color: #666;
     margin-top: 5px;
 }
-.button {
+button {
     background: #0a1c2f;
     border: none;
     padding: 8px 20px;
@@ -90,7 +90,7 @@ h1 {
     transition: 0.2s;
     white-space: nowrap;
 }
-.button:hover {
+button:hover {
     background: #1e3a5f;
 }
 .converter-form {
