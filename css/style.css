@@ -100,13 +100,13 @@ button {
 button:hover {
     background: #1e3a5f;
 }
-.converter-form {
+/*.converter-form {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
     flex-wrap: wrap; /* allows wrapping on small screens */
-    margin-bottom: 20px;
+    margin-bottom: 20px;*/
 }
 .rating-slider {
     text-align: center;
