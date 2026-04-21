@@ -83,7 +83,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
       ]
     };
 
-    return new Response(JSON.stringify(openAiStyleResponse), {
+    return new Response(JSON.stringify(geminiStyleResponse), {
       status: response.status,
       headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
     });
