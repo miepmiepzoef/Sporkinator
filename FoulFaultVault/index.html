@@ -170,6 +170,10 @@
             margin-top: 0;
         }
         .close-modal {
+			color: #000;
+			background: #eee;
+			border-radius: 50%;
+			width: 32px; height: 32px;
             position: absolute;
             right: 20px;
             top: 16px;
@@ -480,7 +484,7 @@
 	window.addEventListener('click', (event) => {
     	const modal = document.getElementById('analysisModal');
 		if (event.target === modal) {
-			modal.style.display = 'flex';
+			modal.style.display = 'none';
 		}
 	});
 </script>
