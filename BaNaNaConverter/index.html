@@ -155,7 +155,7 @@
 				const resultSpan = document.getElementById('result1');
 				const errorDiv = document.getElementById('error-meters1');
 				errorDiv.innerText = '';
-				resultSpan.innerText= '.d.';
+				resultSpan.innerText= 'zero';
 				resultSpan.classList.remove('error');
 				
 				
@@ -207,7 +207,7 @@
 				
 				if (isNaN(meters3) || meters3 < 0) {
 					errorDiv.innerText = "Please, enter a positive number";
-					resultSpan.innerText= "...";
+					resultSpan.innerText= "zero";
 					return;		
 				}
 				const cm3 = meters3 * 1000000;
@@ -224,7 +224,7 @@
 				const resultSpan = document.getElementById('result4');
 				const errorDiv = document.getElementById( 'error-kg');
 				errorDiv.innerText = '';
-				resultSpan.innerText= '...';
+				resultSpan.innerText= 'zero';
 				resultSpan.classList.remove('error');
 				
 				if (isNaN(kg) || kg < 0) {
