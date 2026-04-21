@@ -486,7 +486,7 @@
 	}
 	window.addEventListener('click', (event) => {
     	const modal = document.getElementById('analysisModal');
-		if (modal && !modal.querySelector('.modal-content).contains(event.target)) {
+		if (modal && !modal.querySelector('.modal-content').contains(event.target)) {
 			modal.style.display = 'none';
 		}
 	});
