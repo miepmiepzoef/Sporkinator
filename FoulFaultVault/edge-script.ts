@@ -14,7 +14,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  // /fetch endpoint (works)
+  // /fetch endpoint (unchanged, works)
   if (path === "/fetch" && request.method === "GET") {
     const targetUrl = url.searchParams.get("url");
     if (!targetUrl) {
@@ -38,7 +38,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     }
   }
 
-  // /gemini endpoint – uses v1 and gemini-1.5-flash
+  // /gemini endpoint – using gemini-2.0-flash (confirmed working)
   if (path === "/gemini" && request.method === "POST") {
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiKey) {
@@ -65,9 +65,9 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
       contents: [{ parts: [{ text: systemPrompt ? `${systemPrompt}\n\n${userMessage}` : userMessage }] }],
     };
 
-    // Using v1 (not v1beta) and gemini-1.5-flash
+    // Use v1beta and gemini-2.0-flash (as per your available models)
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,7 +92,6 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
       });
     }
 
-    // Correct OpenAI-style response
     const openAiStyleResponse = {
       choices: [{ message: { content } }],
     };
