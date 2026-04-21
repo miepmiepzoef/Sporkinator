@@ -248,7 +248,7 @@
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
-    const PROXY_URL = 'https://vault-d9s2z.bunny.run';
+  const PROXY_URL = 'https://vault-d9s2z.bunny.run';
     let currentCase = null;
     let analyses = [];
 
@@ -283,10 +283,9 @@
     }
     loadAnalysesFromStorage();
 
-    // Helper: save current case and return true/false
+    // Save current analysis and return true/false
     function saveCurrentAndClose() {
         if (!currentCase) return false;
-        // Don't save if analysis failed or still loading
         if (shoutField.value.startsWith('⏳') || shoutField.value.startsWith('❌')) {
             alert('Analysis not ready or failed. Please wait.');
             return false;
@@ -357,14 +356,15 @@
             }
             resultsContainer.innerHTML = html;
             statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
-            // Attach analyze buttons with auto‑analysis, auto‑save, and redirect
+
+            // Attach analyze buttons
             document.querySelectorAll('.analyze-btn').forEach(btn => {
                 btn.addEventListener('click', async () => {
                     currentCase = { title: btn.dataset.title, url: btn.dataset.url };
                     modalCaseTitle.innerText = currentCase.title;
                     modalCaseUrl.href = currentCase.url;
 
-                    // Show modal with loading message
+                    // Reset and show modal
                     shoutField.value = '⏳ Fetching article...';
                     whisperField.value = '';
                     thirdLayerField.value = '';
@@ -372,7 +372,7 @@
                     lensesField.value = '';
                     confidenceField.value = '';
                     modal.style.display = 'flex';
-					window.scrollTo({ top: 0, behavior: 'smooth' });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                     statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
                     try {
@@ -387,73 +387,64 @@
 
                         // Call Gemini proxy
                         const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-            { role: 'system', content: 'Extract from the article the following fields pls. If a field is not clearly present, write "Not mentioned". SHOUT: The official, public narrative (what the institution wants you to believe), WHISPER : The safe criticism that does not challenge institutional authority, THIRD LAYER : The hidden operation or secret knowledge (requires ≥2 independent sources if available), SACRIFICIAL LAYER: What the institution offers up to absorb anger (apology, low-level employee, inquiry, compensation), LENSES (one or more of): Black Box | Evidence legally sealed, classified, or destroyed under privilege, Zombie File | Documents deleted, wiped, hidden from oversight, or kept in secret vaults, Limited Hangout | Apology or inquiry with no prosecution; blame on low-level employees, Structured Ambiguity| Vague official language, refusal to clarify, commercially sensitive, Fog Machine | Massive document release, contradictory statements, delayed investigations, Teflon Shield | Individuals moved to other roles without penalty; assets moved offshore, Victim Blame | Whistleblower or accuser investigated, smeared, or retaliated against, Protective Shield | Public inquiry, compensation fund, independent review announced, Zhang Shan | Rule change after court ruling, protest, or exposure (retroactive application), CONFIDENCE. Example: {"shout":"...","whisper":"...","thirdLayer":"... (sources: source1, source2)","sacrificial":"...","lenses":"...","confidence":"High"} Return ONLY valid JSON. Greetings Druid of the Green Isle' },
-            { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
-        ],
-        temperature: 0.3
-    })
-});
-const data = await geminiRes.json();
-console.log('RAW GEMINI RESPONSE', JSON.stringify(data, null, 2));
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                model: 'gpt-3.5-turbo',
+                                messages: [
+                                    { role: 'system', content: `Extract the following from the article. If not found, write "Not mentioned". Return ONLY valid JSON.Thnx, greetings Druid of the green isle.
+{
+  "shout": "official public narrative (what the institution wants you to believe)",
+  "whisper": "safe criticism that does not challenge institutional authority",
+  "thirdLayer": "hidden operation or secret knowledge (with ≥2 independent sources if available)",
+  "sacrificial": "what the institution offers up (apology, low-level employee, inquiry, compensation)",
+  "lenses": "comma-separated list from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan",
+  "confidence": "High/Medium/Low"
+}` },
+                                    { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
+                                ],
+                                temperature: 0.3
+                            })
+                        });
+                        const data = await geminiRes.json();
+                        console.log('RAW GEMINI RESPONSE', JSON.stringify(data, null, 2));
 
-if (!geminiRes.ok) {
-    throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
-}
-if (!data.choices || !data.choices[0]) {
-    console.error('No choices in response:', data);
-    throw new Error('No choices in Gemini response');
-}
+                        if (!geminiRes.ok) throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
+                        if (!data.choices || !data.choices[0]) throw new Error('No choices in Gemini response');
 
-let rawContent = data.choices[0].message.content;
-console.log('RAW CONTENT:', rawContent);
+                        let rawContent = data.choices[0].message.content;
+                        console.log('RAW CONTENT:', rawContent);
 
-// Attempt to extract JSON
-let parsed = null;
-let cleanContent = rawContent.trim();
+                        // Extract JSON
+                        let parsed = null;
+                        let cleanContent = rawContent.trim().replace(/```json\s*/g, '').replace(/```\s*/g, '');
+                        const firstBrace = cleanContent.indexOf('{');
+                        const lastBrace = cleanContent.lastIndexOf('}');
+                        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                            const jsonCandidate = cleanContent.substring(firstBrace, lastBrace + 1);
+                            try {
+                                parsed = JSON.parse(jsonCandidate);
+                            } catch (e) {
+                                console.error('JSON parse error:', e);
+                            }
+                        }
+                        if (!parsed) {
+                            try {
+                                parsed = JSON.parse(cleanContent);
+                            } catch (e) {
+                                throw new Error('Could not parse AI response as JSON. Raw: ' + rawContent.substring(0, 300));
+                            }
+                        }
 
-// Remove markdown code blocks
-cleanContent = cleanContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-// Find first { and last }
-const firstBrace = cleanContent.indexOf('{');
-const lastBrace = cleanContent.lastIndexOf('}');
-if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    const jsonCandidate = cleanContent.substring(firstBrace, lastBrace + 1);
-    try {
-        parsed = JSON.parse(jsonCandidate);
-        console.log('Successfully parsed JSON:', parsed);
-    } catch (e) {
-        console.error('Failed to parse JSON candidate:', jsonCandidate, e);
-    }
-}
+                        // Fill fields
+                        shoutField.value = parsed.shout || '';
+                        whisperField.value = parsed.whisper || '';
+                        thirdLayerField.value = parsed.thirdLayer || '';
+                        sacrificialField.value = parsed.sacrificial || '';
+                        lensesField.value = parsed.lenses || '';
+                        confidenceField.value = parsed.confidence || '';
 
-if (!parsed) {
-    // If still no parsed, try a more aggressive approach: use the entire cleaned content
-    try {
-        parsed = JSON.parse(cleanContent);
-    } catch (e) {
-        console.error('Final parse attempt failed:', e);
-        throw new Error('Could not parse AI response as JSON. Raw: ' + rawContent.substring(0, 300));
-    }
-}
-
-// Fill fields
-shoutField.value = parsed.shout || '';
-whisperField.value = parsed.whisper || '';
-thirdLayerField.value = parsed.thirdLayer || '';
-sacrificialField.value = parsed.sacrificial || '';
-lensesField.value = parsed.lenses || '';
-confidenceField.value = parsed.confidence || '';
-
-// If all fields are empty, show raw response for debugging
-if (!shoutField.value && !whisperField.value && !thirdLayerField.value) {
-    shoutField.value = '⚠️ AI returned unexpected format. Raw response: ' + rawContent.substring(0, 500);
-}
-                        // Auto-save and redirect to vault
+                        // Auto-save and redirect
                         if (saveCurrentAndClose()) {
                             modal.style.display = 'none';
                             window.location.href = 'vault.html';
@@ -463,11 +454,6 @@ if (!shoutField.value && !whisperField.value && !thirdLayerField.value) {
                     } catch (err) {
                         console.error(err);
                         shoutField.value = '❌ Analysis failed: ' + err.message;
-                        whisperField.value = '';
-                        thirdLayerField.value = '';
-                        sacrificialField.value = '';
-                        lensesField.value = '';
-                        confidenceField.value = '';
                         statusDiv.innerHTML = '❌ Auto‑analyze error. Please try again.';
                     }
                 });
@@ -489,7 +475,7 @@ if (!shoutField.value && !whisperField.value && !thirdLayerField.value) {
         }
     });
 
-    // Export all analyses as JSON
+    // Export all analyses
     exportBtn.addEventListener('click', () => {
         if (!analyses.length) { alert('No analyses saved.'); return; }
         const json = JSON.stringify(analyses, null, 2);
@@ -514,13 +500,12 @@ if (!shoutField.value && !whisperField.value && !thirdLayerField.value) {
         statusDiv.innerHTML = '';
     });
 
-    // Close modal with X button
+    // Close modal
     if (closeModalBtn) {
         closeModalBtn.addEventListener('click', () => {
             modal.style.display = 'none';
         });
     }
-    // Close modal when clicking outside the modal content
     window.addEventListener('click', (event) => {
         if (modal && !modal.querySelector('.modal-content').contains(event.target)) {
             modal.style.display = 'none';
