@@ -396,7 +396,13 @@
                         const data = await geminiRes.json();
                         if (!geminiRes.ok) throw new Error(`Gemini error: ${data.error || 'Unknown'}`);
                         if (!data.choices || !data.choices[0]) throw new Error('Invalid response');
-                        const parsed = JSON.parse(data.choices[0].message.content);
+						let parsed;
+						try {
+							parsed = JSON.parse(data.choices[0].message.content);
+						} catch (e) {
+							console.error ('AI response:', data.choices[0].message.content);
+							throw new Error ('AI response was not valid JSON');
+						}
                         shoutField.value = parsed.shout || '';
                         whisperField.value = parsed.whisper || '';
                         thirdLayerField.value = parsed.thirdLayer || '';
