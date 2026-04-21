@@ -18,7 +18,7 @@
             text-align: center;
             max-width: 1400px;
             margin: 0 auto;
-            padding: 10px;
+            /*padding: 10px;*/
             background: white;
             align-items: center;
         }
@@ -188,7 +188,7 @@
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
-    // ----- Example cases with clickable sources -----
+    // ----- Cases with separate Sources field (clickable links) -----
     const exampleCases = [
         {
             timestamp: "2025-04-21T10:00:00.000Z",
@@ -197,7 +197,7 @@
             shout: "President Nixon: 'I am not a crook.' Official statements denied White House involvement.",
             whisper: "Journalists Woodward and Bernstein questioned the official narrative; some senators expressed doubt.",
             thirdLayer: "Secret recordings revealed systematic cover‑up, including payment to burglars and obstruction of justice.",
-            Sources: "<a href='https://www.washingtonpost.com' target='_blank'> "Washington Post"</a>, <a href='https://www.senate.gov/about/origins-foundations/committees/watergate.htm' target='_blank'>Senate Watergate Committee hearings</a>.",
+            sources: "<a href='https://www.washingtonpost.com' target='_blank'>Washington Post</a>, <a href='https://www.senate.gov/about/origins-foundations/committees/watergate.htm' target='_blank'>Senate Watergate Committee hearings</a>.",
             sacrificial: "Two aides resigned; Nixon resigned before impeachment; no prosecution of the president.",
             lenses: "Limited Hangout, Teflon Shield, Black Box (some tapes erased)",
             confidence: "High"
@@ -208,8 +208,8 @@
             url: "https://en.wikipedia.org/wiki/Dutch_childcare_benefits_scandal",
             shout: "Dutch government: 'The rules were applied correctly; fraud must be stopped.'",
             whisper: "Opposition parties and legal aid organizations questioned the disproportionate demands on parents.",
-            thirdLayer: "A discriminatory algorithm flagged thousands of families based on dual nationality; internal memos showed officials knew of false accusations."'
-            Sources: <a href='https://www.tweedekamer.nl/parlementair-onderzoek/kinderopvangtoeslag' target='_blank'>Parliamentary inquiry report 2020</a>, <a href='https://www.nationaleombudsman.nl/' target='_blank'>Dutch Ombudsman</a>.",
+            thirdLayer: "A discriminatory algorithm flagged thousands of families based on dual nationality; internal memos showed officials knew of false accusations.",
+            sources: "<a href='https://www.tweedekamer.nl/parlementair-onderzoek/kinderopvangtoeslag' target='_blank'>Parliamentary inquiry report 2020</a>, <a href='https://www.nationaleombudsman.nl/' target='_blank'>Dutch Ombudsman</a>.",
             sacrificial: "State secretary resigned; compensation fund established; prime minister apologised years later.",
             lenses: "Zombie File (documents destroyed), Victim Blame, Protective Shield",
             confidence: "High"
@@ -221,7 +221,7 @@
             shout: "Tusla (child agency): 'We followed our procedures and acted in good faith.'",
             whisper: "Whistleblowers claimed agency fabricated allegations against a father.",
             thirdLayer: "Internal emails suggested a deliberate campaign to discredit a whistleblower.",
-            Sources: <a href='https://www.oco.ie/' target='_blank'>Irish Ombudsman for Children report, 2020</a>.",
+            sources: "<a href='https://www.oco.ie/' target='_blank'>Irish Ombudsman for Children report, 2020</a>.",
             sacrificial: "Agency issued apology; some staff were retrained; no prosecutions.",
             lenses: "Structured Ambiguity, Fog Machine",
             confidence: "Medium"
@@ -232,8 +232,8 @@
             url: "https://en.wikipedia.org/wiki/Grenfell_Tower_fire",
             shout: "UK government: 'We will get the answers the community deserves.'",
             whisper: "Survivors and local MP accused authorities of ignoring safety warnings.",
-            thirdLayer: "Decades of deregulation led to use of flammable cladding; emails showed officials were warned."
-            Sources: <a href='https://www.grenfelltowerinquiry.org.uk/' target='_blank'>Public inquiry phase 1, 2020</a>.",
+            thirdLayer: "Decades of deregulation led to use of flammable cladding; emails showed officials were warned.",
+            sources: "<a href='https://www.grenfelltowerinquiry.org.uk/' target='_blank'>Public inquiry phase 1, 2020</a>.",
             sacrificial: "Public inquiry launched; compensation paid; no criminal charges yet.",
             lenses: "Limited Hangout, Zombie File (some documents missing)",
             confidence: "High"
@@ -245,14 +245,14 @@
             shout: "Mossack Fonseca: 'We did nothing illegal.'",
             whisper: "Investigative journalists exposed offshore tax evasion.",
             thirdLayer: "11.5 million leaked documents revealed shell companies for world leaders.",
-            Sources: <a href='https://www.icij.org/' target='_blank'>ICIJ, 2016</a>.",
+            sources: "<a href='https://www.icij.org/' target='_blank'>ICIJ, 2016</a>.",
             sacrificial: "Law firm closed; some countries launched investigations; no major prosecution.",
             lenses: "Fog Machine (massive document dump), Teflon Shield",
             confidence: "High"
         }
     ];
 
-    // Helper: ensure localStorage has these examples if empty
+    // Helper: ensure localStorage has these cases if empty
     function initializeStorage() {
         const stored = localStorage.getItem('ffv_analyses');
         if (!stored) {
@@ -299,6 +299,7 @@
                     item.shout?.toLowerCase().includes(searchTerm) ||
                     item.whisper?.toLowerCase().includes(searchTerm) ||
                     item.thirdLayer?.toLowerCase().includes(searchTerm) ||
+                    (item.sources && item.sources.toLowerCase().includes(searchTerm)) ||
                     item.sacrificial?.toLowerCase().includes(searchTerm) ||
                     item.lenses?.toLowerCase().includes(searchTerm) ||
                     item.confidence?.toLowerCase().includes(searchTerm));
@@ -314,7 +315,6 @@
         filtered.forEach(item => {
             const key = `${item.title}|${item.url}`;
             const savedCount = counts.get(key) || 1;
-            // Generate a unique ID for each accordion (based on title)
             const safeId = "acc_" + encodeURIComponent(item.title).replace(/[^a-zA-Z0-9]/g, '_');
             html += `
                 <div class="accordion-item" id="${safeId}">
@@ -334,9 +334,15 @@
                             <div class="layer-text">${escapeHtml(item.whisper)}</div>
                         </div>
                         <div class="layer-block">
-                            <div class="layer-label">🕳️ THIRD LAYER (with sources)</div>
-                            <div class="layer-text">${item.thirdLayer}</div>
+                            <div class="layer-label">🕳️ THIRD LAYER</div>
+                            <div class="layer-text">${escapeHtml(item.thirdLayer)}</div>
                         </div>
+                        ${item.sources ? `
+                        <div class="layer-block">
+                            <div class="layer-label">🔗 SOURCES (clickable)</div>
+                            <div class="layer-text">${item.sources}</div>
+                        </div>
+                        ` : ''}
                         <div class="layer-block">
                             <div class="layer-label">🐑 SACRIFICIAL LAYER</div>
                             <div class="layer-text">${escapeHtml(item.sacrificial)}</div>
@@ -358,7 +364,6 @@
             const content = item.querySelector('.accordion-content');
             const icon = header.querySelector('.accordion-expand-icon');
             header.addEventListener('click', (e) => {
-                // Prevent toggling if clicking on a link inside the title
                 if (e.target.tagName === 'A') return;
                 content.classList.toggle('show');
                 icon.textContent = content.classList.contains('show') ? '−' : '+';
@@ -371,13 +376,10 @@
         return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
-    // Initialize storage on first load
     initializeStorage();
-
     document.getElementById('refreshBtn').addEventListener('click', () => render());
     document.getElementById('backBtn').addEventListener('click', () => window.location.href = 'index.html');
     document.getElementById('searchInput').addEventListener('input', () => render());
-
     render();
 </script>
 </body>
