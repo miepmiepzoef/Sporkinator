@@ -610,6 +610,7 @@
                     lensesField.value = '';
                     confidenceField.value = '';
                     modal.style.display = 'flex';
+					window.scrollTo({ top: 0, behavior: 'smooth' });
                     statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
                     try {
