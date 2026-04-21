@@ -38,7 +38,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     }
   }
 
-  // /gemini endpoint – using gemini-2.0-flash (confirmed working)
+  // /gemini endpoint – using gemini-2.0-flash 
   if (path === "/gemini" && request.method === "POST") {
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiKey) {
@@ -65,7 +65,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
       contents: [{ parts: [{ text: systemPrompt ? `${systemPrompt}\n\n${userMessage}` : userMessage }] }],
     };
 
-    // Use v1beta and gemini-2.0-flash (as per your available models)
+    // Use v1beta and gemini-2.5-flash (as per your available models)
     const geminiRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
       {
