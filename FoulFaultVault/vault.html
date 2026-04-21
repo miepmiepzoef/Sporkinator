@@ -1,63 +1,294 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>FoulFaultVault – Saved Cases</title>
+    <title>Vault</title>
     <link rel="stylesheet" href="../css/style.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .vault-container { max-width: 1400px; margin: 20px auto; background: white; /*border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); */}
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
-        th { background: #0a1c2f; color: white; }
-        .delete-btn { background: #0a1c2f; color: white !important; border: none; padding: 4px 10px; border-radius: 20px; cursor: pointer; }
-        .delete-btn:hover { background: #c33; }
-        .back-btn { background: #0a1c2f; margin-right: 10px; }
-        .search-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 28px; border: 1px solid #ccc; font-size: 1rem; }
+        /* Override any conflicting backgrounds – keep everything white */
+        body {
+            background: white !important;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+        }
+        /* Accordion styles */
+        .accordion-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        .accordion-item {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 28px;
+            overflow: hidden;
+            transition: 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+        }
+        .accordion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            cursor: pointer;
+            background: white;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+        .accordion-header:hover {
+            background: #fafcff;
+        }
+        .accordion-title {
+            font-weight: 700;
+            font-size: 1.15rem;
+            flex: 2;
+            min-width: 180px;
+        }
+        .accordion-title a {
+            color: #0a1c2f;
+            text-decoration: none;
+        }
+        .accordion-title a:hover {
+            text-decoration: underline;
+        }
+        .accordion-confidence {
+            background: #0a1c2f;
+            color: white;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .accordion-count {
+            background: #eef2ff;
+            color: #1e293b;
+            padding: 4px 14px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
+        .accordion-expand-icon {
+            font-size: 1.6rem;
+            font-weight: 300;
+            color: #0a1c2f;
+            width: 36px;
+            text-align: center;
+        }
+        .accordion-content {
+            display: none;
+            padding: 24px;
+            border-top: 1px solid #e2e8f0;
+            background: white;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .accordion-content.show {
+            display: flex;
+        }
+        .layer-block {
+            border-left: 3px solid #0a1c2f;
+            padding-left: 20px;
+            margin-bottom: 4px;
+        }
+        .layer-label {
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: #0a1c2f;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+        .layer-text {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            color: #1e293b;
+        }
+        .layer-text a {
+            color: #0a1c2f;
+            text-decoration: underline;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 10px 0 20px 0;
+            border-radius: 40px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background: white;
+        }
+        .actions-bar {
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            background: #0a1c2f !important;
+            color: white !important;
+            border: none;
+            padding: 8px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        button:hover {
+            background: #1e3a5f !important;
+        }
+        .citation {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #5a6e8a;
+            margin-top: 8px;
+        }
+        .instructions {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #1e293b;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 <div id="header-placeholder"></div>
-    <h1>Vault</h1>
-    <p class="citation">Access Granted</p>
-<div class="vault-container">
-    <p class="instructions"> Saved Files</p>
+     <h1>📂 Vault</h1>
+        <p class="citation">Access granted</p>
+<div class="container">
+       
+    <p class="instructions">Saved Files</p>
+
     <input type="text" id="searchInput" class="search-input" placeholder="🔍 Filter by title, shout, whisper, third layer, lenses, confidence...">
-    <button id="refreshBtn" class="back-btn">⟳ Refresh</button>
-    <button id="backBtn" class="back-btn">← Back to Search</button>
+
+    <div class="actions-bar">
+        <button id="refreshBtn">⟳ Refresh</button>
+        <button id="backBtn">← Back to Search</button>
+    </div>
+
     <div id="vaultContent"><p>Loading...</p></div>
 </div>
 <div id="footer-placeholder"></div>
-    <div id="banner-placeholder"></div>
+<div id="banner-placeholder"></div>
+
 <script>
-    fetch('../header.html').then(r => r.text()).then(d => document.getElementById('header-placeholder').innerHTML = d);
-    fetch('../footer.html').then(r => r.text()).then(d => document.getElementById('footer-placeholder').innerHTML = d);
-    fetch('../banner.html').then(r => r.text()).then(d => document.getElementById('banner-placeholder').innerHTML = d);
-    // Example case to pre‑populate if vault is empty
-    const exampleCase = {
-        timestamp: new Date().toISOString(),
-        title: "Example: Watergate Scandal",
-        url: "https://en.wikipedia.org/wiki/Watergate",
-        shout: "President Nixon: 'I am not a crook.'",
-        whisper: "Some journalists questioned the official denial.",
-        thirdLayer: "Secret recordings revealed cover‑up. (Sources: Washington Post, Senate hearings)",
-        sacrificial: "Two aides resigned; no prosecution of Nixon.",
-        lenses: "Limited Hangout, Teflon Shield",
-        confidence: "High"
-    };
+    // Load header, footer, banner (same as index)
+    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
+    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
+    fetch('../banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
+
+    // ----- Example cases with clickable sources -----
+    const exampleCases = [
+        {
+            timestamp: "2025-04-21T10:00:00.000Z",
+            title: "Watergate scandal",
+            url: "https://en.wikipedia.org/wiki/Watergate",
+            shout: "President Nixon: 'I am not a crook.' Official statements denied White House involvement.",
+            whisper: "Journalists Woodward and Bernstein questioned the official narrative; some senators expressed doubt.",
+            thirdLayer: "Secret recordings revealed systematic cover‑up, including payment to burglars and obstruction of justice. Sources: <a href='https://www.washingtonpost.com' target='_blank'>Washington Post</a>, <a href='https://www.senate.gov/about/origins-foundations/committees/watergate.htm' target='_blank'>Senate Watergate Committee hearings</a>.",
+            sacrificial: "Two aides resigned; Nixon resigned before impeachment; no prosecution of the president.",
+            lenses: "Limited Hangout, Teflon Shield, Black Box (some tapes erased)",
+            confidence: "High"
+        },
+        {
+            timestamp: "2025-04-21T10:05:00.000Z",
+            title: "Toeslagenaffaire (Dutch childcare benefits scandal)",
+            url: "https://en.wikipedia.org/wiki/Dutch_childcare_benefits_scandal",
+            shout: "Dutch government: 'The rules were applied correctly; fraud must be stopped.'",
+            whisper: "Opposition parties and legal aid organizations questioned the disproportionate demands on parents.",
+            thirdLayer: "A discriminatory algorithm flagged thousands of families based on dual nationality; internal memos showed officials knew of false accusations. Sources: <a href='https://www.tweedekamer.nl/parlementair-onderzoek/kinderopvangtoeslag' target='_blank'>Parliamentary inquiry report 2020</a>, <a href='https://www.nationaleombudsman.nl/' target='_blank'>Dutch Ombudsman</a>.",
+            sacrificial: "State secretary resigned; compensation fund established; prime minister apologised years later.",
+            lenses: "Zombie File (documents destroyed), Victim Blame, Protective Shield",
+            confidence: "High"
+        },
+        {
+            timestamp: "2025-04-21T10:10:00.000Z",
+            title: "Tusla Affair (Irish child protection scandal)",
+            url: "https://en.wikipedia.org/wiki/Tusla_affair",
+            shout: "Tusla (child agency): 'We followed our procedures and acted in good faith.'",
+            whisper: "Whistleblowers claimed agency fabricated allegations against a father.",
+            thirdLayer: "Internal emails suggested a deliberate campaign to discredit a whistleblower. Sources: <a href='https://www.oco.ie/' target='_blank'>Irish Ombudsman for Children report, 2020</a>.",
+            sacrificial: "Agency issued apology; some staff were retrained; no prosecutions.",
+            lenses: "Structured Ambiguity, Fog Machine",
+            confidence: "Medium"
+        },
+        {
+            timestamp: "2025-04-21T10:15:00.000Z",
+            title: "Grenfell Tower fire",
+            url: "https://en.wikipedia.org/wiki/Grenfell_Tower_fire",
+            shout: "UK government: 'We will get the answers the community deserves.'",
+            whisper: "Survivors and local MP accused authorities of ignoring safety warnings.",
+            thirdLayer: "Decades of deregulation led to use of flammable cladding; emails showed officials were warned. Sources: <a href='https://www.grenfelltowerinquiry.org.uk/' target='_blank'>Public inquiry phase 1, 2020</a>.",
+            sacrificial: "Public inquiry launched; compensation paid; no criminal charges yet.",
+            lenses: "Limited Hangout, Zombie File (some documents missing)",
+            confidence: "High"
+        },
+        {
+            timestamp: "2025-04-21T10:20:00.000Z",
+            title: "Panama Papers",
+            url: "https://en.wikipedia.org/wiki/Panama_Papers",
+            shout: "Mossack Fonseca: 'We did nothing illegal.'",
+            whisper: "Investigative journalists exposed offshore tax evasion.",
+            thirdLayer: "11.5 million leaked documents revealed shell companies for world leaders. Sources: <a href='https://www.icij.org/' target='_blank'>ICIJ, 2016</a>.",
+            sacrificial: "Law firm closed; some countries launched investigations; no major prosecution.",
+            lenses: "Fog Machine (massive document dump), Teflon Shield",
+            confidence: "High"
+        }
+    ];
+
+    // Helper: ensure localStorage has these examples if empty
+    function initializeStorage() {
+        const stored = localStorage.getItem('ffv_analyses');
+        if (!stored) {
+            localStorage.setItem('ffv_analyses', JSON.stringify(exampleCases));
+        }
+    }
+
+    // Count occurrences of each case (by title+url)
+    function getCounts(analyses) {
+        const map = new Map();
+        analyses.forEach(a => {
+            const key = `${a.title}|${a.url}`;
+            map.set(key, (map.get(key) || 0) + 1);
+        });
+        return map;
+    }
+
+    // Get unique cases (latest version for each title+url)
+    function getUniqueCases(analyses) {
+        const map = new Map();
+        analyses.forEach(a => {
+            const key = `${a.title}|${a.url}`;
+            if (!map.has(key) || new Date(a.timestamp) > new Date(map.get(key).timestamp)) {
+                map.set(key, a);
+            }
+        });
+        return Array.from(map.values());
+    }
 
     function render() {
         const stored = localStorage.getItem('ffv_analyses');
         let analyses = stored ? JSON.parse(stored) : [];
-
-        // If empty, add example case
-        if (analyses.length === 0) {
-            analyses = [exampleCase];
+        if (!analyses.length) {
+            analyses = exampleCases;
             localStorage.setItem('ffv_analyses', JSON.stringify(analyses));
         }
 
+        const counts = getCounts(analyses);
+        const uniqueCases = getUniqueCases(analyses);
+
         const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-        const filtered = analyses.filter(item => {
+        const filtered = uniqueCases.filter(item => {
             return (item.title?.toLowerCase().includes(searchTerm) ||
                     item.shout?.toLowerCase().includes(searchTerm) ||
                     item.whisper?.toLowerCase().includes(searchTerm) ||
@@ -69,47 +300,78 @@
 
         const container = document.getElementById('vaultContent');
         if (!filtered.length) {
-            container.innerHTML = '<p>No matching cases. Try a different search term.</p>';
+            container.innerHTML = '<p style="text-align:center;">No matching cases. Try a different search term.</p>';
             return;
         }
-        let html = `<table><thead><tr><th>Date</th><th>Title</th><th>SHOUT</th><th>WHISPER</th><th>THIRD LAYER</th><th>Sacrificial</th><th>Lenses</th><th>Confidence</th><th></th></tr></thead><tbody>`;
-        filtered.forEach((a, idx) => {
-            // Need original index for deletion (from full array, not filtered)
-            const originalIndex = analyses.findIndex(orig => orig.title === a.title && orig.url === a.url);
-            html += `<tr>
-                <td>${escapeHtml(a.timestamp || '')}</td>
-                <td><a href="${escapeHtml(a.url)}" target="_blank">${escapeHtml(a.title)}</a></td>
-                <td>${escapeHtml(a.shout || '')}</td>
-                <td>${escapeHtml(a.whisper || '')}</td>
-                <td>${escapeHtml(a.thirdLayer || '')}</td>
-                <td>${escapeHtml(a.sacrificial || '')}</td>
-                <td>${escapeHtml(a.lenses || '')}</td>
-                <td>${escapeHtml(a.confidence || '')}</td>
-                <td><button class="delete-btn" data-index="${originalIndex}">Delete</button></td>
-            </tr>`;
+
+        let html = `<div class="accordion-list">`;
+        filtered.forEach(item => {
+            const key = `${item.title}|${item.url}`;
+            const savedCount = counts.get(key) || 1;
+            // Generate a unique ID for each accordion (based on title)
+            const safeId = "acc_" + encodeURIComponent(item.title).replace(/[^a-zA-Z0-9]/g, '_');
+            html += `
+                <div class="accordion-item" id="${safeId}">
+                    <div class="accordion-header">
+                        <div class="accordion-title"><a href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.title)}</a></div>
+                        <div class="accordion-confidence">${escapeHtml(item.confidence)}</div>
+                        <div class="accordion-count">📂 Saved ${savedCount} time${savedCount !== 1 ? 's' : ''}</div>
+                        <div class="accordion-expand-icon">+</div>
+                    </div>
+                    <div class="accordion-content">
+                        <div class="layer-block">
+                            <div class="layer-label">📢 SHOUT</div>
+                            <div class="layer-text">${escapeHtml(item.shout)}</div>
+                        </div>
+                        <div class="layer-block">
+                            <div class="layer-label">🤫 WHISPER</div>
+                            <div class="layer-text">${escapeHtml(item.whisper)}</div>
+                        </div>
+                        <div class="layer-block">
+                            <div class="layer-label">🕳️ THIRD LAYER (with sources)</div>
+                            <div class="layer-text">${item.thirdLayer}</div>
+                        </div>
+                        <div class="layer-block">
+                            <div class="layer-label">🐑 SACRIFICIAL LAYER</div>
+                            <div class="layer-text">${escapeHtml(item.sacrificial)}</div>
+                        </div>
+                        <div class="layer-block">
+                            <div class="layer-label">🔎 LENSES</div>
+                            <div class="layer-text">${escapeHtml(item.lenses)}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
         });
-        html += `</tbody></table>`;
+        html += `</div>`;
         container.innerHTML = html;
 
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                let idx = parseInt(btn.dataset.index);
-                let current = JSON.parse(localStorage.getItem('ffv_analyses') || '[]');
-                current.splice(idx, 1);
-                localStorage.setItem('ffv_analyses', JSON.stringify(current));
-                render(); // re-render with updated data
+        // Attach click handlers for accordion headers
+        document.querySelectorAll('.accordion-item').forEach(item => {
+            const header = item.querySelector('.accordion-header');
+            const content = item.querySelector('.accordion-content');
+            const icon = header.querySelector('.accordion-expand-icon');
+            header.addEventListener('click', (e) => {
+                // Prevent toggling if clicking on a link inside the title
+                if (e.target.tagName === 'A') return;
+                content.classList.toggle('show');
+                icon.textContent = content.classList.contains('show') ? '−' : '+';
             });
         });
     }
 
-    function escapeHtml(s) { 
-        if (!s) return '';
-        return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
-    document.getElementById('refreshBtn').addEventListener('click', render);
+    // Initialize storage on first load
+    initializeStorage();
+
+    document.getElementById('refreshBtn').addEventListener('click', () => render());
     document.getElementById('backBtn').addEventListener('click', () => window.location.href = 'index.html');
-    document.getElementById('searchInput').addEventListener('input', render);
+    document.getElementById('searchInput').addEventListener('input', () => render());
+
     render();
 </script>
 </body>
