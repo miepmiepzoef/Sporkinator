@@ -10,12 +10,11 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     "Access-Control-Allow-Headers": "Content-Type",
   };
 
-  // Handle preflight
   if (request.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  // ---------- /fetch endpoint ----------
+  // /fetch endpoint (works)
   if (path === "/fetch" && request.method === "GET") {
     const targetUrl = url.searchParams.get("url");
     if (!targetUrl) {
@@ -27,7 +26,6 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     try {
       const response = await fetch(targetUrl);
       const text = await response.text();
-      // Optional: strip HTML later, but for now return raw text
       return new Response(text, {
         status: 200,
         headers: { "Content-Type": "text/plain", ...corsHeaders },
@@ -40,7 +38,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     }
   }
 
-  // ---------- /gemini endpoint (real Gemini API) ----------
+  // /gemini endpoint – uses v1 and gemini-1.5-flash
   if (path === "/gemini" && request.method === "POST") {
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiKey) {
@@ -60,20 +58,16 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
       });
     }
 
-    // Extract messages from OpenAI‑style request
     const userMessage = body.messages?.find((m: any) => m.role === "user")?.content || "";
     const systemPrompt = body.messages?.find((m: any) => m.role === "system")?.content || "";
 
     const geminiPayload = {
-      contents: [
-        {
-          parts: [{ text: systemPrompt ? `${systemPrompt}\n\n${userMessage}` : userMessage }],
-        },
-      ],
+      contents: [{ parts: [{ text: systemPrompt ? `${systemPrompt}\n\n${userMessage}` : userMessage }] }],
     };
 
+    // Using v1 (not v1beta) and gemini-1.5-flash
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -83,7 +77,6 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
 
     const geminiData = await geminiRes.json();
 
-    // If Gemini returned an error, forward it
     if (geminiData.error) {
       return new Response(JSON.stringify({ error: geminiData.error }), {
         status: geminiRes.status,
@@ -93,16 +86,13 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
 
     const content = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!content) {
-      return new Response(
-        JSON.stringify({ error: "No content in Gemini response", fullResponse: geminiData }),
-        {
-          status: 500,
-          headers: { "Content-Type": "application/json", ...corsHeaders },
-        }
-      );
+      return new Response(JSON.stringify({ error: "No content from Gemini" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
     }
 
-    // Transform to OpenAI‑like format (what your frontend expects)
+    // Correct OpenAI-style response
     const openAiStyleResponse = {
       choices: [{ message: { content } }],
     };
@@ -113,7 +103,6 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     });
   }
 
-  // ---------- Not found ----------
   return new Response(JSON.stringify({ error: "Not found" }), {
     status: 404,
     headers: { "Content-Type": "application/json", ...corsHeaders },
