@@ -319,7 +319,7 @@
         if (keyword && keyword.trim() !=='') {  
 			searchTerm = `${year} ${keyword}`;
 		} else {
-			searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower`;
+			searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
 		}
 		const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         const resp = await fetch(url);
@@ -408,7 +408,7 @@
                 body: JSON.stringify({
                     model: 'gpt-3.5-turbo',
                     messages: [
-                        { role: 'system', content: 'Extract from the article: SHOUT (official statement), WHISPER (safe criticism), THIRD LAYER (hidden operation, needs ≥2 sources), SACRIFICIAL LAYER (what was offered up), LENSES (choose from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), CONFIDENCE (High/Medium/Low). Respond with JSON only.' },
+                        { role: 'system', content: 'Extract from the article: SHOUT (official statement), WHISPER (safe criticism), THIRD LAYER (hidden operation) - provide at least 2 independent sources with citations (e.g., "according to a leaked memo" or "as reported ny X"), SACRIFICIAL LAYER (what was offered up), LENSES (choose from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), CONFIDENCE (High/Medium/Low). Respond with JSON only.' },
                         { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
                     ],
                     temperature: 0.3,
