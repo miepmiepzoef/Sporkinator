@@ -283,13 +283,19 @@
     }
     loadAnalysesFromStorage();
 
-    // Save current analysis and return true/false
+    // Helper to check if a field is complete (not empty and not "Not mentioned")
+    function isCompleteField(value) {
+        return value && value.trim() !== '' && value !== 'Not mentioned';
+    }
+
+    // Save current analysis – no duplicate entries, only merge missing fields
     function saveCurrentAndClose() {
         if (!currentCase) return false;
         if (shoutField.value.startsWith('⏳') || shoutField.value.startsWith('❌')) {
             alert('Analysis not ready or failed. Please wait.');
             return false;
         }
+
         const newAnalysis = {
             timestamp: new Date().toISOString(),
             title: currentCase.title,
@@ -301,14 +307,53 @@
             lenses: lensesField.value,
             confidence: confidenceField.value
         };
+
         const existingIndex = analyses.findIndex(a => a.title === newAnalysis.title && a.url === newAnalysis.url);
+        
         if (existingIndex !== -1) {
-            analyses[existingIndex] = newAnalysis;
+            const existing = analyses[existingIndex];
+            // Check if existing entry is fully complete
+            const existingComplete = isCompleteField(existing.shout) && isCompleteField(existing.whisper) && 
+                                     isCompleteField(existing.thirdLayer) && isCompleteField(existing.sacrificial) &&
+                                     isCompleteField(existing.lenses) && isCompleteField(existing.confidence);
+            
+            if (existingComplete) {
+                // Only update if new analysis has sources (thirdLayer contains "source" or links)
+                if (newAnalysis.thirdLayer && (newAnalysis.thirdLayer.includes('source') || newAnalysis.thirdLayer.includes('href')) &&
+                    newAnalysis.thirdLayer !== existing.thirdLayer) {
+                    existing.thirdLayer = newAnalysis.thirdLayer;
+                    existing.timestamp = newAnalysis.timestamp;
+                    saveAnalysesToStorage();
+                    alert('Sources updated.');
+                    return true;
+                } else {
+                    alert('Analysis already complete. No changes saved.');
+                    return false;
+                }
+            } else {
+                // Merge: only overwrite fields that are empty or "Not mentioned"
+                const mergeField = (oldVal, newVal) => {
+                    if (!isCompleteField(oldVal)) return newVal;
+                    return oldVal;
+                };
+                existing.shout = mergeField(existing.shout, newAnalysis.shout);
+                existing.whisper = mergeField(existing.whisper, newAnalysis.whisper);
+                existing.thirdLayer = mergeField(existing.thirdLayer, newAnalysis.thirdLayer);
+                existing.sacrificial = mergeField(existing.sacrificial, newAnalysis.sacrificial);
+                existing.lenses = mergeField(existing.lenses, newAnalysis.lenses);
+                existing.confidence = mergeField(existing.confidence, newAnalysis.confidence);
+                existing.timestamp = newAnalysis.timestamp;
+                saveAnalysesToStorage();
+                alert('Analysis updated with missing fields.');
+                return true;
+            }
         } else {
+            // New case
             analyses.push(newAnalysis);
+            saveAnalysesToStorage();
+            alert('Analysis saved.');
+            return true;
         }
-        saveAnalysesToStorage();
-        return true;
     }
 
     // Wikipedia search
@@ -392,11 +437,11 @@
                             body: JSON.stringify({
                                 model: 'gpt-3.5-turbo',
                                 messages: [
-                                    { role: 'system', content: `Extract the following from the article. If not found, write "Not mentioned". Return ONLY valid JSON.Thnx, greetings Druid of the green isle.
+                                    { role: 'system', content: `Extract the following from the article. If not found, write "Not mentioned". Return ONLY valid JSON.
 {
   "shout": "official public narrative (what the institution wants you to believe)",
   "whisper": "safe criticism that does not challenge institutional authority",
-  "thirdLayer": "hidden operation or secret knowledge (with ≥2 independent sources if available)",
+  "thirdLayer": "hidden operation or secret knowledge – include at least two specific sources (e.g., 'according to a leaked memo from X' or 'as reported by Y')",
   "sacrificial": "what the institution offers up (apology, low-level employee, inquiry, compensation)",
   "lenses": "comma-separated list from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan",
   "confidence": "High/Medium/Low"
@@ -449,7 +494,7 @@
                             modal.style.display = 'none';
                             window.location.href = 'vault.html';
                         } else {
-                            statusDiv.innerHTML = '⚠️ Save failed, but analysis complete.';
+                            statusDiv.innerHTML = '⚠️ Save skipped (analysis already complete).';
                         }
                     } catch (err) {
                         console.error(err);
