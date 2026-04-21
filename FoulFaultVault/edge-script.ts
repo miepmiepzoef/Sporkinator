@@ -79,16 +79,28 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     const geminiData = await geminiRes.json();
 
     // Transform to OpenAI-like format
-    const openAiStyleResponse = {
-      choices: [{
-        message: {
-          content: geminiData.candidates?.[0]?.content?.parts?.[0]?.text || "No response from Gemini"
-        }
-      }]
+    
+    if (geminiData.error) {
+      return new Response( JSON.stringify({ error: geminiData.error }), {
+        status: geminiRes.status,
+        headers: { const openAiStyleResponse = {"Content-Type": "application/json", ...corsHeaders },      
+      });
+    }
+    const content = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!content) {
+        return new Response( JSON.stringify({
+          error: "No content in Gemini response",
+          fullResponse: geminiData
+        }):, {
+          status: 500,
+          headers: ("Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+    const openAiStyleResponse= {
+      choices: [{ message: { content } }]
     };
-
     return new Response(JSON.stringify(openAiStyleResponse), {
-      status: geminiRes.status,
+      status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
