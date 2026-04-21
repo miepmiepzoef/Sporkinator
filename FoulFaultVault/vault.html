@@ -6,13 +6,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        .vault-container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
+        .vault-container { max-width: 1400px; margin: 20px auto; background: white; /*border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); */}
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
         th { background: #0a1c2f; color: white; }
-        .delete-btn { background: #a11; color: white; border: none; padding: 4px 10px; border-radius: 20px; cursor: pointer; }
+        .delete-btn { background: #0a1c2f; color: white; border: none; padding: 4px 10px; border-radius: 20px; cursor: pointer; }
         .delete-btn:hover { background: #c33; }
-        .back-btn { background: #2c5a2e; margin-right: 10px; }
+        .back-btn { background: #0a1c2f; margin-right: 10px; }
         .search-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 28px; border: 1px solid #ccc; font-size: 1rem; }
     </style>
 </head>
@@ -28,10 +28,11 @@
     <div id="vaultContent"><p>Loading...</p></div>
 </div>
 <div id="footer-placeholder"></div>
+    <div id="banner-placeholder"></div>
 <script>
     fetch('../header.html').then(r => r.text()).then(d => document.getElementById('header-placeholder').innerHTML = d);
     fetch('../footer.html').then(r => r.text()).then(d => document.getElementById('footer-placeholder').innerHTML = d);
-
+    fetch('../banner.html').then(r => r.text()).then(d => document.getElementById('banner-placeholder').innerHTML = d);
     // Example case to pre‑populate if vault is empty
     const exampleCase = {
         timestamp: new Date().toISOString(),
