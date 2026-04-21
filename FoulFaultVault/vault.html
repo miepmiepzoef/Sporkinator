@@ -6,101 +6,110 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-       /* body { font-family: system-ui, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; }*/
-        .container { text-align: center; align-items: center; max-width: 1400px; margin: 0 auto; background: white; border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
-        h1 { margin-top: 0; }
+        .vault-container { max-width: 1400px; margin: 20px auto; background: white; border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; vertical-align: top; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
         th { background: #0a1c2f; color: white; }
-        tr:nth-child(even) { background: #f9f9f9; }
-        button { background: #0a1c2f; border: none; padding: 8px 16px; border-radius: 40px; color: white; cursor: pointer; margin-right: 10px; margin-bottom: 10px; }
-        button:hover { background: #1e3a5f; }
-        .delete-btn { background: #0a1c2f; }
-        .delete-btn:hover { background: #1e3a5f; }
-        .back-btn { background: #0a1c2f; }
-        .actions { white-space: nowrap; }
+        .delete-btn { background: #a11; color: white; border: none; padding: 4px 10px; border-radius: 20px; cursor: pointer; }
+        .delete-btn:hover { background: #c33; }
+        .back-btn { background: #2c5a2e; margin-right: 10px; }
+        .search-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 28px; border: 1px solid #ccc; font-size: 1rem; }
     </style>
 </head>
 <body>
 <div id="header-placeholder"></div>
-    <h1>📂 Vault – Saved Analyses</h1>
-    <p class="citation>Access Granted.</p>
-<div class="container">
-    
+    <h1>Vault</h1>
+    <p class="citation">Access Granted</p>
+<div class="vault-container">
+    <p class="instructions"> Saved Files</p>
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Filter by title, shout, whisper, third layer, lenses, confidence...">
     <button id="refreshBtn" class="back-btn">⟳ Refresh</button>
-    <button id="deleteAllBtn" class="delete-btn">🗑 Delete All</button>
     <button id="backBtn" class="back-btn">← Back to Search</button>
-    <div id="vaultContent">
-        <p>Loading saved cases...</p>
-    </div>
+    <div id="vaultContent"><p>Loading...</p></div>
 </div>
 <div id="footer-placeholder"></div>
 <script>
-    // Load header and footer (same as index)
-    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
-    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
+    fetch('../header.html').then(r => r.text()).then(d => document.getElementById('header-placeholder').innerHTML = d);
+    fetch('../footer.html').then(r => r.text()).then(d => document.getElementById('footer-placeholder').innerHTML = d);
 
-    function renderVault() {
+    // Example case to pre‑populate if vault is empty
+    const exampleCase = {
+        timestamp: new Date().toISOString(),
+        title: "Example: Watergate Scandal",
+        url: "https://en.wikipedia.org/wiki/Watergate",
+        shout: "President Nixon: 'I am not a crook.'",
+        whisper: "Some journalists questioned the official denial.",
+        thirdLayer: "Secret recordings revealed cover‑up. (Sources: Washington Post, Senate hearings)",
+        sacrificial: "Two aides resigned; no prosecution of Nixon.",
+        lenses: "Limited Hangout, Teflon Shield",
+        confidence: "High"
+    };
+
+    function render() {
         const stored = localStorage.getItem('ffv_analyses');
-        let analyses = [];
-        if (stored) {
-            analyses = JSON.parse(stored);
+        let analyses = stored ? JSON.parse(stored) : [];
+
+        // If empty, add example case
+        if (analyses.length === 0) {
+            analyses = [exampleCase];
+            localStorage.setItem('ffv_analyses', JSON.stringify(analyses));
         }
+
+        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
+        const filtered = analyses.filter(item => {
+            return (item.title?.toLowerCase().includes(searchTerm) ||
+                    item.shout?.toLowerCase().includes(searchTerm) ||
+                    item.whisper?.toLowerCase().includes(searchTerm) ||
+                    item.thirdLayer?.toLowerCase().includes(searchTerm) ||
+                    item.sacrificial?.toLowerCase().includes(searchTerm) ||
+                    item.lenses?.toLowerCase().includes(searchTerm) ||
+                    item.confidence?.toLowerCase().includes(searchTerm));
+        });
+
         const container = document.getElementById('vaultContent');
-        if (!analyses.length) {
-            container.innerHTML = '<p>No saved analyses yet. Go back and save some cases.</p>';
+        if (!filtered.length) {
+            container.innerHTML = '<p>No matching cases. Try a different search term.</p>';
             return;
         }
-        let html = `<table>
-            <thead>
-                <tr><th>Timestamp</th><th>Title</th><th>SHOUT</th><th>WHISPER</th><th>THIRD LAYER</th><th>Sacrificial</th><th>Lenses</th><th>Confidence</th><th>Actions</th></tr>
-            </thead>
-            <tbody>`;
-        analyses.forEach((item, idx) => {
+        let html = `<table><thead><tr><th>Date</th><th>Title</th><th>SHOUT</th><th>WHISPER</th><th>THIRD LAYER</th><th>Sacrificial</th><th>Lenses</th><th>Confidence</th><th></th></tr></thead><tbody>`;
+        filtered.forEach((a, idx) => {
+            // Need original index for deletion (from full array, not filtered)
+            const originalIndex = analyses.findIndex(orig => orig.title === a.title && orig.url === a.url);
             html += `<tr>
-                <td>${escapeHtml(item.timestamp || '')}</td>
-                <td><a href="${escapeHtml(item.url)}" target="_blank">${escapeHtml(item.title)}</a></td>
-                <td>${escapeHtml(item.shout || '')}</td>
-                <td>${escapeHtml(item.whisper || '')}</td>
-                <td>${escapeHtml(item.thirdLayer || '')}</td>
-                <td>${escapeHtml(item.sacrificial || '')}</td>
-                <td>${escapeHtml(item.lenses || '')}</td>
-                <td>${escapeHtml(item.confidence || '')}</td>
-                <td class="actions"><button class="delete-single" data-idx="${idx}">Delete</button></td>
+                <td>${escapeHtml(a.timestamp || '')}</td>
+                <td><a href="${escapeHtml(a.url)}" target="_blank">${escapeHtml(a.title)}</a></td>
+                <td>${escapeHtml(a.shout || '')}</td>
+                <td>${escapeHtml(a.whisper || '')}</td>
+                <td>${escapeHtml(a.thirdLayer || '')}</td>
+                <td>${escapeHtml(a.sacrificial || '')}</td>
+                <td>${escapeHtml(a.lenses || '')}</td>
+                <td>${escapeHtml(a.confidence || '')}</td>
+                <td><button class="delete-btn" data-index="${originalIndex}">Delete</button></td>
             </tr>`;
         });
         html += `</tbody></table>`;
         container.innerHTML = html;
 
-        // Attach delete single event listeners
-        document.querySelectorAll('.delete-single').forEach(btn => {
+        document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const idx = parseInt(btn.dataset.idx);
-                let analysesCurrent = JSON.parse(localStorage.getItem('ffv_analyses') || '[]');
-                analysesCurrent.splice(idx, 1);
-                localStorage.setItem('ffv_analyses', JSON.stringify(analysesCurrent));
-                renderVault(); // re-render
+                let idx = parseInt(btn.dataset.index);
+                let current = JSON.parse(localStorage.getItem('ffv_analyses') || '[]');
+                current.splice(idx, 1);
+                localStorage.setItem('ffv_analyses', JSON.stringify(current));
+                render(); // re-render with updated data
             });
         });
     }
 
-    function escapeHtml(str) {
-        if (!str) return '';
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    function escapeHtml(s) { 
+        if (!s) return '';
+        return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
-    document.getElementById('refreshBtn').addEventListener('click', renderVault);
-    document.getElementById('deleteAllBtn').addEventListener('click', () => {
-        if (confirm('Delete ALL saved analyses? This cannot be undone.')) {
-            localStorage.removeItem('ffv_analyses');
-            renderVault();
-        }
-    });
-    document.getElementById('backBtn').addEventListener('click', () => {
-        window.location.href = 'index.html'; // adjust path if needed
-    });
-
-    renderVault();
+    document.getElementById('refreshBtn').addEventListener('click', render);
+    document.getElementById('backBtn').addEventListener('click', () => window.location.href = 'index.html');
+    document.getElementById('searchInput').addEventListener('input', render);
+    render();
 </script>
 </body>
 </html>
