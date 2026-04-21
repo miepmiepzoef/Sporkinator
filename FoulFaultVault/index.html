@@ -401,7 +401,7 @@
             if (articleText.length > 8000) articleText = articleText.slice(0, 8000) + '…';
 
             statusDiv.innerHTML = '🤖 Calling OpenAI...';
-            const openAiRes = await fetch(`${PROXY_URL}/openai`, {
+            const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -414,8 +414,8 @@
                     response_format: { type: 'json_object' }
                 })
             });
-            const data = await openAiRes.json();
-            if (!openAiRes.ok) throw new Error(`OpenAI proxy error: ${data.error || data.message || 'Unknown'}`);
+            const data = await geminiRes.json();
+            if (!geminiRes.ok) throw new Error(`Gemini proxy error: ${data.error || data.message || 'Unknown'}`);
             if (!data.choices || !data.choices[0]) throw new Error('Invalid response from proxy. Check OpenAI key.');
             const parsed = JSON.parse(data.choices[0].message.content);
             document.getElementById('shoutField').value = parsed.shout || '';
