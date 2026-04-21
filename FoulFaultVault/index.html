@@ -210,7 +210,7 @@
 <div id="header-placeholder"></div>
 <h1>FoulFaultVault</h1>
 <p class="citation">Version 1.1</p>
-	 <h2>Some glasses</h2>
+	 <h2>Search for Faults</h2>
 <div class="container">
    
 	<div class="search-area">
@@ -243,15 +243,14 @@
 <div id="footer-placeholder"></div>		
 <div id="banner-placeholder"></div>
 <script>
-      
-	 // Load header, footer, banner
+    // Load header, footer, banner
     fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
     const PROXY_URL = 'https://vault-d9s2z.bunny.run';
     let currentCase = null;
-    let analyses = []; // in-memory for export
+    let analyses = [];
 
     // DOM elements
     const searchBtn = document.getElementById('searchBtn');
@@ -272,24 +271,46 @@
     const lensesField = document.getElementById('lensesField');
     const confidenceField = document.getElementById('confidenceField');
     const saveAnalysisBtn = document.getElementById('saveAnalysisBtn');
-    const autoAnalyzeBtn = document.getElementById('autoAnalyzeBtn');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    // Load existing analyses from localStorage into memory
+    // Load existing analyses from localStorage
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
-        if (stored) {
-            analyses = JSON.parse(stored);
-        } else {
-            analyses = [];
-        }
+        analyses = stored ? JSON.parse(stored) : [];
     }
     function saveAnalysesToStorage() {
         localStorage.setItem('ffv_analyses', JSON.stringify(analyses));
     }
-
-    // Call on page load
     loadAnalysesFromStorage();
+
+    // Helper: save current case and redirect to vault
+    function saveAndGoToVault() {
+        if (!currentCase) return;
+        // Don't save if analysis failed
+        if (shoutField.value.startsWith('❌') || shoutField.value === '⏳ Analyzing...') {
+            alert('Analysis not ready or failed. Please wait.');
+            return false;
+        }
+        const newAnalysis = {
+            timestamp: new Date().toISOString(),
+            title: currentCase.title,
+            url: currentCase.url,
+            shout: shoutField.value,
+            whisper: whisperField.value,
+            thirdLayer: thirdLayerField.value,
+            sacrificial: sacrificialField.value,
+            lenses: lensesField.value,
+            confidence: confidenceField.value
+        };
+        const existingIndex = analyses.findIndex(a => a.title === newAnalysis.title && a.url === newAnalysis.url);
+        if (existingIndex !== -1) {
+            analyses[existingIndex] = newAnalysis;
+        } else {
+            analyses.push(newAnalysis);
+        }
+        saveAnalysesToStorage();
+        return true;
+    }
 
     // Wikipedia search
     async function searchWikipedia(year, keyword) {
@@ -329,28 +350,77 @@
             let html = '';
             for (const r of results) {
                 html += `<div class="result-item">
-                    <strong><a href="${r.url}" target="_blank">${escapeHtml(r.title)}</a></strong>
+                    <strong><a href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.title)}</a></strong>
                     <p>${r.snippet}...</p>
                     <button class="analyze-btn" data-title="${escapeHtml(r.title)}" data-url="${r.url}">🧩 Analyze</button>
                 </div>`;
             }
             resultsContainer.innerHTML = html;
             statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
+            // Attach analyze buttons with auto‑analysis, auto‑save, and redirect to vault
             document.querySelectorAll('.analyze-btn').forEach(btn => {
-                btn.addEventListener('click',async () => {
+                btn.addEventListener('click', async () => {
                     currentCase = { title: btn.dataset.title, url: btn.dataset.url };
                     modalCaseTitle.innerText = currentCase.title;
                     modalCaseUrl.href = currentCase.url;
-					modal.style.display = 'flex';
-                    shoutField.value = '⏳Analyzing..';
-					whisperField.value = '';
-					thirdLayerField.value = '';
-					sacrificialField.value = '';
-					lensesField.value = '';
-					confidenceField.value = '';
+                    // Clear and show modal with loading
+                    shoutField.value = '⏳ Analyzing...';
+                    whisperField.value = '';
+                    thirdLayerField.value = '';
+                    sacrificialField.value = '';
+                    lensesField.value = '';
+                    confidenceField.value = '';
+                    modal.style.display = 'flex';
 
-					
-              /*  });
+                    // Perform analysis
+                    try {
+                        const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
+                        const articleRes = await fetch(fetchUrl);
+                        if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
+                        let articleText = await articleRes.text();
+                        if (articleText.length > 8000) articleText = articleText.slice(0, 8000) + '…';
+
+                        const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                model: 'gpt-3.5-turbo',
+                                messages: [
+                                    { role: 'system', content: 'Extract from the article: SHOUT (official statement), WHISPER (safe criticism), THIRD LAYER (hidden operation) - provide at least 2 independent sources with citations, SACRIFICIAL LAYER, LENSES (choose from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), CONFIDENCE (High/Medium/Low). Respond with JSON only.' },
+                                    { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
+                                ],
+                                temperature: 0.3,
+                                response_format: { type: 'json_object' }
+                            })
+                        });
+                        const data = await geminiRes.json();
+                        if (!geminiRes.ok) throw new Error(`Gemini error: ${data.error || 'Unknown'}`);
+                        if (!data.choices || !data.choices[0]) throw new Error('Invalid response');
+                        const parsed = JSON.parse(data.choices[0].message.content);
+                        shoutField.value = parsed.shout || '';
+                        whisperField.value = parsed.whisper || '';
+                        thirdLayerField.value = parsed.thirdLayer || '';
+                        sacrificialField.value = parsed.sacrificial || '';
+                        lensesField.value = parsed.lenses || '';
+                        confidenceField.value = parsed.confidence || '';
+
+                        // Auto-save and redirect to vault
+                        if (saveAndGoToVault()) {
+                            // Close modal and go to vault
+                            modal.style.display = 'none';
+                            window.location.href = 'vault.html';
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        shoutField.value = '❌ Analysis failed: ' + err.message;
+                        whisperField.value = '';
+                        thirdLayerField.value = '';
+                        sacrificialField.value = '';
+                        lensesField.value = '';
+                        confidenceField.value = '';
+                        // Optionally keep modal open to show error
+                    }
+                });
             });
         } catch (err) {
             statusDiv.innerHTML = `Error: ${err.message}`;
@@ -361,90 +431,15 @@
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
-    // Auto-analyze
-    autoAnalyzeBtn.addEventListener('click', async () => {
-        if (!currentCase) {
-            alert('No article selected. Click "Analyze" first.');
-            return;
-        }
-        autoAnalyzeBtn.disabled = true;
-        autoAnalyzeBtn.textContent = '⏳ Analyzing...';
-        statusDiv.innerHTML = '📡 Fetching article via proxy...';*/
-        try {
-            const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
-            const articleRes = await fetch(fetchUrl);
-            if (!articleRes.ok) throw new Error(`Article fetch failed: ${articleRes.status}`);
-            let articleText = await articleRes.text();
-            if (articleText.length > 8000) articleText = articleText.slice(0, 8000) + '…';
-           /* statusDiv.innerHTML = '🤖 Calling Gemini...';*/
-            const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'gpt-3.5-turbo',
-                    messages: [
-                        { role: 'system', content: 'Extract from the article: SHOUT (official statement), WHISPER (safe criticism), THIRD LAYER (hidden operation) - provide at least 2 independent sources with citations (e.g., "according to a leaked memo" or "as reported by X"), SACRIFICIAL LAYER (what was offered up), LENSES (choose from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), CONFIDENCE (High/Medium/Low). Respond with JSON only.' },
-                        { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
-                    ],
-                    temperature: 0.3,
-                    response_format: { type: 'json_object' }
-                })
-            });
-            const data = await geminiRes.json();
-            if (!geminiRes.ok) throw new Error(`Gemini proxy error: ${data.error || data.message || 'Unknown'}`);
-            if (!data.choices || !data.choices[0]) throw new Error('Invalid response from proxy.');
-            const parsed = JSON.parse(data.choices[0].message.content);
-            shoutField.value = parsed.shout || '';
-            whisperField.value = parsed.whisper || '';
-            thirdLayerField.value = parsed.thirdLayer || '';
-            sacrificialField.value = parsed.sacrificial || '';
-            lensesField.value = parsed.lenses || '';
-            confidenceField.value = parsed.confidence || '';
-           /* statusDiv.innerHTML = '✅ Analysis complete.';*/
-        } catch (err) {
-            console.error(err);
-				shoutField.value = '❌ Analyze failed.';
-				whisperField.value = '';
-				thirdLayerField.value = '';
-				sacrificialField.value = '';
-				lensesField.value = '';
-				confidenceField.value = '';
-           /* alert('Auto‑analyze error: ' + err.message);
-            statusDiv.innerHTML = '❌ Auto‑analyze failed.';
-        } finally {
-            autoAnalyzeBtn.disabled = false;
-            autoAnalyzeBtn.textContent = '🤖 Auto‑analyze (AI)';*/
-        }
-    });
-
-    // Save button: also store in localStorage
+    // Manual save button (optional) – now redirects to vault as well
     saveAnalysisBtn.addEventListener('click', () => {
-        if (!currentCase) return;
-        const newAnalysis = {
-            timestamp: new Date().toISOString(),
-            title: currentCase.title,
-            url: currentCase.url,
-            shout: shoutField.value,
-            whisper: whisperField.value,
-            thirdLayer: thirdLayerField.value,
-            sacrificial: sacrificialField.value,
-            lenses: lensesField.value,
-            confidence: confidenceField.value
-        };
-        // Check if entry with same title+url exists, if yes, replace it
-        const existingIndex = analyses.findIndex(a => a.title === newAnalysis.title && a.url === newAnalysis.url);
-        if (existingIndex !== -1) {
-            analyses[existingIndex] = newAnalysis;
-            alert('Analysis updated (overwrote previous entry).');
-        } else {
-            analyses.push(newAnalysis);
-            alert('Analysis saved.');
+        if (saveAndGoToVault()) {
+            modal.style.display = 'none';
+            window.location.href = 'vault.html';
         }
-        saveAnalysesToStorage();
-        modal.style.display = 'none'; // close modal after save
     });
 
-    // Export as JSON (from localStorage)
+    // Export
     exportBtn.addEventListener('click', () => {
         if (!analyses.length) { alert('No analyses saved.'); return; }
         const json = JSON.stringify(analyses, null, 2);
@@ -456,7 +451,7 @@
         URL.revokeObjectURL(blob);
     });
 
-    // Vault button: open vault.html in same folder
+    // Vault button
     vaultBtn.addEventListener('click', () => {
         window.location.href = 'vault.html';
     });
@@ -469,13 +464,12 @@
         statusDiv.innerHTML = '';
     });
 
-    // Close modal with X button
+    // Close modal
     if (closeModalBtn) {
         closeModalBtn.addEventListener('click', () => {
             modal.style.display = 'none';
         });
     }
-    // Close modal when clicking outside the modal content
     window.addEventListener('click', (event) => {
         if (modal && !modal.querySelector('.modal-content').contains(event.target)) {
             modal.style.display = 'none';
