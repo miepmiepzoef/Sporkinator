@@ -17,7 +17,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
   }
 
   // Fetch any URL (for article content)
-  if (path === "/fetch" && request.method === "GET") {
+  if (path === "run/fetch" && request.method === "GET") {
     const targetUrl = url.searchParams.get("url");
     if (!targetUrl) {
       return new Response(JSON.stringify({ error: "Missing url" }), {
@@ -41,7 +41,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
   }
 
   // Gemini proxy (replaces OpenAI)
-  if (path === "/gemini" && request.method === "POST") {
+  if (path === "run/gemini" && request.method === "POST") {
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiKey) {
       return new Response(JSON.stringify({ error: "Missing GEMINI_API_KEY" }), {
