@@ -437,15 +437,16 @@
                             body: JSON.stringify({
                                 model: 'gpt-3.5-turbo',
                                 messages: [
-                                    { role: 'system', content: `Extract the following from the article. If not found, write "Not mentioned". Return ONLY valid JSON.
+                                    { role: 'system', content: `Extract from the article. If a field is not found, write "Not mentioned". Return ONLY valid JSON. You MUST include at least two specific sources in the "thirdLayer" field, e.g., "according to a leaked memo from X" or "as reported by Y". Example:
 {
-  "shout": "official public narrative (what the institution wants you to believe)",
-  "whisper": "safe criticism that does not challenge institutional authority",
-  "thirdLayer": "hidden operation or secret knowledge – include at least two specific sources (e.g., 'according to a leaked memo from X' or 'as reported by Y')",
-  "sacrificial": "what the institution offers up (apology, low-level employee, inquiry, compensation)",
-  "lenses": "comma-separated list from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan",
-  "confidence": "High/Medium/Low"
-}` },
+  "shout": "Official denial",
+  "whisper": "Some criticism",
+  "thirdLayer": "Secret operation. Sources: internal memo from 2022, whistleblower testimony to the Guardian",
+  "sacrificial": "Junior staff suspended",
+  "lenses": "Limited Hangout, Teflon Shield",
+  "confidence": "High"
+}
+Now extract from the article:` },
                                     { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
                                 ],
                                 temperature: 0.3
