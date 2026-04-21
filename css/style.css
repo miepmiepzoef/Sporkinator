@@ -30,6 +30,18 @@ h1 {
     border-bottom: 2px solid #333;
     margin-bottom: 0;
 }
+h2 {
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+    margin-bottom: 0;
+}
+h3 {
+    text-align: center;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #333;
+    margin-bottom: 0;
+}
 
 /* Any other global styles */
 .banner {
