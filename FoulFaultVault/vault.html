@@ -188,7 +188,7 @@
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
     // ----- Cases with separate Sources field (clickable links) -----
-    const exampleCases = [
+   /* const exampleCases = [
         {
             timestamp: "2025-04-21T10:00:00.000Z",
             title: "Watergate scandal",
@@ -249,7 +249,7 @@
             lenses: "Fog Machine (massive document dump), Teflon Shield",
             confidence: "High"
         }
-    ];
+    ];*/
 
     // Helper: ensure localStorage has these cases if empty
     function initializeStorage() {
