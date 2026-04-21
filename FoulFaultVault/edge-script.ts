@@ -71,6 +71,8 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     });
 
     const geminiData = await response.json();
+    console.log ("Gemini API status: ", response.status, "data", geminiData);
+                 
 
     // Transform Gemini response to OpenAI format
     let geminiStyleResponse = {
@@ -89,5 +91,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     });
   }
 
-  return new Response(JSON.stringify({ error: "Not found" }), { status: 404 });
+  return new Response(JSON.stringify({ error: "Not found" }), { status: 404 }), {
+      status: 404,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" }
 });
