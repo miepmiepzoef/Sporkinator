@@ -160,7 +160,7 @@
 				
 				
 				if (isNaN(meters1) || meters1 < 0) {
-					errorDiv.innertext = "Please, enter a positive number";
+					errorDiv.innertext = "Please, enter a positive nummber";
 					return;		
 				}
 				/*let b = m / 16.99;*/
@@ -180,7 +180,7 @@
 				const resultSpan = document.getElementById('result2');
 				const errorDiv = document.getElementById('error-meters2');
 				errorDiv.innerText = '';
-				resultSpan.innerText= '...';
+				resultSpan.innerText= 'zero';
 				resultSpan.classList.remove('error');
 				
 				if (isNaN(meters2) || meters2 < 0) {
