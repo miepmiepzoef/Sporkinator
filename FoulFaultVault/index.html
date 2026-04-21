@@ -399,7 +399,7 @@
     })
 });
 const data = await geminiRes.json();
-console.log('=== FULL GEMINI RESPONSE ===', JSON.stringify(data, null, 2));
+console.log('RAW GEMINI RESPONSE', JSON.stringify(data, null, 2));
 
 if (!geminiRes.ok) {
     throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
