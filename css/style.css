@@ -19,7 +19,7 @@ body {
     /*border-top: 1px solid #ddd; /* optional for footer */
     text-align: center;
     font-size: 14px;
-    color: #666;
+    color: #333;
     margin-top: 10px
 }
 
@@ -81,7 +81,7 @@ h3 {
 }
 .citation {
     text-align: center;
-    font-size: 0.8em;
+    font-size: 0.6em;
     color: #666;
     margin-top: 5px;
     font-style: italic;
