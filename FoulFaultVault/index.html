@@ -239,7 +239,7 @@
 <div id="header-placeholder"></div>
 <h1>FoulFaultVault</h1>
 <p class="citation">Version 1.1</p>
-	 <p class="instructions">Some glasses</p>
+	 <h2>Some glasses</h2>
 <div class="container">
    
 	<div class="search-area">
@@ -250,7 +250,7 @@
             <button id="exportBtn" class="export-btn">📤 Export analyses</button>
 			<button id="vaultBtn" class="export-btn">📂 Fold</button>
 	</div>
-	<div class="status" id="statusMsg">⚡ Enter a year and click Search. Then click "Analyze" and use "Auto‑analyze (AI)".</div>
+	<div class="status" id="statusMsg">⚡ Enter a year and click Search. Then click "Analyze".</div>
 	<div class="results" id="resultsContainer"></div>
 </div>
 
@@ -259,14 +259,12 @@
         
         <h3>📝 FoulFault analysis</h3>
         <p><strong>Case:</strong> <span id="modalCaseTitle"></span><br><small>🔗 <a id="modalCaseUrl" href="#" target="_blank">open Wikipedia article</a></small></p>
-        <button id="autoAnalyzeBtn" class="auto-btn"> Auto-Analyze (AI)</button>
-		<hr>
-        <div class="layer-field"><label>📢 SHOUT (official narrative)</label><textarea id="shoutField" rows="2" placeholder="Quote the most prominent official statement..."></textarea></div>
-        <div class="layer-field"><label>🤫 WHISPER (safe criticism)</label><textarea id="whisperField" rows="2" placeholder="Criticism that does not challenge institutional authority..."></textarea></div>
-        <div class="layer-field"><label>🕳️ THIRD LAYER (hidden operation) – requires ≥2 sources</label><textarea id="thirdLayerField" rows="3" placeholder="Describe the concealed activity with evidence..."></textarea></div>
-        <div class="layer-field"><label>🐑 SACRIFICIAL LAYER (what was offered up)</label><textarea id="sacrificialField" rows="2" placeholder="Apology, low-level employee, inquiry, compensation..."></textarea></div>
-        <div class="layer-field"><label>🔎 Lenses (Black Box, Zombie File, etc.)</label><input type="text" id="lensesField" placeholder="e.g., Fog Machine, Protective Shield"></div>
-        <div class="layer-field"><label>🎯 Confidence (High / Medium / Low)</label><input type="text" id="confidenceField" placeholder="High"></div>
+        <div class="layer-field"><label>📢 SHOUT (official narrative)</label><textarea id="shoutField" rows="2" readonly></textarea></div>
+        <div class="layer-field"><label>🤫 WHISPER (safe criticism)</label><textarea id="whisperField" rows="2" readonly></textarea></div>
+        <div class="layer-field"><label>🕳️ THIRD LAYER (hidden operation) – requires ≥2 sources</label><textarea id="thirdLayerField" rows="3" readonly></textarea></div>
+        <div class="layer-field"><label>🐑 SACRIFICIAL LAYER (what was offered up)</label><textarea id="sacrificialField" rows="2" readonly></textarea></div>
+        <div class="layer-field"><label>🔎 Lenses (Black Box, Zombie File, etc.)</label><input type="text" id="lensesField" readonly></div>
+        <div class="layer-field"><label>🎯 Confidence (High / Medium / Low)</label><input type="text" id="confidenceField" readonly></div>
         <button id="saveAnalysisBtn" style="margin-top:12px; background:#0a1c2f;">💾 Save</button>
 		<button class="close-modal" id="closeModalBtn">&times;</button>
 	</div>
@@ -587,15 +585,22 @@
                 </div>`;
             }
             resultsContainer.innerHTML = html;
-            statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze" then "Auto‑analyze (AI)".`;
+            statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
             document.querySelectorAll('.analyze-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
+                btn.addEventListener('click',async () => {
                     currentCase = { title: btn.dataset.title, url: btn.dataset.url };
                     modalCaseTitle.innerText = currentCase.title;
                     modalCaseUrl.href = currentCase.url;
-                    shoutField.value = whisperField.value = thirdLayerField.value = sacrificialField.value = lensesField.value = confidenceField.value = '';
-                    modal.style.display = 'flex';
-                });
+					modal.style.display = 'flex';
+                    shoutField.value = '⏳Analyzing..';
+					whisperField.value = '';
+					thirdLayerField.value = '';
+					sacrificialField.value = '';
+					lensesField.value = '';
+					confidenceField.value = '';
+
+					
+              /*  });
             });
         } catch (err) {
             statusDiv.innerHTML = `Error: ${err.message}`;
@@ -614,7 +619,7 @@
         }
         autoAnalyzeBtn.disabled = true;
         autoAnalyzeBtn.textContent = '⏳ Analyzing...';
-        statusDiv.innerHTML = '📡 Fetching article via proxy...';
+        statusDiv.innerHTML = '📡 Fetching article via proxy...';*/
         try {
             const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
             const articleRes = await fetch(fetchUrl);
