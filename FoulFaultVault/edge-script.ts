@@ -4,7 +4,6 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
   const url = new URL(request.url);
   const path = url.pathname;
 
-  // CORS headers for all responses
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -16,11 +15,11 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
-  // ---------- FETCH endpoint ----------
+  // Fetch endpoint (returns Wikipedia HTML)
   if (path === "/fetch" && request.method === "GET") {
     const targetUrl = url.searchParams.get("url");
     if (!targetUrl) {
-      return new Response(JSON.stringify({ error: "Missing 'url' parameter" }), {
+      return new Response(JSON.stringify({ error: "Missing url" }), {
         status: 400,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
@@ -32,80 +31,40 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
         status: 200,
         headers: { "Content-Type": "text/plain", ...corsHeaders },
       });
-    } catch (err) {
-      return new Response(JSON.stringify({ error: "Failed to fetch URL" }), {
+    } catch {
+      return new Response(JSON.stringify({ error: "Fetch failed" }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
     }
   }
 
-  // ---------- GEMINI endpoint ----------
+  // Gemini mock endpoint (no real API call, returns fixed analysis)
   if (path === "/gemini" && request.method === "POST") {
-    const geminiKey = Deno.env.get("GEMINI_API_KEY");
-    if (!geminiKey) {
-      return new Response(JSON.stringify({ error: "Missing GEMINI_API_KEY" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    let body;
-    try {
-      body = await request.json();
-    } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON body" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    const userMessage = body.messages?.find((m: any) => m.role === "user")?.content || "";
-    const systemPrompt = body.messages?.find((m: any) => m.role === "system")?.content || "";
-
-    const geminiPayload = {
-      contents: [{ parts: [{ text: systemPrompt ? `${systemPrompt}\n\n${userMessage}` : userMessage }] }]
+    // Mock response that matches your frontend's expected format
+    const mockAnalysis = {
+      choices: [
+        {
+          message: {
+            content: JSON.stringify({
+              shout: "Official statement: 'We deny any wrongdoing.'",
+              whisper: "Some critics question the timeline.",
+              thirdLayer: "Internal emails suggest prior knowledge.",
+              sacrificial: "A junior staff member was suspended.",
+              lenses: "Limited Hangout, Teflon Shield",
+              confidence: "Medium"
+            })
+          }
+        }
+      ]
     };
-
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(geminiPayload),
-      }
-    );
-
-    const geminiData = await geminiRes.json();
-
-    // Transform to OpenAI-like format
-    
-    if (geminiData.error) {
-      return new Response( JSON.stringify({ error: geminiData.error }), {
-        status: geminiRes.status,
-        headers: { const openAiStyleResponse = {"Content-Type": "application/json", ...corsHeaders },      
-      });
-    }
-    const content = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (!content) {
-        return new Response( JSON.stringify({
-          error: "No content in Gemini response",
-          fullResponse: geminiData
-        }):, {
-          status: 500,
-          headers: ("Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-    const openAiStyleResponse= {
-      choices: [{ message: { content } }]
-    };
-    return new Response(JSON.stringify(openAiStyleResponse), {
+    return new Response(JSON.stringify(mockAnalysis), {
       status: 200,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
 
-  // ---------- Not found ----------
+  // Not found
   return new Response(JSON.stringify({ error: "Not found" }), {
     status: 404,
     headers: { "Content-Type": "application/json", ...corsHeaders },
