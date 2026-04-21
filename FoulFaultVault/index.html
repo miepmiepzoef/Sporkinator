@@ -625,38 +625,72 @@
 
                         // Call Gemini proxy
                         const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                model: 'gpt-3.5-turbo',
-                                messages: [
-                                    { role: 'system', content: 'Extract from the article: SHOUT (official statement), WHISPER (safe criticism), THIRD LAYER (hidden operation) - provide at least 2 independent sources with citations, SACRIFICIAL LAYER, LENSES (choose from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), CONFIDENCE (High/Medium/Low). Respond with JSON only.' },
-                                    { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
-                                ],
-                                temperature: 0.3,
-                                response_format: { type: 'json_object' }
-                            })
-                        });
-                        const data = await geminiRes.json();
-                        if (!geminiRes.ok) throw new Error(`Gemini error: ${data.error || 'Unknown'}`);
-                        if (!data.choices || !data.choices[0]) throw new Error('Invalid response');
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+            { role: 'system', content: 'Extract from the article: SHOUT (official statement), WHISPER (safe criticism), THIRD LAYER (hidden operation) - provide at least 2 independent sources with citations, SACRIFICIAL LAYER, LENSES, CONFIDENCE. Respond with JSON only. Example: {"shout":"...","whisper":"...","thirdLayer":"... (sources: source1, source2)","sacrificial":"...","lenses":"...","confidence":"High"}' },
+            { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
+        ],
+        temperature: 0.3
+    })
+});
+const data = await geminiRes.json();
+console.log('=== FULL GEMINI RESPONSE ===', JSON.stringify(data, null, 2));
 
-                        // Clean AI response (remove markdown, extract JSON)
-                        let rawContent = data.choices[0].message.content;
-                        console.log('Raw AI response:', rawContent);
-                        let cleanContent = rawContent.replace(/```json\s*/g, '').replace(/```\s*/g, '').trim();
-                        const jsonMatch = cleanContent.match(/\{[\s\S]*\}/);
-                        if (!jsonMatch) throw new Error('No JSON object found in AI response');
-                        const parsed = JSON.parse(jsonMatch[0]);
+if (!geminiRes.ok) {
+    throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
+}
+if (!data.choices || !data.choices[0]) {
+    console.error('No choices in response:', data);
+    throw new Error('No choices in Gemini response');
+}
 
-                        // Fill fields
-                        shoutField.value = parsed.shout || '';
-                        whisperField.value = parsed.whisper || '';
-                        thirdLayerField.value = parsed.thirdLayer || '';
-                        sacrificialField.value = parsed.sacrificial || '';
-                        lensesField.value = parsed.lenses || '';
-                        confidenceField.value = parsed.confidence || '';
+let rawContent = data.choices[0].message.content;
+console.log('RAW CONTENT:', rawContent);
 
+// Attempt to extract JSON
+let parsed = null;
+let cleanContent = rawContent.trim();
+
+// Remove markdown code blocks
+cleanContent = cleanContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+// Find first { and last }
+const firstBrace = cleanContent.indexOf('{');
+const lastBrace = cleanContent.lastIndexOf('}');
+if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    const jsonCandidate = cleanContent.substring(firstBrace, lastBrace + 1);
+    try {
+        parsed = JSON.parse(jsonCandidate);
+        console.log('Successfully parsed JSON:', parsed);
+    } catch (e) {
+        console.error('Failed to parse JSON candidate:', jsonCandidate, e);
+    }
+}
+
+if (!parsed) {
+    // If still no parsed, try a more aggressive approach: use the entire cleaned content
+    try {
+        parsed = JSON.parse(cleanContent);
+    } catch (e) {
+        console.error('Final parse attempt failed:', e);
+        throw new Error('Could not parse AI response as JSON. Raw: ' + rawContent.substring(0, 300));
+    }
+}
+
+// Fill fields
+shoutField.value = parsed.shout || '';
+whisperField.value = parsed.whisper || '';
+thirdLayerField.value = parsed.thirdLayer || '';
+sacrificialField.value = parsed.sacrificial || '';
+lensesField.value = parsed.lenses || '';
+confidenceField.value = parsed.confidence || '';
+
+// If all fields are empty, show raw response for debugging
+if (!shoutField.value && !whisperField.value && !thirdLayerField.value) {
+    shoutField.value = '⚠️ AI returned unexpected format. Raw response: ' + rawContent.substring(0, 500);
+}
                         // Auto-save and redirect to vault
                         if (saveCurrentAndClose()) {
                             modal.style.display = 'none';
