@@ -224,3 +224,282 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
     headers: { "Content-Type": "application/json", ...corsHeaders },
   });
 });
+
+     const PROXY_URL = 'https://vault-d9s2z.bunny.run';
+    let currentCase = null;
+    let analyses = [];
+
+    // DOM elements
+    const searchBtn = document.getElementById('searchBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const exportBtn = document.getElementById('exportBtn');
+    const vaultBtn = document.getElementById('vaultBtn');
+    const yearInput = document.getElementById('yearInput');
+    const keywordInput = document.getElementById('keywordInput');
+    const statusDiv = document.getElementById('statusMsg');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const modal = document.getElementById('analysisModal');
+    const modalCaseTitle = document.getElementById('modalCaseTitle');
+    const modalCaseUrl = document.getElementById('modalCaseUrl');
+    const shoutField = document.getElementById('shoutField');
+    const whisperField = document.getElementById('whisperField');
+    const thirdLayerField = document.getElementById('thirdLayerField');
+    const sacrificialField = document.getElementById('sacrificialField');
+    const lensesField = document.getElementById('lensesField');
+    const confidenceField = document.getElementById('confidenceField');
+    const saveAnalysisBtn = document.getElementById('saveAnalysisBtn');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // Load existing analyses from localStorage
+    function loadAnalysesFromStorage() {
+        const stored = localStorage.getItem('ffv_analyses');
+        analyses = stored ? JSON.parse(stored) : [];
+    }
+    function saveAnalysesToStorage() {
+        localStorage.setItem('ffv_analyses', JSON.stringify(analyses));
+    }
+    loadAnalysesFromStorage();
+
+    // Helper: save current case and return true/false
+    function saveCurrentAndClose() {
+        if (!currentCase) return false;
+        // Don't save if analysis failed or still loading
+        if (shoutField.value.startsWith('⏳') || shoutField.value.startsWith('❌')) {
+            alert('Analysis not ready or failed. Please wait.');
+            return false;
+        }
+        const newAnalysis = {
+            timestamp: new Date().toISOString(),
+            title: currentCase.title,
+            url: currentCase.url,
+            shout: shoutField.value,
+            whisper: whisperField.value,
+            thirdLayer: thirdLayerField.value,
+            sacrificial: sacrificialField.value,
+            lenses: lensesField.value,
+            confidence: confidenceField.value
+        };
+        const existingIndex = analyses.findIndex(a => a.title === newAnalysis.title && a.url === newAnalysis.url);
+        if (existingIndex !== -1) {
+            analyses[existingIndex] = newAnalysis;
+        } else {
+            analyses.push(newAnalysis);
+        }
+        saveAnalysesToStorage();
+        return true;
+    }
+
+    // Wikipedia search
+    async function searchWikipedia(year, keyword) {
+        let searchTerm = `${year}`;
+        if (keyword && keyword.trim() !== '') {
+            searchTerm = `${year} ${keyword}`;
+        } else {
+            searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
+        }
+        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        return data.query.search.map(page => ({
+            title: page.title,
+            snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
+            url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
+            source: 'Wikipedia'
+        }));
+    }
+
+    async function performSearch() {
+        const year = yearInput.value.trim();
+        if (!year || isNaN(year) || year < 1900 || year > 2030) {
+            statusDiv.innerHTML = '⚠️ Please enter a valid year (1900–2030).';
+            return;
+        }
+        const keyword = keywordInput.value.trim();
+        statusDiv.innerHTML = `🔍 Searching Wikipedia for "${year}" ${keyword ? `+ "${keyword}"` : '...'}`;
+        resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
+        try {
+            const results = await searchWikipedia(year, keyword);
+            if (!results.length) {
+                resultsContainer.innerHTML = '<p>No results. Try different keyword</p>';
+                statusDiv.innerHTML = 'No results.';
+                return;
+            }
+            let html = '';
+            for (const r of results) {
+                html += `<div class="result-item">
+                    <strong><a href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.title)}</a></strong>
+                    <p>${r.snippet}...</p>
+                    <button class="analyze-btn" data-title="${escapeHtml(r.title)}" data-url="${r.url}">🧩 Analyze</button>
+                </div>`;
+            }
+            resultsContainer.innerHTML = html;
+            statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
+            // Attach analyze buttons with auto‑analysis, auto‑save, and redirect
+            document.querySelectorAll('.analyze-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    currentCase = { title: btn.dataset.title, url: btn.dataset.url };
+                    modalCaseTitle.innerText = currentCase.title;
+                    modalCaseUrl.href = currentCase.url;
+
+                    // Show modal with loading message
+                    shoutField.value = '⏳ Fetching article...';
+                    whisperField.value = '';
+                    thirdLayerField.value = '';
+                    sacrificialField.value = '';
+                    lensesField.value = '';
+                    confidenceField.value = '';
+                    modal.style.display = 'flex';
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+                    statusDiv.innerHTML = '📡 Fetching article via proxy...';
+
+                    try {
+                        // Fetch article text
+                        const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
+                        const articleRes = await fetch(fetchUrl);
+                        if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
+                        let articleText = await articleRes.text();
+                        if (articleText.length > 4000) articleText = articleText.slice(0, 4000) + '…';
+                        statusDiv.innerHTML = '🤖 Calling Gemini AI...';
+                        shoutField.value = '⏳ Analyzing with Gemini...';
+
+                        // Call Gemini proxy
+                        const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+        model: 'gpt-3.5-turbo',
+        messages: [
+            { role: 'system', content: 'Extract from the article the following fields pls. If a field is not clearly present, write "Not mentioned". SHOUT: The official, public narrative (what the institution wants you to believe), WHISPER : The safe criticism that does not challenge institutional authority, THIRD LAYER : The hidden operation or secret knowledge (requires ≥2 independent sources if available), SACRIFICIAL LAYER: What the institution offers up to absorb anger (apology, low-level employee, inquiry, compensation), LENSES (one or more of): Black Box | Evidence legally sealed, classified, or destroyed under privilege, Zombie File | Documents deleted, wiped, hidden from oversight, or kept in secret vaults, Limited Hangout | Apology or inquiry with no prosecution; blame on low-level employees, Structured Ambiguity| Vague official language, refusal to clarify, commercially sensitive, Fog Machine | Massive document release, contradictory statements, delayed investigations, Teflon Shield | Individuals moved to other roles without penalty; assets moved offshore, Victim Blame | Whistleblower or accuser investigated, smeared, or retaliated against, Protective Shield | Public inquiry, compensation fund, independent review announced, Zhang Shan | Rule change after court ruling, protest, or exposure (retroactive application), CONFIDENCE. Example: {"shout":"...","whisper":"...","thirdLayer":"... (sources: source1, source2)","sacrificial":"...","lenses":"...","confidence":"High"} Return ONLY valid JSON. Greetings Druid of the Green Isle' },
+            { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
+        ],
+        temperature: 0.3
+    })
+});
+const data = await geminiRes.json();
+console.log('RAW GEMINI RESPONSE', JSON.stringify(data, null, 2));
+
+if (!geminiRes.ok) {
+    throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
+}
+if (!data.choices || !data.choices[0]) {
+    console.error('No choices in response:', data);
+    throw new Error('No choices in Gemini response');
+}
+
+let rawContent = data.choices[0].message.content;
+console.log('RAW CONTENT:', rawContent);
+
+// Attempt to extract JSON
+let parsed = null;
+let cleanContent = rawContent.trim();
+
+// Remove markdown code blocks
+cleanContent = cleanContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+// Find first { and last }
+const firstBrace = cleanContent.indexOf('{');
+const lastBrace = cleanContent.lastIndexOf('}');
+if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+    const jsonCandidate = cleanContent.substring(firstBrace, lastBrace + 1);
+    try {
+        parsed = JSON.parse(jsonCandidate);
+        console.log('Successfully parsed JSON:', parsed);
+    } catch (e) {
+        console.error('Failed to parse JSON candidate:', jsonCandidate, e);
+    }
+}
+
+if (!parsed) {
+    // If still no parsed, try a more aggressive approach: use the entire cleaned content
+    try {
+        parsed = JSON.parse(cleanContent);
+    } catch (e) {
+        console.error('Final parse attempt failed:', e);
+        throw new Error('Could not parse AI response as JSON. Raw: ' + rawContent.substring(0, 300));
+    }
+}
+
+// Fill fields
+shoutField.value = parsed.shout || '';
+whisperField.value = parsed.whisper || '';
+thirdLayerField.value = parsed.thirdLayer || '';
+sacrificialField.value = parsed.sacrificial || '';
+lensesField.value = parsed.lenses || '';
+confidenceField.value = parsed.confidence || '';
+
+// If all fields are empty, show raw response for debugging
+if (!shoutField.value && !whisperField.value && !thirdLayerField.value) {
+    shoutField.value = '⚠️ AI returned unexpected format. Raw response: ' + rawContent.substring(0, 500);
+}
+                        // Auto-save and redirect to vault
+                        if (saveCurrentAndClose()) {
+                            modal.style.display = 'none';
+                            window.location.href = 'vault.html';
+                        } else {
+                            statusDiv.innerHTML = '⚠️ Save failed, but analysis complete.';
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        shoutField.value = '❌ Analysis failed: ' + err.message;
+                        whisperField.value = '';
+                        thirdLayerField.value = '';
+                        sacrificialField.value = '';
+                        lensesField.value = '';
+                        confidenceField.value = '';
+                        statusDiv.innerHTML = '❌ Auto‑analyze error. Please try again.';
+                    }
+                });
+            });
+        } catch (err) {
+            statusDiv.innerHTML = `Error: ${err.message}`;
+        }
+    }
+
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+
+    // Manual save button (redirects to vault)
+    saveAnalysisBtn.addEventListener('click', () => {
+        if (saveCurrentAndClose()) {
+            modal.style.display = 'none';
+            window.location.href = 'vault.html';
+        }
+    });
+
+    // Export all analyses as JSON
+    exportBtn.addEventListener('click', () => {
+        if (!analyses.length) { alert('No analyses saved.'); return; }
+        const json = JSON.stringify(analyses, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `foulfaultvault_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        URL.revokeObjectURL(blob);
+    });
+
+    // Vault button
+    vaultBtn.addEventListener('click', () => {
+        window.location.href = 'vault.html';
+    });
+
+    searchBtn.addEventListener('click', performSearch);
+    resetBtn.addEventListener('click', () => {
+        yearInput.value = '';
+        keywordInput.value = '';
+        resultsContainer.innerHTML = '';
+        statusDiv.innerHTML = '';
+    });
+
+    // Close modal with X button
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    }
+    // Close modal when clicking outside the modal content
+    window.addEventListener('click', (event) => {
+        if (modal && !modal.querySelector('.modal-content').contains(event.target)) {
+            modal.style.display = 'none';
+        }
+    });
