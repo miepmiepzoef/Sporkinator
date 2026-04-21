@@ -67,7 +67,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
 
     // Use v1beta and gemini-2.5-flash (as per your available models)
     const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
