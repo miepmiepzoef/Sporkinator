@@ -540,7 +540,7 @@ Now extract from the article:` },
     });
 
     // Export all analyses
-    exportBtn.addEventListener('click', () => {
+  /*  exportBtn.addEventListener('click', () => {
         if (!analyses.length) { alert('No analyses saved.'); return; }
         const json = JSON.stringify(analyses, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
@@ -549,7 +549,7 @@ Now extract from the article:` },
         a.download = `foulfaultvault_${new Date().toISOString().slice(0,19)}.json`;
         a.click();
         URL.revokeObjectURL(blob);
-    });
+    });*/
 
     // Vault button
     vaultBtn.addEventListener('click', () => {
