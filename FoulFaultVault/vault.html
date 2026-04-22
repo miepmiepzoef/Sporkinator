@@ -382,13 +382,22 @@
     document.getElementById('searchInput').addEventListener('input', () => render());
     render();
 
-    exportBtn.addEventListener('click', () => {
-        if (!analyses.length) { alert('No analyses saved.'); return; }
+    document.getElementById('exportBtn').addEventListener('click', () => {
+        const stored = localStorage.getItem('ffv_analyses');
+        if )!stored) {
+            alert('No saved analyses to export.');
+            return;
+        }
+        const analyses = JSON.parse(stored);
+        if (!analyses.length) { 
+            alert('No analyses saved.'); 
+            return; 
+        }
         const json = JSON.stringify(analyses, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = `foulfaultvault_${new Date().toISOString().slice(0,19)}.json`;
+        a.download = `foulfaultvault_export_${new Date().toISOString().slice(0,19)}.json`;
         a.click();
         URL.revokeObjectURL(blob);
     });
