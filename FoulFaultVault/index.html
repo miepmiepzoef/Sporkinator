@@ -227,7 +227,8 @@
 	<br>
 	<p>The protocol distinguishes four parallel narrative layers (Shout, Whisper, Third Layer, Sacrificial Layer) and ten tactical lenses (e.g., Black Box, Zombie File, Limited Hangout, Zhang Shan). Cases are included only when the Third Layer is supported by at least two independent sources. Confidence is rated High (≥3 sources or court ruling), Medium (2–3 journalistic/NGO sources), or Low (single source).</p>
 	<div class="centered-buttons">
-		<button id="downloadPdfBtn" class="export-btn"> 📤 Download PROTOCOL v1.1 (PDF)</button>
+		<button id="downloadPdfBtn2" class="export-btn"> 📤 The Cartographer's Report (PDF)</button>
+		<button id="downloadPdfBtn" class="export-btn"> 📤 PROTOCOL v1.1 (PDF)</button>
 	<button id="vaultBtn" class="vault-btn">📂 Fold</button>
 	</div>
 	<div class="container">
@@ -296,6 +297,14 @@
         downloadPdfBtn.addEventListener('click', () => {
             if (confirm( 'You are about to dowload a PDF file. Continue?')) {
                 window.location.href = 'FoulFault Protocol v1.1.pdf';
+            }
+        });
+    }
+	const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
+    if (downloadPdfBtn2) {
+        downloadPdfBtn.addEventListener('click', () => {
+            if (confirm( 'You are about to dowload a PDF file. Continue?')) {
+                window.location.href = 'The Cartographer's Report.pdf';
             }
         });
     }
