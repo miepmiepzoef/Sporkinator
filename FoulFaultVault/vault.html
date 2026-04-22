@@ -174,6 +174,7 @@
     <input type="text" id="searchInput" class="search-input" placeholder="🔍 Filter by title, shout, whisper, third layer, lenses, confidence...">
     <div class="actions-bar">
         <button id="refreshBtn">⟳ Refresh</button>
+        <button id="exportBtn" class="export-btn">📤 Export analyses</button>
         <button id="backBtn">← Back to Search</button>
     </div>
     <div id="vaultContent"><p>Loading...</p></div>
@@ -380,6 +381,17 @@
     document.getElementById('backBtn').addEventListener('click', () => window.location.href = 'index.html');
     document.getElementById('searchInput').addEventListener('input', () => render());
     render();
+
+    exportBtn.addEventListener('click', () => {
+        if (!analyses.length) { alert('No analyses saved.'); return; }
+        const json = JSON.stringify(analyses, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `foulfaultvault_${new Date().toISOString().slice(0,19)}.json`;
+        a.click();
+        URL.revokeObjectURL(blob);
+    });
 </script>
 </body>
 </html>
