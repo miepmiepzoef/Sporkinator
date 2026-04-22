@@ -13,31 +13,27 @@
 	<body>
 		<div id="header2-placeholder"></div>		
 		<h1>Grab yourself a Spork and dig in</h1>
-		<p>Choose Wisely:</p>
+		<h2>Choose Wisely:</h2>
 		<ul>
 			<li><a href="BaNaNaConverter/">BaNaNa Converter</a></li>
 			<li><a href="FoulFaultVault/">FoulFaultVault</a></li>
 		</ul>
-
 		<div id="footer-placeholder"></div>
-
 		<div id="banner-placeholder"></div>
 		
 		<script>
        // Load header and footer
-       		  fetch('../header2.html') // adjust path as needed
+       		  fetch('../header2.html')
             	 .then(response => response.text())
            		 .then(data => {
                 	document.getElementById('header2-placeholder').innerHTML = data;
            		  });
-
-        	fetch('../footer.html')
+             fetch('../footer.html')
             	.then(response => response.text())
             	.then(data => {
                 	document.getElementById('footer-placeholder').innerHTML = data;
             	});
-
-			fetch('../footer-banner.html')
+            fetch('../footer-banner.html')
 				.then(response => response.text())
             	.then(data => {
                 	document.getElementById('banner-placeholder').innerHTML = data;
