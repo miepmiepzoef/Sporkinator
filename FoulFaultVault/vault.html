@@ -173,6 +173,7 @@
     <h2>Saved Faults</h2>
     <input type="text" id="searchInput" class="search-input" placeholder="🔍 Filter by title, shout, whisper, third layer, lenses, confidence...">
     <div class="actions-bar">
+        <button id="donwloadPdfBtn" class="export-btn"> 📤 Download Manual (PDF)</button>
         <button id="exportBtn" class="export-btn">📤 Export analyses</button>
         <button id="backBtn">← Back to Search</button>
     </div>
@@ -188,7 +189,15 @@
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
     // ----- Cases with separate Sources field (clickable links) -----
-   const exampleCases = [
+   const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', () => {
+            if (confirm( 'You are about to dowload a PDF file. Continue?')) {
+                window.location.href = 'FoulFault Protocol v1.1 Manual.pdf';
+            }
+        });
+    }
+    const exampleCases = [
         {
             timestamp: "2025-04-21T10:00:00.000Z",
             title: "Watergate scandal",
