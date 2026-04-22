@@ -8,13 +8,26 @@
 		<meta name="keywords" content="Banana, Sporkinator, Cutlery"> 
 		<meta name="author" content="Muppet">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+
+		.project.list {
+			display: grid;
+			grid-template-columns: repeat(2, 1fr);
+			gap: 10px;
+			list-style: none;
+		padding: 0;
+	}
+		@media (max-width:600px) {
+			.project-list {
+				grid-template-columns: 1fr;
+			}
+		}
 	</head>
 
 	<body>
 		<div id="header2-placeholder"></div>		
 		<h1>Grab yourself a Spork and dig in</h1>
-		<h2>Choose Wisely:</h2>
-		<ul>
+		<h2>Choose Wisely.</h2>
+		<ul class="project-list">
 			<li><a href="BaNaNaConverter/">BaNaNa Converter</a></li>
 			<li><a href="FoulFaultVault/">FoulFaultVault</a></li>
 		</ul>
