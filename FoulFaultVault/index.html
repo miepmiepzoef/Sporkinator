@@ -227,53 +227,51 @@
 <div id="header-placeholder"></div>
 <h1>FoulFaultVault</h1>
 <p class="citation">Version 1.1</p>
-	 <h2>FoulFault Protocol</h2>
-	<p>The FoulFault Protocol is a systematic framework for identifying, analysing, and coding institutional cover‑ups, narrative management, and hidden operations. It is designed for researchers, journalists, and auditors to systematically uncover how institutions shape public narratives while hiding inconvenient truths. </p> 
-	<p>The protocol distinguishes four parallel narrative layers (Shout, Whisper, Third Layer, Sacrificial Layer) and ten tactical lenses (e.g., Black Box, Zombie File, Limited Hangout, Zhang Shan). Cases are included only when the Third Layer is supported by at least two independent sources. Confidence is rated High (≥3 sources or court ruling), Medium (2–3 journalistic/NGO sources), or Low (single source).</p>
-	<div class="centered-buttons">
-		<button id="downloadPdfBtn2" class="export-btn"> 📤 The Cartographer's Report (PDF)</button>
-		<button id="downloadPdfBtn" class="export-btn"> 📤 PROTOCOL v1.1 (PDF)</button>
-	<button id="vaultBtn" class="vault-btn">📂 Fold</button>
-	</div>
-	<div class="container">
-   <h2>Search for Faults</h2>
-	<div class="search-area">
-			
-			<div class="input-group"><label>📅 Year (required)</label><input type="number" id="yearInput" placeholder="e.g., 2005" value="2005"></div>
-			<div class="input-group"><label>🏷️ Keyword (optional)</label><input type="text" id="keywordInput" placeholder="scandal, cover‑up, leak..."></div>
-            <button id="searchBtn">🔎 Search Wikipedia</button>
-			<button id="resetBtn" class="reset-btn">⟳ Reset</button>
-					
-	</div>
-	<div class="status" id="statusMsg">⚡ Enter a year and click Search. Then click "Analyze".</div>
-	<div class = "citation">Analysis powered by Gemini</div>
-	<div class="results" id="resultsContainer"></div>
+<h2>FoulFault Protocol</h2>
+<p>The FoulFault Protocol is a systematic framework for identifying, analysing, and coding institutional cover‑ups, narrative management, and hidden operations. It is designed for researchers, journalists, and auditors to systematically uncover how institutions shape public narratives while hiding inconvenient truths.</p>
+<p>The protocol distinguishes four parallel narrative layers (Shout, Whisper, Third Layer, Sacrificial Layer) and ten tactical lenses (e.g., Black Box, Zombie File, Limited Hangout, Zhang Shan). Cases are included only when the Third Layer is supported by at least two independent sources. Confidence is rated High (≥3 sources or court ruling), Medium (2–3 journalistic/NGO sources), or Low (single source).</p>
+<div class="centered-buttons">
+    <button id="downloadPdfBtn2" class="export-btn">📤 The Cartographer's Report (PDF)</button>
+    <button id="downloadPdfBtn" class="export-btn">📤 PROTOCOL v1.1 (PDF)</button>
+    <button id="vaultBtn" class="vault-btn">📂 Fold</button>
+</div>
+<div class="container">
+    <h2>Search for Faults</h2>
+    <div class="search-area">
+        <div class="input-group"><label>📅 Year (required)</label><input type="number" id="yearInput" placeholder="e.g., 2005" value="2005"></div>
+        <div class="input-group"><label>🏷️ Keyword (optional)</label><input type="text" id="keywordInput" placeholder="scandal, cover‑up, leak..."></div>
+        <button id="searchBtn">🔎 Search Wikipedia</button>
+        <button id="resetBtn" class="reset-btn">⟳ Reset</button>
+    </div>
+    <div class="status" id="statusMsg">⚡ Enter a year and click Search. Then click "Analyze".</div>
+    <div class="citation">Analysis powered by Gemini</div>
+    <div class="results" id="resultsContainer"></div>
 </div>
 
 <div id="analysisModal" class="analysis-modal">
     <div class="modal-content">
-        
         <h3>📝 FoulFault analysis</h3>
         <p><strong>Case:</strong> <span id="modalCaseTitle"></span><br><small>🔗 <a id="modalCaseUrl" href="#" target="_blank">open Wikipedia article</a></small></p>
         <div class="layer-field"><label>📢 SHOUT (official narrative)</label><textarea id="shoutField" rows="2" readonly></textarea></div>
         <div class="layer-field"><label>🤫 WHISPER (safe criticism)</label><textarea id="whisperField" rows="2" readonly></textarea></div>
         <div class="layer-field"><label>🕳️ THIRD LAYER (hidden operation) – requires ≥2 sources</label><textarea id="thirdLayerField" rows="3" readonly></textarea></div>
-		<div class="layer-field"><label>Sources</label><textarea id="sourcesField" rows="2" readonly></textarea></div>
-		<div class="layer-field"><label>🐑 SACRIFICIAL LAYER (what was offered up)</label><textarea id="sacrificialField" rows="2" readonly></textarea></div>
+        <div class="layer-field"><label>Sources</label><textarea id="sourcesField" rows="2" readonly></textarea></div>
+        <div class="layer-field"><label>🐑 SACRIFICIAL LAYER (what was offered up)</label><textarea id="sacrificialField" rows="2" readonly></textarea></div>
         <div class="layer-field"><label>🔎 Lenses (Black Box, Zombie File, etc.)</label><input type="text" id="lensesField" readonly></div>
         <div class="layer-field"><label>🎯 Confidence (High / Medium / Low)</label><input type="text" id="confidenceField" readonly></div>
-		<button class="close-modal" id="closeModalBtn">&times;</button>
-	</div>
+        <button class="close-modal" id="closeModalBtn">&times;</button>
+    </div>
 </div>
-<div id="footer-placeholder"></div>		
+<div id="footer-placeholder"></div>
 <div id="banner-placeholder"></div>
+
 <script>
-	  // Load header, footer, banner
+    // Load header, footer, banner
     fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
- const PROXY_URL = 'https://vault-d9s2z.bunny.run';
+    const PROXY_URL = 'https://vault-d9s2z.bunny.run';
     let currentCase = null;
     let analyses = [];
 
@@ -297,23 +295,25 @@
     const confidenceField = document.getElementById('confidenceField');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-   const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    // PDF download buttons
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     if (downloadPdfBtn) {
         downloadPdfBtn.addEventListener('click', () => {
-            if (confirm( 'You are about to dowload a PDF file. Continue?')) {
+            if (confirm('You are about to download a PDF file. Continue?')) {
                 window.location.href = 'FoulFault Protocol v1.1.pdf';
             }
         });
     }
-	const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
+    const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
     if (downloadPdfBtn2) {
         downloadPdfBtn2.addEventListener('click', () => {
-            if (confirm( 'You are about to dowload a PDF file. Continue?')) {
-                window.location.href = 'The Cartographer`s Report.pdf';
+            if (confirm('You are about to download a PDF file. Continue?')) {
+                window.location.href = 'The Cartographer\'s Report.pdf';
             }
         });
     }
-    // Load existing analyses from localStorage
+
+    // localStorage
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
         analyses = stored ? JSON.parse(stored) : [];
@@ -420,7 +420,7 @@
             statusDiv.innerHTML = '⚠️ Please enter a valid year (1900–2030) or leave empty.';
             return;
         }
-        statusDiv.innerHTML = `🔍 Searching Wikipedia...`;
+        statusDiv.innerHTML = '🔍 Searching Wikipedia...';
         resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
         try {
             const results = await searchWikipedia(year, keyword);
@@ -446,7 +446,6 @@
                     modalCaseTitle.innerText = currentCase.title;
                     modalCaseUrl.href = currentCase.url;
 
-                    // Reset fields
                     shoutField.value = '⏳ Fetching article...';
                     whisperField.value = '';
                     thirdLayerField.value = '';
@@ -455,7 +454,6 @@
                     confidenceField.value = '';
                     if (sourcesField) sourcesField.value = '';
                     modal.style.display = 'flex';
-                    /*window.scrollTo({ top: 0, behavior: 'smooth' });*/
                     statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
                     try {
@@ -473,7 +471,7 @@
                             body: JSON.stringify({
                                 model: 'gpt-3.5-turbo',
                                 messages: [
-                                    { role: 'system', content: 'Extract from the article. Return ONLY valid JSON with fields: "shout" (official narrative), "whisper" (safe criticism that does not challenge the institution), "thirdLayer" (hidden operation or secret knowledge, with sources if available), "sources" (HTML links), "sacrificial" (what was offered up to absorb public anger, e.g. apology, compensation, inquiry), "lenses" (one or more of: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), "confidence" (High/Medium/Low). Definitions: Black Box = evidence legally sealed/classified/destroyed; Zombie File = documents deleted/hidden; Limited Hangout = apology no prosecution, blame low-level; Structured Ambiguity = vague language; Fog Machine = massive contradictory releases; Teflon Shield = move people/assets; Victim Blame = smear whistleblower; Protective Shield = public inquiry/compensation; Zhang Shan = retroactive rule change. If a field is not found, write "Not mentioned". Example: {"shout":"...","whisper":"...","thirdLayer":"...","sources":"<a href=\'https://example.com\'>Source</a>","sacrificial":"...","lenses":"...","confidence":"High"}' },
+                                    { role: 'system', content: 'Extract from the article. Return ONLY valid JSON with fields: "shout" (official narrative), "whisper" (safe criticism that does not challenge the institution), "thirdLayer" (hidden operation or secret knowledge, with sources if available), "sources" (HTML links), "sacrificial" (what was offered up to absorb public anger, e.g. apology, compensation, inquiry),"lenses"(one or more of: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), "confidence". Definitions: Black Box = sealed evidence, Zombie File = deleted documents, Limited Hangout = apology no prosecution, Structured Ambiguity = vague language, Fog Machine = massive releases, Teflon Shield = move people/assets, Victim Blame = smear whistleblower, Protective Shield = inquiry/compensation, Zhang Shan = retroactive rule change. If not found, write "Not mentioned". Example: {"shout":"...","whisper":"...","thirdLayer":"...","sources":"<a href=\'https://example.com\'>Source</a>","sacrificial":"...","lenses":"...","confidence":"High"}' },
                                     { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
                                 ],
                                 temperature: 0.3
@@ -519,7 +517,8 @@
             statusDiv.innerHTML = `Error: ${err.message}`;
         }
     }
- function escapeHtml(str) {
+
+    function escapeHtml(str) {
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
@@ -544,6 +543,8 @@
             }
         }
     });
+</script>
+
 </script>
 </body>
 </html>
