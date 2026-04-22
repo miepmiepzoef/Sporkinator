@@ -361,23 +361,35 @@
     }
 
     // Wikipedia search
-    async function searchWikipedia(year, keyword) {
-        let searchTerm = `${year}`;
+   async function searchWikipedia(year, keyword) {
+    let searchTerm = '';
+    if (year && year.trim() !== '') {
+        searchTerm = `${year}`;
         if (keyword && keyword.trim() !== '') {
             searchTerm = `${year} ${keyword}`;
         } else {
             searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
         }
-        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
-        const resp = await fetch(url);
-        const data = await resp.json();
-        return data.query.search.map(page => ({
-            title: page.title,
-            snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
-            url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
-            source: 'Wikipedia'
-        }));
+    } else {
+        // No year – use only keyword + scandal terms
+        if (keyword && keyword.trim() !== '') {
+            searchTerm = `${keyword} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
+        } else {
+            // If both empty, fallback to a default (or return empty)
+            searchTerm = 'scandal OR cover-up OR corruption';
+        }
     }
+    const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    return data.query.search.map(page => ({
+        title: page.title,
+        snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
+        url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
+        source: 'Wikipedia'
+    }));
+}
+
 
     async function performSearch() {
         const year = yearInput.value.trim();
