@@ -212,14 +212,16 @@
 <p class="citation">Version 1.1</p>
 	 <h2>Search for Faults</h2>
 	<p>The foulfaultvault protocol is a systematic framework for identifying, analysing, and coding institutional cover‑ups, narrative management, and hidden operations. It distinguishes four parallel narrative layers (Shout, Whisper, Third Layer, Sacrificial Layer) and ten tactical lenses (e.g., Black Box, Zombie File, Limited Hangout, Zhang Shan). Cases are included only when the Third Layer is supported by at least two independent sources. Confidence is rated High (≥3 sources or court ruling), Medium (2–3 journalistic/NGO sources), or Low (single source). The protocol is designed for researchers, journalists, and auditors to systematically uncover how institutions shape public narratives while hiding inconvenient truths.</p>
-<div class="container">
+	<button id="donwloadPdfBtn" class="export-btn"> 📤 Download PROTOCOL v1.1 (PDF)</button>
+	<button id="vaultBtn" class="vault-btn">📂 Fold</button>
+	<div class="container">
    
 	<div class="search-area">
 			<div class="input-group"><label>📅 Year (required)</label><input type="number" id="yearInput" placeholder="e.g., 2005" value="2005"></div>
 			<div class="input-group"><label>🏷️ Keyword (optional)</label><input type="text" id="keywordInput" placeholder="scandal, cover‑up, leak..."></div>
             <button id="searchBtn">🔎 Search Wikipedia</button>
 			<button id="resetBtn" class="reset-btn">⟳ Reset</button>
-			<button id="vaultBtn" class="vault-btn">📂 Fold</button>
+					
 	</div>
 	<div class="status" id="statusMsg">⚡ Enter a year and click Search. Then click "Analyze".</div>
 	<div class="results" id="resultsContainer"></div>
@@ -272,6 +274,14 @@
     const confidenceField = document.getElementById('confidenceField');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
+	   const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', () => {
+            if (confirm( 'You are about to dowload a PDF file. Continue?')) {
+                window.location.href = 'FoulFault Protocol v1.1.pdf';
+            }
+        });
+    }
     // Load existing analyses from localStorage
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
