@@ -80,6 +80,9 @@
             background: #0a1c2f;
         }
         .status {
+			position: sticky;
+			top: 0;
+			z-index: 10;
             padding: 12px 32px;
             background: #eef2ff;
             font-size: 0.85rem;
@@ -234,7 +237,6 @@
 	</div>
 	<div class="container">
    <h2>Search for Faults</h2>
-		<div class = "citation">Analysis powered by Gemini</div>
 	<div class="search-area">
 			
 			<div class="input-group"><label>📅 Year (required)</label><input type="number" id="yearInput" placeholder="e.g., 2005" value="2005"></div>
