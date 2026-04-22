@@ -342,7 +342,7 @@
                 existing.shout = mergeField(existing.shout, newAnalysis.shout);
                 existing.whisper = mergeField(existing.whisper, newAnalysis.whisper);
                 existing.thirdLayer = mergeField(existing.thirdLayer, newAnalysis.thirdLayer);
-				existing.sourcesLayer = mergeField(existing.sources, newAnalysis.sources);
+				existing.sources = mergeField(existing.sources, newAnalysis.sources);
                 existing.sacrificial = mergeField(existing.sacrificial, newAnalysis.sacrificial);
                 existing.lenses = mergeField(existing.lenses, newAnalysis.lenses);
                 existing.confidence = mergeField(existing.confidence, newAnalysis.confidence);
@@ -442,12 +442,12 @@
                             body: JSON.stringify({
                                 model: 'gpt-3.5-turbo',
                                 messages: [
-                                    { role: 'system', content: `Extract from the article, pls. If a field is not found, write "Not mentioned". Return ONLY valid JSON. You MUST include at least two specific sources in the "thirdLayer" field, e.g., "according to a leaked memo from X" or "as reported by Y". Place the citated sources as clickable links in the "sources"field. Example:
+                                    { role: 'system', content: `Extract from the article, pls. Return ONLY valid JSON. Example:
 {
   "shout": "Official denial",
   "whisper": "Some criticism",
   "thirdLayer": "Secret operation. Sources: internal memo from 2022, whistleblower testimony to the Guardian",
-  "sources": "URL the Guardian",
+  "sources": a string containing clickable HTML links to atleast two independent sources (e.g., the articles mentioned in the "thirdLayer",'<a href="https://example.com"target="_blank">Article title. Source name</a>,
   "sacrificial": "Junior staff suspended",
   "lenses": "Limited Hangout, Teflon Shield",
   "confidence": "High"
@@ -492,6 +492,7 @@ Now extract from the article:` },
                         shoutField.value = parsed.shout || '';
                         whisperField.value = parsed.whisper || '';
                         thirdLayerField.value = parsed.thirdLayer || '';
+						sourcesField.value = parsed.sources || '';
                         sacrificialField.value = parsed.sacrificial || '';
                         lensesField.value = parsed.lenses || '';
                         confidenceField.value = parsed.confidence || '';
