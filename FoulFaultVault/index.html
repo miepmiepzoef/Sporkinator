@@ -9,6 +9,9 @@
 		<meta name="author" content="Muppet">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <style>
+		p {
+			text-align: center;
+		}
         .container {
 			text-align: center;
 			padding-top: 10px;
@@ -212,11 +215,14 @@
 <p class="citation">Version 1.1</p>
 	 <h2>Search for Faults</h2>
 	<p>The foulfaultvault protocol is a systematic framework for identifying, analysing, and coding institutional cover‑ups, narrative management, and hidden operations. It distinguishes four parallel narrative layers (Shout, Whisper, Third Layer, Sacrificial Layer) and ten tactical lenses (e.g., Black Box, Zombie File, Limited Hangout, Zhang Shan). Cases are included only when the Third Layer is supported by at least two independent sources. Confidence is rated High (≥3 sources or court ruling), Medium (2–3 journalistic/NGO sources), or Low (single source). The protocol is designed for researchers, journalists, and auditors to systematically uncover how institutions shape public narratives while hiding inconvenient truths.</p>
-	<button id="downloadPdfBtn" class="export-btn"> 📤 Download PROTOCOL v1.1 (PDF)</button>
+	<div class="centered-buttons">
+		<button id="downloadPdfBtn" class="export-btn"> 📤 Download PROTOCOL v1.1 (PDF)</button>
 	<button id="vaultBtn" class="vault-btn">📂 Fold</button>
+	</div>
 	<div class="container">
    
 	<div class="search-area">
+			<h2>Search for Faults</h2>
 			<div class="input-group"><label>📅 Year (required)</label><input type="number" id="yearInput" placeholder="e.g., 2005" value="2005"></div>
 			<div class="input-group"><label>🏷️ Keyword (optional)</label><input type="text" id="keywordInput" placeholder="scandal, cover‑up, leak..."></div>
             <button id="searchBtn">🔎 Search Wikipedia</button>
