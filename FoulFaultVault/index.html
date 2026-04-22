@@ -416,7 +416,6 @@
     async function performSearch() {
         const year = yearInput.value.trim();
         const keyword = keywordInput.value.trim();
-        // Year is optional now
         if (year && (isNaN(year) || year < 1900 || year > 2030)) {
             statusDiv.innerHTML = '⚠️ Please enter a valid year (1900–2030) or leave empty.';
             return;
@@ -456,7 +455,7 @@
                     confidenceField.value = '';
                     if (sourcesField) sourcesField.value = '';
                     modal.style.display = 'flex';
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                    /*window.scrollTo({ top: 0, behavior: 'smooth' });*/
                     statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
                     try {
