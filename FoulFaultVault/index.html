@@ -516,7 +516,29 @@
             statusDiv.innerHTML = `Error: ${err.message}`;
         }
     }
+	const controller = new AbortController();
 
+	const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds
+		try {
+			const response = await fetch(`${PROXY_URL}/gemini`, {
+        		method: 'POST',
+        		headers: { 'Content-Type': 'application/json' },
+        		body: JSON.stringify({...}),
+        		signal: controller.signal
+    		});
+    	clearTimeout(timeoutId);
+    // ... rest
+		} catch (err) {
+   			if (err.name === 'AbortError') {
+        		shoutField.value = '❌ Request timed out. Check network.';
+  		  	} else {
+        		shoutField.value = '❌ Error: ' + err.message;
+   			}
+		}
+
+		if (!parsed || Object.keys(parsed).length === 0) {
+    		shoutField.value = '⚠️ Gemini returned empty. Try again.';
+		}
     function escapeHtml(str) {
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
