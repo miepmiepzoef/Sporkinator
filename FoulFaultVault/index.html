@@ -254,7 +254,7 @@
     // DOM elements
     const searchBtn = document.getElementById('searchBtn');
     const resetBtn = document.getElementById('resetBtn');
-    const exportBtn = document.getElementById('exportBtn');
+    /*const exportBtn = document.getElementById('exportBtn');*/
     const vaultBtn = document.getElementById('vaultBtn');
     const yearInput = document.getElementById('yearInput');
     const keywordInput = document.getElementById('keywordInput');
@@ -555,13 +555,13 @@ Now extract from the article:` },
         window.location.href = 'vault.html';
     });
 
-    searchBtn.addEventListener('click', performSearch);
+    /*searchBtn.addEventListener('click', performSearch);
     resetBtn.addEventListener('click', () => {
         yearInput.value = '';
         keywordInput.value = '';
         resultsContainer.innerHTML = '';
         statusDiv.innerHTML = '';
-    });
+    });*/
 
     // Close modal
     if (closeModalBtn) {
