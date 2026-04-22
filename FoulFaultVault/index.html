@@ -473,16 +473,7 @@
                             body: JSON.stringify({
                                 model: 'gpt-3.5-turbo',
                                 messages: [
-                                    { role: 'system', content: `Extract from the article. Return ONLY valid JSON with fields: "shout" (official narrative), "whisper" (safe criticism that does not challenge the institute/person), "thirdLayer" (hidden operation or secret knowledge, with sources if available), "sources", "sacrificial"(what was offered up to absorb public anger, e.g. apology, compensationm inquiry), "lenses"(one or more of: 
-									- Black Box: evidence legally sealed, classified, or destroyed under privilege. 
-									- Zombie File: documents deleted, wiped, hidden from oversight, or kept in secret vaults.
-									- Limited Hangout: apology or inquiry with no prosecution; blame on low-level employees.
-									- Structured Ambiguity: vague official language, refusal to clarify, "commercially sensitive".
-									- Fog Machine: massive document release, contradictory statements, delayed investigations.
-									- Teflon Shield: individuals moved to other roles without penalty; assets moved offshore.
-									- Victim Blame: whistleblower or accuser investigated, smeared, or retaliated against.
-									- Protective Shield: public inquiry, compensation fund, independent review announced.
-									- Zhang Shan: rule change after court ruling, protest, or exposure (retroactive application), "confidence"(High/Medium/Low). If a field is not found, write "Not mentioned". Sources should be a string with clickable HTML links if possible. Example: {"shout":"The tax authority made administrative errors. We are compensating victims.","whisper":""The tax authority was overzealous, but not malicious","thirdLayer":"The werkafspraak memo instructing officials to ignore court rulings ","sources":"<a href='https://example.com'>Source</a>","sacrificial":"The FSV list apology ","lenses":"...","confidence":"High"}` },
+                                    { role: 'system', content: 'Extract from the article. Return ONLY valid JSON with fields: "shout" (official narrative), "whisper" (safe criticism that does not challenge the institution), "thirdLayer" (hidden operation or secret knowledge, with sources if available), "sources" (HTML links), "sacrificial" (what was offered up to absorb public anger, e.g. apology, compensation, inquiry), "lenses" (one or more of: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), "confidence" (High/Medium/Low). Definitions: Black Box = evidence legally sealed/classified/destroyed; Zombie File = documents deleted/hidden; Limited Hangout = apology no prosecution, blame low-level; Structured Ambiguity = vague language; Fog Machine = massive contradictory releases; Teflon Shield = move people/assets; Victim Blame = smear whistleblower; Protective Shield = public inquiry/compensation; Zhang Shan = retroactive rule change. If a field is not found, write "Not mentioned". Example: {"shout":"...","whisper":"...","thirdLayer":"...","sources":"<a href='https://example.com'>Source</a>","sacrificial":"...","lenses":"...","confidence":"High"}' },
                                     { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
                                 ],
                                 temperature: 0.3
