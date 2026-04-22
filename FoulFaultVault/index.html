@@ -516,34 +516,13 @@
             statusDiv.innerHTML = `Error: ${err.message}`;
         }
     }
-	const controller = new AbortController();
-
-	const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds
-		try {
-			const response = await fetch(`${PROXY_URL}/gemini`, {
-        		method: 'POST',
-        		headers: { 'Content-Type': 'application/json' },
-        		body: JSON.stringify({...}),
-        		signal: controller.signal
-    		});
-    	clearTimeout(timeoutId);
-    // ... rest
-		} catch (err) {
-   			if (err.name === 'AbortError') {
-        		shoutField.value = '❌ Request timed out. Check network.';
-  		  	} else {
-        		shoutField.value = '❌ Error: ' + err.message;
-   			}
-		}
-
-		if (!parsed || Object.keys(parsed).length === 0) {
-    		shoutField.value = '⚠️ Gemini returned empty. Try again.';
-		}
-    function escapeHtml(str) {
+ function escapeHtml(str) {
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
-    vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
+    if (vaultBtn) {
+        vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
+    }
     searchBtn.addEventListener('click', performSearch);
     resetBtn.addEventListener('click', () => {
         yearInput.value = '';
@@ -555,8 +534,11 @@
         closeModalBtn.addEventListener('click', () => { modal.style.display = 'none'; });
     }
     window.addEventListener('click', (event) => {
-        if (modal && !modal.querySelector('.modal-content').contains(event.target)) {
-            modal.style.display = 'none';
+        if (modal && modal.style.display === 'flex') {
+            const modalContent = modal.querySelector('.modal-content');
+            if (modalContent && !modalContent.contains(event.target)) {
+                modal.style.display = 'none';
+            }
         }
     });
 </script>
