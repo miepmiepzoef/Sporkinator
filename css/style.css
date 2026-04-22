@@ -1,91 +1,26 @@
-/* Center all content */
 body {
     max-width: 800px;
-    margin: 0 auto; /* centers the whole page */
+    margin: 0 auto;
     padding: 20px;
     font-family: Arial, sans-serif;
     line-height: 1.6;
     background-color: #fafafa;
 }
 
-/* Header and footer styling */
-.site-header/*, .site-footer*/ {
-    text-align: center;
-    padding: 20px 0;
-    /* border-bottom: 1px solid #ddd; /* optional for header */
-}
-
-.site-footer {
-    /*border-top: 1px solid #ddd; /* optional for footer */
-    text-align: center;
-    font-size: 14px;
-    color: #333;
-    margin-top: 10px
-}
-
-/* Line under h1 (page title) */
 h1 {
     text-align: center;
     padding-bottom: 10px;
-    border-bottom: 2px solid #333;
+    border-bottom: 2px solid #333; /* line */
     margin-bottom: 0;
 }
-h2 {
-    text-align: center;
-}
-h3 {
+h2, h3 {
     text-align: center;
 }
 
-/* Any other global styles */
-.banner {
-    width: 100%;
-    margin: 0;
-    padding: 0;
-   /* height: 0; 
-    padding-bottom: 30%;
-    background-size: cover;
-    background-position: center; 
-    position: relative;
-    left: 50%;
-    right: 50%;
-    margin-left: -50vw;
-    overflow: hidden;*/
-}
-.banner-icon {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-/*@media (max-width: 768px) {
-    /*.banner {
-        padding-bottom: 20%
-    }*/
-    .banner {
-        height: 200px;
-    }*/
-    .banner-icon{
-        width: 100%;
-        height: 100%;
-        max-height: 200px;
-        object-fit: cover;
-    }   
-}*/
-.error {
-    color: red;
-}
-.instructions {
+p, {
     text-align: center;
-    margin: 5px 0;
-    font-style: italic;
 }
-.citation {
-    text-align: center;
-    font-size: 0.6em;
-    color: #666;
-    margin-top: 5px;
-    font-style: italic;
-}
+
 button {
     background: #0a1c2f;
     border: none;
@@ -101,55 +36,47 @@ button:hover {
     background: #1e3a5f;
 }
 
+/* Links */
+a {
+    color: #0a1c2f;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
 
+/* Typography */
 
+.citation {
+    text-align: center;
+    font-size: 0.6em;
+    color: #666;
+    margin-top: 5px;
+    font-style: italic;
+}
+.instructions {
+    text-align: center;
+    margin: 5px 0;
+    font-style: italic;
+}
+.error {
+    color: red;
+}
 
+/* Header / footer placeholders (if used) */
+.site-header, .site-footer {
+    text-align: center;
+    padding: 20px 0;
+}
+.site-footer {
+    font-size: 14px;
+    color: #333;
+    margin-top: 10px;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* Banner (full width image) – optional */
+.banner-icon {
+    width: 100%;
+    height: auto;
+    display: block;
+}
