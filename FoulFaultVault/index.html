@@ -531,7 +531,7 @@ Now extract from the article:` },
     }
 
     // Manual save button (redirects to vault)
-    saveAnalysisBtn.addEventListener('click', () => {
+  /*  saveAnalysisBtn.addEventListener('click', () => {
         if (saveCurrentAndClose()) {
             modal.style.display = 'none';
             window.location.href = 'vault.html';
@@ -539,7 +539,7 @@ Now extract from the article:` },
     });
 
     // Export all analyses
-  /*exportBtn.addEventListener('click', () => {
+  exportBtn.addEventListener('click', () => {
         if (!analyses.length) { alert('No analyses saved.'); return; }
         const json = JSON.stringify(analyses, null, 2);
         const blob = new Blob([json], { type: 'application/json' });
