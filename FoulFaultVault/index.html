@@ -414,6 +414,86 @@
             source: 'Wikipedia'
         }));
     }
+	function attachAnalyzeButtons() {
+    document.querySelectorAll('.analyze-btn').forEach(btn => {
+        btn.removeEventListener('click', handleAnalyze);
+        btn.addEventListener('click', handleAnalyze);
+    });
+}
+
+async function handleAnalyze(event) {
+    const btn = event.currentTarget;
+    currentCase = { title: btn.dataset.title, url: btn.dataset.url };
+    modalCaseTitle.innerText = currentCase.title;
+    modalCaseUrl.href = currentCase.url;
+
+    shoutField.value = '⏳ Fetching article...';
+    whisperField.value = '';
+    thirdLayerField.value = '';
+    sacrificialField.value = '';
+    lensesField.value = '';
+    confidenceField.value = '';
+    if (sourcesField) sourcesField.value = '';
+    modal.style.display = 'flex';
+    statusDiv.innerHTML = '📡 Fetching article via proxy...';
+
+    try {
+        const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
+        const articleRes = await fetch(fetchUrl);
+        if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
+        let articleText = await articleRes.text();
+        if (articleText.length > 4000) articleText = articleText.slice(0, 4000) + '…';
+        statusDiv.innerHTML = '🤖 Calling Gemini AI...';
+        shoutField.value = '⏳ Analyzing with Gemini...';
+
+        const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                model: 'gpt-3.5-turbo',
+                messages: [
+                    { role: 'system', content: 'Extract from the article. Return ONLY valid JSON with fields:"shout" (official narrative), "whisper" (safe criticism that does not challenge the institution), "thirdLayer" (hidden operation or secret knowledge, with sources if available), "sources" (HTML links), "sacrificial" (what was offered up to absorb public anger, e.g. apology, compensation, inquiry), "lenses" (one or more of: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), "confidence"(Low/Medium/High). Definitions: Black Box = sealed evidence, Zombie File = deleted documents, Limited Hangout = apology no prosecution, Structured Ambiguity = vague language, Fog Machine = massive releases, Teflon Shield = move people/assets, Victim Blame = smear whistleblower, Protective Shield = inquiry/compensation, Zhang Shan = retroactive rule change. If not found, write "Not mentioned". Example: {"shout":"...","whisper":"...","thirdLayer":"...","sources":"<a href=\'https://example.com\'>Source</a>","sacrificial":"...","lenses":"...","confidence":"High"}' },
+                    { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
+                ],
+                temperature: 0.3
+            })
+        });
+        const data = await geminiRes.json();
+        if (!geminiRes.ok) throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
+        if (!data.choices || !data.choices[0]) throw new Error('No choices in Gemini response');
+        let rawContent = data.choices[0].message.content;
+        let parsed = null;
+        let cleanContent = rawContent.trim().replace(/```json\s*/g, '').replace(/```\s*/g, '');
+        const firstBrace = cleanContent.indexOf('{');
+        const lastBrace = cleanContent.lastIndexOf('}');
+        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const jsonCandidate = cleanContent.substring(firstBrace, lastBrace + 1);
+            try { parsed = JSON.parse(jsonCandidate); } catch(e) {}
+        }
+        if (!parsed) {
+            try { parsed = JSON.parse(cleanContent); } catch(e) { throw new Error('Could not parse AI response as JSON'); }
+        }
+        shoutField.value = parsed.shout || '';
+        whisperField.value = parsed.whisper || '';
+        thirdLayerField.value = parsed.thirdLayer || '';
+        if (sourcesField) sourcesField.value = parsed.sources || '';
+        sacrificialField.value = parsed.sacrificial || '';
+        lensesField.value = parsed.lenses || '';
+        confidenceField.value = parsed.confidence || '';
+
+        if (saveCurrentAndClose()) {
+            modal.style.display = 'none';
+            window.location.href = 'vault.html';
+        } else {
+            statusDiv.innerHTML = '⚠️ Save skipped (analysis already complete).';
+        }
+    } catch (err) {
+        console.error(err);
+        shoutField.value = '❌ Analysis failed: ' + err.message;
+        statusDiv.innerHTML = '❌ Auto‑analyze error. Please try again.';
+    }
+}
+
 	async function performSearch() {
     const year = yearInput.value.trim();
     const keyword = keywordInput.value.trim();
