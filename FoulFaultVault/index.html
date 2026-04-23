@@ -417,15 +417,15 @@
         modalCaseUrl.innerText = currentCase.url;
 
         // Reset fields
-        shoutField.value = '⏳ Fetching article...';
-        whisperField.value = '';
-        thirdLayerField.value = '';
-        sacrificialField.value = '';
-        lensesField.value = '';
-        confidenceField.value = '';
+        if (shoutField) shoutField.value = '⏳ Fetching article...';
+        if (whisperField) whisperField.value = '';
+        if (thirdLayerField)thirdLayerField.value = '';
+        if (sacrificialField)sacrificialField.value = '';
+        if (lensesField)lensesField.value = '';
+        if (confidenceField)confidenceField.value = '';
         if (sourcesField) sourcesField.value = '';
         modal.style.display = 'flex';
-        if (statusDiv) statusDiv.innerHTML = '📡 Fetching article via proxy...';
+        statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
         try {
             // 1. Fetch article text via proxy
