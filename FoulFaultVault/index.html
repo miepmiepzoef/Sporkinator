@@ -403,29 +403,34 @@
         }*/
 	async function searchWikipedia(year, keyword) {
 		let searchTerm = '';
-		if (year && year.trim() !== '') {
+		if (year && year.trim() '') {
    			 if (keyword && keyword.trim() !== '') {
         		searchTerm = `${year} ${keyword}`;
- 	    } else {
-        	searchTerm = `${year} scandal|cover-up|corruption|whistleblower|leak|investigation`;
-    	}
+			} else {
+        		searchTerm = `${year} scandal|cover-up|corruption|whistleblower|leak|investigation`;
+			}
 		} else {
-    	if (keyword && keyword.trim() !== '') {
-        	searchTerm = `${keyword} scandal|cover-up|corruption|whistleblower|leak|investigation`;
-    	} else {
-        	searchTerm = 'scandal|cover-up|corruption|whistleblower|leak|investigation';
-    	}
-	}
+    		if (keyword && keyword.trim() !== '') {
+        		searchTerm = `${keyword} scandal|cover-up|corruption|whistleblower|leak|investigation`;
+    	    } else {
+        		searchTerm = 'scandal|cover-up|corruption|whistleblower|leak|investigation';
+    		}
+		}
         const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
-        const resp = await fetch(url);
-        const data = await resp.json();
-        return data.query.search.map(page => ({
-            title: page.title,
-            snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
-            url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
-            source: 'Wikipedia'
-        }));
-    }
+        try {
+			const resp = await fetch(url);
+        	const data = await resp.json();
+        	return data.query.search.map(page => ({
+            	title: page.title,
+            	snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
+            	url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
+            	source: 'Wikipedia'
+       	 }));
+    } catch (err) {
+			console.error('Wikipedia fetch error:', err);
+			return [];
+		}
+	}
 
     async function performSearch() {
         const year = yearInput.value.trim();
