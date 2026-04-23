@@ -440,20 +440,13 @@
         }
         resultsContainer.innerHTML = html;
         statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
-        // attach analyze buttons (your existing function)
-        if (typeof attachAnalyzeButtons === 'function') attachAnalyzeButtons();
-        else {
-            document.querySelectorAll('.analyze-btn').forEach(btn => {
-                btn.removeEventListener('click', handleAnalyze);
-                btn.addEventListener('click', handleAnalyze);
-            });
-        }
-    } catch (err) {
+        attachAnalyzeButtons ();
+	} catch (err) {
         statusDiv.innerHTML = '⚠️ Search error. Please try again.';
         resultsContainer.innerHTML = '<p>Search failed. Reload the page and try again.</p>';
         console.error(err);
     }
-    
+	}
 
     if (vaultBtn) {
         vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
