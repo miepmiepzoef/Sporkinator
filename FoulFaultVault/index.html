@@ -238,8 +238,6 @@
 <div class="container">
 	<h2>Search for Faults</h2>
    <div class="search-area">
-	   <h2>Blob</h2>
-	   <br>
         <div class="input-group"><label>📅 Year (required)</label><input type="number" id="yearInput" placeholder="e.g., 2005" value="2005"></div>
         <div class="input-group"><label>🏷️ Keyword (optional)</label><input type="text" id="keywordInput" placeholder="scandal, cover‑up, leak..."></div>
         <button id="searchBtn">🔎 Search Wikipedia</button>
@@ -404,7 +402,8 @@
                 searchTerm = 'scandal OR cover-up OR corruption';
             }
         }*/
-	let searchTerm = '';
+	function searchWikipedia(year, keyword) {
+		let searchTerm = '';
 		if (year && year.trim() !== '') {
    			 if (keyword && keyword.trim() !== '') {
         		searchTerm = `${year} ${keyword}`;
