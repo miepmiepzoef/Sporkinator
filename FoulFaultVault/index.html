@@ -302,7 +302,7 @@
     });
     const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
     if (downloadPdfBtn2) downloadPdfBtn2.addEventListener('click', () => {
-        if (confirm('Download PDF?')) window.location.href = 'The Cartographer\'s Report.pdf';
+        if (confirm('Download PDF?')) window.location.href = 'The Cartographer`s Report.pdf';
     });
 
     // Helper functions
@@ -434,19 +434,20 @@
             if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
             let articleText = await articleRes.text();
             if (articleText.length > 5000) articleText = articleText.slice(0, 5000) + '…';
-            if (statusDiv) statusDiv.innerHTML = '🤖 Calling analysis API...';
+            if (statusDiv) statusDiv.innerHTML = '🤖 Calling Gemini...';
             shoutField.value = '⏳ Analyzing...';
 
             // 2. Call Gemini (or OpenAI) via proxy
             // Improved prompt: ask for JSON without HTML tags, provide clear examples
-            const systemPrompt = `You are an expert in narrative control analysis. Extract the following fields from the Wikipedia article. Return ONLY valid JSON. Do not include any HTML tags in the JSON values. Use plain text. Fields:
-- "shout": the official narrative or public statement of the institution (if not found, "Not mentioned")
-- "whisper": a safe alternative criticism that does not directly challenge the institution (if not found, "Not mentioned")
-- "thirdLayer": the hidden operation, secret knowledge, or evidence of cover-up (if not found, "Not mentioned")
-- "sources": a list of key sources mentioned in the article, as plain text (e.g., "Internal report, leaked email, court filing") – do NOT use HTML
+            const systemPrompt = `You are an expert in narrative control analysis. Extract the following fields from the Wikipedia article and your own knowledge. Return ONLY valid JSON (if not found, "Not mentioned"). Fields:
+- "shout": the official narrative or public statement of the institution
+- "whisper": a safe alternative criticism that does not directly challenge the institution
+- "thirdLayer": the hidden operation, secret knowledge, or evidence of cover-up
+- "sources": a list of key sourcesas html links
 - "sacrificial": what was offered to absorb public anger (e.g., apology, compensation, inquiry, firing of a lower-level employee)
 - "lenses": one or more of these: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan. Separate by commas.
 - "confidence": Low, Medium, or High
+Definition lenses: Definitions: Black Box = evidence legally sealed/classified/destroyed; Zombie File = documents deleted/hidden; Limited Hangout = apology no prosecution, blame low-level; Structured Ambiguity = vague language; Fog Machine = massive contradictory releases; Teflon Shield = move people/assets; Victim Blame = smear whistleblower; Protective Shield = public inquiry/compensation; Zhang Shan = retroactive rule change.
 
 Example output:
 {"shout":"We take full responsibility for the small spill.","whisper":"The spill is serious but BP is cooperating.","thirdLayer":"Internal emails projected 3.4 million gallons per day.","sources":"National Commission report, internal emails","sacrificial":"Compensation payments","lenses":"Limited Hangout, Structured Ambiguity","confidence":"High"}`;
