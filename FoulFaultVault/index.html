@@ -275,7 +275,7 @@
     let currentCase = null;
     let analyses = [];
 
-    // DOM elements
+    // DOM elements – with null checks
     const searchBtn = document.getElementById('searchBtn');
     const resetBtn = document.getElementById('resetBtn');
     const vaultBtn = document.getElementById('vaultBtn');
@@ -295,33 +295,26 @@
     const confidenceField = document.getElementById('confidenceField');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    // PDF download buttons
+    // PDF download buttons (optional)
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
-    if (downloadPdfBtn) {
-        downloadPdfBtn.addEventListener('click', () => {
-            if (confirm('You are about to download a PDF file. Continue?')) {
-                window.location.href = 'FoulFault Protocol v1.1.pdf';
-            }
-        });
-    }
+    if (downloadPdfBtn) downloadPdfBtn.addEventListener('click', () => {
+        if (confirm('Download PDF?')) window.location.href = 'FoulFault Protocol v1.1.pdf';
+    });
     const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
-    if (downloadPdfBtn2) {
-        downloadPdfBtn2.addEventListener('click', () => {
-            if (confirm('You are about to download a PDF file. Continue?')) {
-                window.location.href = 'The Cartographer\'s Report.pdf';
-            }
-        });
-    }
-	function escapeHtml(str) {
+    if (downloadPdfBtn2) downloadPdfBtn2.addEventListener('click', () => {
+        if (confirm('Download PDF?')) window.location.href = 'The Cartographer\'s Report.pdf';
+    });
+
+    // Helper functions
+    function escapeHtml(str) {
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
-		function attachAnalyzeButtons() {
-    document.querySelectorAll('.analyze-btn').forEach(btn => {
-        btn.removeEventListener('click', handleAnalyze);
-        btn.addEventListener('click', handleAnalyze);
-    });
-}
-    // localStorage
+
+    function isCompleteField(value) {
+        return value && value.trim() !== '' && value !== 'Not mentioned';
+    }
+
+    // Local storage for analyses
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
         analyses = stored ? JSON.parse(stored) : [];
@@ -331,12 +324,9 @@
     }
     loadAnalysesFromStorage();
 
-    function isCompleteField(value) {
-        return value && value.trim() !== '' && value !== 'Not mentioned';
-    }
-
     function saveCurrentAndClose() {
         if (!currentCase) return false;
+        // Don't save if analysis is still loading or failed
         if (shoutField.value.startsWith('⏳') || shoutField.value.startsWith('❌')) {
             alert('Analysis not ready or failed. Please wait.');
             return false;
@@ -361,6 +351,7 @@
                                      isCompleteField(existing.sacrificial) && isCompleteField(existing.lenses) &&
                                      isCompleteField(existing.confidence);
             if (existingComplete) {
+                // Allow updating sources only if new content has links
                 if (newAnalysis.thirdLayer && (newAnalysis.thirdLayer.includes('source') || newAnalysis.thirdLayer.includes('href')) &&
                     newAnalysis.thirdLayer !== existing.thirdLayer) {
                     existing.thirdLayer = newAnalysis.thirdLayer;
@@ -373,6 +364,7 @@
                     return false;
                 }
             } else {
+                // Merge missing fields
                 const mergeField = (oldVal, newVal) => !isCompleteField(oldVal) ? newVal : oldVal;
                 existing.shout = mergeField(existing.shout, newAnalysis.shout);
                 existing.whisper = mergeField(existing.whisper, newAnalysis.whisper);
@@ -394,21 +386,16 @@
         }
     }
 
+    // Wikipedia search
     async function searchWikipedia(year, keyword) {
         let searchTerm = '';
         if (year && year.trim() !== '') {
             searchTerm = `${year}`;
-            if (keyword && keyword.trim() !== '') {
-                searchTerm = `${year} ${keyword}`;
-            } else {
-                searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
-            }
+            if (keyword && keyword.trim() !== '') searchTerm = `${year} ${keyword}`;
+            else searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
         } else {
-            if (keyword && keyword.trim() !== '') {
-                searchTerm = `${keyword} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
-            } else {
-                searchTerm = 'scandal OR cover-up OR corruption';
-            }
+            if (keyword && keyword.trim() !== '') searchTerm = `${keyword} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
+            else searchTerm = 'scandal OR cover-up OR corruption';
         }
         const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         const resp = await fetch(url);
@@ -421,127 +408,159 @@
         }));
     }
 
+    // Main analysis handler
+    async function handleAnalyze(event) {
+        const btn = event.currentTarget;
+        currentCase = { title: btn.dataset.title, url: btn.dataset.url };
+        modalCaseTitle.innerText = currentCase.title;
+        modalCaseUrl.href = currentCase.url;
+        modalCaseUrl.innerText = currentCase.url;
 
-async function handleAnalyze(event) {
-    const btn = event.currentTarget;
-    currentCase = { title: btn.dataset.title, url: btn.dataset.url };
-    modalCaseTitle.innerText = currentCase.title;
-    modalCaseUrl.href = currentCase.url;
+        // Reset fields
+        shoutField.value = '⏳ Fetching article...';
+        whisperField.value = '';
+        thirdLayerField.value = '';
+        sacrificialField.value = '';
+        lensesField.value = '';
+        confidenceField.value = '';
+        if (sourcesField) sourcesField.value = '';
+        modal.style.display = 'flex';
+        if (statusDiv) statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
-    shoutField.value = '⏳ Fetching article...';
-    whisperField.value = '';
-    thirdLayerField.value = '';
-    sacrificialField.value = '';
-    lensesField.value = '';
-    confidenceField.value = '';
-    if (sourcesField) sourcesField.value = '';
-    modal.style.display = 'flex';
-    statusDiv.innerHTML = '📡 Fetching article via proxy...';
+        try {
+            // 1. Fetch article text via proxy
+            const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
+            const articleRes = await fetch(fetchUrl);
+            if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
+            let articleText = await articleRes.text();
+            if (articleText.length > 5000) articleText = articleText.slice(0, 5000) + '…';
+            if (statusDiv) statusDiv.innerHTML = '🤖 Calling analysis API...';
+            shoutField.value = '⏳ Analyzing...';
 
-    try {
-        const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
-        const articleRes = await fetch(fetchUrl);
-        if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
-        let articleText = await articleRes.text();
-        if (articleText.length > 4000) articleText = articleText.slice(0, 4000) + '…';
-        statusDiv.innerHTML = '🤖 Calling Gemini AI...';
-        shoutField.value = '⏳ Analyzing with Gemini...';
+            // 2. Call Gemini (or OpenAI) via proxy
+            // Improved prompt: ask for JSON without HTML tags, provide clear examples
+            const systemPrompt = `You are an expert in narrative control analysis. Extract the following fields from the Wikipedia article. Return ONLY valid JSON. Do not include any HTML tags in the JSON values. Use plain text. Fields:
+- "shout": the official narrative or public statement of the institution (if not found, "Not mentioned")
+- "whisper": a safe alternative criticism that does not directly challenge the institution (if not found, "Not mentioned")
+- "thirdLayer": the hidden operation, secret knowledge, or evidence of cover-up (if not found, "Not mentioned")
+- "sources": a list of key sources mentioned in the article, as plain text (e.g., "Internal report, leaked email, court filing") – do NOT use HTML
+- "sacrificial": what was offered to absorb public anger (e.g., apology, compensation, inquiry, firing of a lower-level employee)
+- "lenses": one or more of these: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan. Separate by commas.
+- "confidence": Low, Medium, or High
 
-        const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                model: 'gpt-3.5-turbo',
-                messages: [
-                    { role: 'system', content: 'Extract from the article. Return ONLY valid JSON with fields:"shout" (official narrative), "whisper" (safe criticism that does not challenge the institution), "thirdLayer" (hidden operation or secret knowledge, with sources if available), "sources" (HTML links), "sacrificial" (what was offered up to absorb public anger, e.g. apology, compensation, inquiry), "lenses" (one or more of: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan), "confidence"(Low/Medium/High). Definitions: Black Box = sealed evidence, Zombie File = deleted documents, Limited Hangout = apology no prosecution, Structured Ambiguity = vague language, Fog Machine = massive releases, Teflon Shield = move people/assets, Victim Blame = smear whistleblower, Protective Shield = inquiry/compensation, Zhang Shan = retroactive rule change. If not found, write "Not mentioned". Example: {"shout":"...","whisper":"...","thirdLayer":"...","sources":"<a href=\'https://example.com\'>Source</a>","sacrificial":"...","lenses":"...","confidence":"High"}' },
-                    { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
-                ],
-                temperature: 0.3
-            })
-        });
-        const data = await geminiRes.json();
-        if (!geminiRes.ok) throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
-        if (!data.choices || !data.choices[0]) throw new Error('No choices in Gemini response');
-        let rawContent = data.choices[0].message.content;
-        let parsed = null;
-        let cleanContent = rawContent.trim().replace(/```json\s*/g, '').replace(/```\s*/g, '');
-        const firstBrace = cleanContent.indexOf('{');
-        const lastBrace = cleanContent.lastIndexOf('}');
-        if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-            const jsonCandidate = cleanContent.substring(firstBrace, lastBrace + 1);
-            try { parsed = JSON.parse(jsonCandidate); } catch(e) {}
-        }
-        if (!parsed) {
-            try { parsed = JSON.parse(cleanContent); } catch(e) { throw new Error('Could not parse AI response as JSON'); }
-        }
-        shoutField.value = parsed.shout || '';
-        whisperField.value = parsed.whisper || '';
-        thirdLayerField.value = parsed.thirdLayer || '';
-        if (sourcesField) sourcesField.value = parsed.sources || '';
-        sacrificialField.value = parsed.sacrificial || '';
-        lensesField.value = parsed.lenses || '';
-        confidenceField.value = parsed.confidence || '';
+Example output:
+{"shout":"We take full responsibility for the small spill.","whisper":"The spill is serious but BP is cooperating.","thirdLayer":"Internal emails projected 3.4 million gallons per day.","sources":"National Commission report, internal emails","sacrificial":"Compensation payments","lenses":"Limited Hangout, Structured Ambiguity","confidence":"High"}`;
 
-        if (saveCurrentAndClose()) {
+            const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    // Use OpenAI format if proxy expects that; otherwise adjust
+                    model: 'gpt-3.5-turbo',
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nArticle text:\n${articleText}` }
+                    ],
+                    temperature: 0.2
+                })
+            });
+
+            if (!geminiRes.ok) {
+                const errText = await geminiRes.text();
+                throw new Error(`API error ${geminiRes.status}: ${errText}`);
+            }
+            const data = await geminiRes.json();
+            if (!data.choices || !data.choices[0]) throw new Error('Invalid API response structure');
+            let rawContent = data.choices[0].message.content;
+
+            // Clean and parse JSON
+            let cleanContent = rawContent.trim();
+            // Remove markdown code fences
+            cleanContent = cleanContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
+            const firstBrace = cleanContent.indexOf('{');
+            const lastBrace = cleanContent.lastIndexOf('}');
+            let parsed = null;
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                const jsonCandidate = cleanContent.substring(firstBrace, lastBrace + 1);
+                try { parsed = JSON.parse(jsonCandidate); } catch(e) { console.warn('JSON parse failed', e); }
+            }
+            if (!parsed) {
+                try { parsed = JSON.parse(cleanContent); } catch(e) { throw new Error('Could not parse AI response as JSON'); }
+            }
+
+            // Fill fields
+            shoutField.value = parsed.shout || 'Not mentioned';
+            whisperField.value = parsed.whisper || 'Not mentioned';
+            thirdLayerField.value = parsed.thirdLayer || 'Not mentioned';
+            if (sourcesField) sourcesField.value = parsed.sources || '';
+            sacrificialField.value = parsed.sacrificial || 'Not mentioned';
+            lensesField.value = parsed.lenses || 'Not mentioned';
+            confidenceField.value = parsed.confidence || 'Medium';
+
+            if (statusDiv) statusDiv.innerHTML = '✅ Analysis complete. Save or close.';
+            // Optionally auto-save
+            saveCurrentAndClose();
             modal.style.display = 'none';
-            window.location.href = 'vault.html';
-        } else {
-            statusDiv.innerHTML = '⚠️ Save skipped (analysis already complete).';
+            // Redirect to vault if needed (optional)
+            // window.location.href = 'vault.html';
+        } catch (err) {
+            console.error(err);
+            shoutField.value = '❌ Analysis failed: ' + err.message;
+            if (statusDiv) statusDiv.innerHTML = '❌ Error. Please try again or check console.';
         }
-    } catch (err) {
-        console.error(err);
-        shoutField.value = '❌ Analysis failed: ' + err.message;
-        statusDiv.innerHTML = '❌ Auto‑analyze error. Please try again.';
     }
-}
 
-	async function performSearch() {
-    const year = yearInput.value.trim();
-    const keyword = keywordInput.value.trim();
-    if (year && (isNaN(year) || year < 1900 || year > 2030)) {
-        statusDiv.innerHTML = '⚠️ Please enter a valid year (1900–2030) or leave empty.';
-        return;
+    function attachAnalyzeButtons() {
+        document.querySelectorAll('.analyze-btn').forEach(btn => {
+            btn.removeEventListener('click', handleAnalyze);
+            btn.addEventListener('click', handleAnalyze);
+        });
     }
-    statusDiv.innerHTML = '🔍 Searching Wikipedia...';
-    resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
-    try {
-        const results = await searchWikipedia(year, keyword);
-        if (!results.length) {
-            resultsContainer.innerHTML = '<p>No results. Try different keyword or year.</p>';
-            statusDiv.innerHTML = 'No results.';
+
+    async function performSearch() {
+        const year = yearInput.value.trim();
+        const keyword = keywordInput.value.trim();
+        if (year && (isNaN(year) || year < 1900 || year > 2030)) {
+            if (statusDiv) statusDiv.innerHTML = '⚠️ Please enter a valid year (1900–2030) or leave empty.';
             return;
         }
-        let html = '';
-        for (const r of results) {
-            html += `<div class="result-item">
-                <strong><a href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.title)}</a></strong>
-                <p>${r.snippet}...</p>
-                <button class="analyze-btn" data-title="${escapeHtml(r.title)}" data-url="${r.url}">🧩 Analyze</button>
-            </div>`;
+        if (statusDiv) statusDiv.innerHTML = '🔍 Searching Wikipedia...';
+        resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
+        try {
+            const results = await searchWikipedia(year, keyword);
+            if (!results.length) {
+                resultsContainer.innerHTML = '<p>No results. Try different keyword or year.</p>';
+                if (statusDiv) statusDiv.innerHTML = 'No results.';
+                return;
+            }
+            let html = '';
+            for (const r of results) {
+                html += `<div class="result-item">
+                    <strong><a href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.title)}</a></strong>
+                    <p>${r.snippet}...</p>
+                    <button class="analyze-btn" data-title="${escapeHtml(r.title)}" data-url="${r.url}">🧩 Analyze</button>
+                </div>`;
+            }
+            resultsContainer.innerHTML = html;
+            if (statusDiv) statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
+            attachAnalyzeButtons();
+        } catch (err) {
+            if (statusDiv) statusDiv.innerHTML = '⚠️ Search error. Please try again.';
+            resultsContainer.innerHTML = '<p>Search failed. Reload the page and try again.</p>';
+            console.error(err);
         }
-        resultsContainer.innerHTML = html;
-        statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
-        attachAnalyzeButtons ();
-	} catch (err) {
-        statusDiv.innerHTML = '⚠️ Search error. Please try again.';
-        resultsContainer.innerHTML = '<p>Search failed. Reload the page and try again.</p>';
-        console.error(err);
     }
-	}
 
-    if (vaultBtn) {
-        vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
-    }
-    searchBtn.addEventListener('click', performSearch);
-    resetBtn.addEventListener('click', () => {
-        yearInput.value = '';
-        keywordInput.value = '';
-        resultsContainer.innerHTML = '';
-        statusDiv.innerHTML = '';
+    // Event listeners with null checks
+    if (vaultBtn) vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
+    if (searchBtn) searchBtn.addEventListener('click', performSearch);
+    if (resetBtn) resetBtn.addEventListener('click', () => {
+        if (yearInput) yearInput.value = '';
+        if (keywordInput) keywordInput.value = '';
+        if (resultsContainer) resultsContainer.innerHTML = '';
+        if (statusDiv) statusDiv.innerHTML = '';
     });
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-    }
+    if (closeModalBtn) closeModalBtn.addEventListener('click', () => { if (modal) modal.style.display = 'none'; });
     window.addEventListener('click', (event) => {
         if (modal && modal.style.display === 'flex') {
             const modalContent = modal.querySelector('.modal-content');
@@ -550,6 +569,7 @@ async function handleAnalyze(event) {
             }
         }
     });
+
 </script>
 </body>
 </html>
