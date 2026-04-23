@@ -400,16 +400,19 @@ const PROXY_URL = 'https://vault-d9s2z.bunny.run';
                 searchTerm = 'scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation';
             }
         }
-        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
+        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=99`;
         try {
             const resp = await fetch(url);
             const data = await resp.json();
-            return data.query.search.map(page => ({
+            let.results = data.query.search.map(page => ({
                 title: page.title,
                 snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
                 url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
                 source: 'Wikipedia'
+				timestamp: page.timestamo
             }));
+			results.sort((a, b) => new Date(b.timestamp) - new Data(a.timestamp));
+			return results.slice(0,25);
         } catch (err) {
             console.error('Wikipedia fetch error:', err);
             return [];
