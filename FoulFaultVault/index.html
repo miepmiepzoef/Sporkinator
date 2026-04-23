@@ -267,41 +267,51 @@
 
 <script
 
-    // Load header, footer, banner
-    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
-    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
-    fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
+    // Load header, footer, banner with error handling
+    Promise.all([
+        fetch('../header.html').then(r => r.ok ? r.text() : '').catch(() => ''),
+        fetch('../footer.html').then(r => r.ok ? r.text() : '').catch(() => ''),
+        fetch('../footer-banner.html').then(r => r.ok ? r.text() : '').catch(() => '')
+    ]).then(([header, footer, banner]) => {
+        const headerDiv = document.getElementById('header-placeholder');
+        const footerDiv = document.getElementById('footer-placeholder');
+        const bannerDiv = document.getElementById('banner-placeholder');
+        if (headerDiv) headerDiv.innerHTML = header || '<!-- header missing -->';
+        if (footerDiv) footerDiv.innerHTML = footer || '<!-- footer missing -->';
+        if (bannerDiv) bannerDiv.innerHTML = banner || '<!-- banner missing -->';
+    }).catch(e => console.warn('Could not load header/footer:', e));
 
     const PROXY_URL = 'https://vault-d9s2z.bunny.run';
     let currentCase = null;
     let analyses = [];
 
-    // DOM elements
-    const searchBtn = document.getElementById('searchBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const vaultBtn = document.getElementById('vaultBtn');
-    const yearInput = document.getElementById('yearInput');
-    const keywordInput = document.getElementById('keywordInput');
-    const statusDiv = document.getElementById('statusMsg');
-    const resultsContainer = document.getElementById('resultsContainer');
-    const modal = document.getElementById('analysisModal');
-    const modalCaseTitle = document.getElementById('modalCaseTitle');
-    const modalCaseUrl = document.getElementById('modalCaseUrl');
-    const shoutField = document.getElementById('shoutField');
-    const whisperField = document.getElementById('whisperField');
-    const thirdLayerField = document.getElementById('thirdLayerField');
-    const sourcesField = document.getElementById('sourcesField');
-    const sacrificialField = document.getElementById('sacrificialField');
-    const lensesField = document.getElementById('lensesField');
-    const confidenceField = document.getElementById('confidenceField');
-    const closeModalBtn = document.getElementById('closeModalBtn');
+    // DOM elements – safe access
+    const getEl = (id) => document.getElementById(id);
+    const searchBtn = getEl('searchBtn');
+    const resetBtn = getEl('resetBtn');
+    const vaultBtn = getEl('vaultBtn');
+    const yearInput = getEl('yearInput');
+    const keywordInput = getEl('keywordInput');
+    const statusDiv = getEl('statusMsg');
+    const resultsContainer = getEl('resultsContainer');
+    const modal = getEl('analysisModal');
+    const modalCaseTitle = getEl('modalCaseTitle');
+    const modalCaseUrl = getEl('modalCaseUrl');
+    const shoutField = getEl('shoutField');
+    const whisperField = getEl('whisperField');
+    const thirdLayerField = getEl('thirdLayerField');
+    const sourcesField = getEl('sourcesField');
+    const sacrificialField = getEl('sacrificialField');
+    const lensesField = getEl('lensesField');
+    const confidenceField = getEl('confidenceField');
+    const closeModalBtn = getEl('closeModalBtn');
 
     // PDF download buttons
-    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    const downloadPdfBtn = getEl('downloadPdfBtn');
     if (downloadPdfBtn) downloadPdfBtn.addEventListener('click', () => {
         if (confirm('Download PDF?')) window.location.href = 'FoulFault Protocol v1.1.pdf';
     });
-    const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
+    const downloadPdfBtn2 = getEl('downloadPdfBtn2');
     if (downloadPdfBtn2) downloadPdfBtn2.addEventListener('click', () => {
         if (confirm('Download PDF?')) window.location.href = 'The Cartographer\'s Report.pdf';
     });
@@ -326,7 +336,7 @@
 
     function saveCurrentAndClose() {
         if (!currentCase) return false;
-        if (shoutField.value.startsWith('⏳') || shoutField.value.startsWith('❌')) {
+        if (shoutField && (shoutField.value.startsWith('⏳') || shoutField.value.startsWith('❌'))) {
             alert('Analysis not ready or failed. Please wait.');
             return false;
         }
@@ -334,13 +344,13 @@
             timestamp: new Date().toISOString(),
             title: currentCase.title,
             url: currentCase.url,
-            shout: shoutField.value,
-            whisper: whisperField.value,
-            thirdLayer: thirdLayerField.value,
+            shout: shoutField ? shoutField.value : '',
+            whisper: whisperField ? whisperField.value : '',
+            thirdLayer: thirdLayerField ? thirdLayerField.value : '',
             sources: sourcesField ? sourcesField.value : '',
-            sacrificial: sacrificialField.value,
-            lenses: lensesField.value,
-            confidence: confidenceField.value
+            sacrificial: sacrificialField ? sacrificialField.value : '',
+            lenses: lensesField ? lensesField.value : '',
+            confidence: confidenceField ? confidenceField.value : ''
         };
         const existingIndex = analyses.findIndex(a => a.title === newAnalysis.title && a.url === newAnalysis.url);
         if (existingIndex !== -1) {
@@ -350,7 +360,6 @@
                                      isCompleteField(existing.sacrificial) && isCompleteField(existing.lenses) &&
                                      isCompleteField(existing.confidence);
             if (existingComplete) {
-                // Allow updating sources only if new content has links
                 if (newAnalysis.thirdLayer && (newAnalysis.thirdLayer.includes('source') || newAnalysis.thirdLayer.includes('href')) &&
                     newAnalysis.thirdLayer !== existing.thirdLayer) {
                     existing.thirdLayer = newAnalysis.thirdLayer;
@@ -412,7 +421,7 @@
             modalCaseUrl.innerText = currentCase.url;
         }
 
-        // Reset fields with null checks
+        // Reset fields (safe)
         const resetField = (field) => { if (field && field.value !== undefined) field.value = ''; };
         resetField(shoutField);
         resetField(whisperField);
@@ -434,7 +443,6 @@
             if (statusDiv) statusDiv.innerHTML = '🤖 Calling AI...';
             if (shoutField) shoutField.value = '⏳ Analyzing...';
 
-            // System prompt – unchanged, including HTML links in sources
             const systemPrompt = `You are an expert in narrative control analysis. Extract or infer the following fields from the Wikipedia article and your own knowledge. Return ONLY valid JSON. Do NOT use markdown code fences. The "sources" field may contain HTML links (e.g., <a href="url">text</a>). Use plain text for all other fields. If a field is not found, write "Not mentioned". Fields:
 - "shout": official narrative or public statement of the institution
 - "whisper": safe alternative criticism that does not directly challenge the institution
@@ -443,7 +451,7 @@
 - "sacrificial": what was offered to absorb public anger (apology, compensation, inquiry, firing)
 - "lenses": comma-separated list from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan
 - "confidence": Low, Medium, or High
-Definition lenses: Definitions: Black Box = evidence legally sealed/classified/destroyed; Zombie File = documents deleted/hidden; Limited Hangout = apology no prosecution, blame low-level; Structured Ambiguity = vague language; Fog Machine = massive contradictory releases; Teflon Shield = move people/assets; Victim Blame = smear whistleblower; Protective Shield = public inquiry/compensation; Zhang Shan = retroactive rule change.
+
 Example output:
 {"shout":"We take full responsibility for the small spill.","whisper":"The spill is serious but BP is cooperating.","thirdLayer":"Internal emails projected 3.4 million gallons per day.","sources":"<a href='https://example.com/report'>National Commission report</a>","sacrificial":"Compensation payments","lenses":"Limited Hangout, Structured Ambiguity","confidence":"High"}`;
 
@@ -468,7 +476,6 @@ Example output:
             if (!data.choices || !data.choices[0]) throw new Error('Invalid API response structure');
             let rawContent = data.choices[0].message.content;
 
-            // Clean and parse JSON
             let cleanContent = rawContent.trim();
             cleanContent = cleanContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
             const firstBrace = cleanContent.indexOf('{');
@@ -482,7 +489,6 @@ Example output:
                 try { parsed = JSON.parse(cleanContent); } catch(e) { throw new Error('Could not parse AI response as JSON'); }
             }
 
-            // Fill fields
             if (shoutField) shoutField.value = parsed.shout || 'Not mentioned';
             if (whisperField) whisperField.value = parsed.whisper || 'Not mentioned';
             if (thirdLayerField) thirdLayerField.value = parsed.thirdLayer || 'Not mentioned';
@@ -492,15 +498,9 @@ Example output:
             if (confidenceField) confidenceField.value = parsed.confidence || 'Medium';
 
             if (statusDiv) statusDiv.innerHTML = '✅ Analysis complete. Saving and redirecting...';
-            // Save to localStorage and redirect to vault
             const saved = saveCurrentAndClose();
             if (modal) modal.style.display = 'none';
-            if (saved) {
-                window.location.href = 'vault.html';
-            } else {
-                // If save failed (e.g., duplicate complete analysis), still redirect?
-                window.location.href = 'vault.html';
-            }
+            window.location.href = 'vault.html';
         } catch (err) {
             console.error(err);
             if (shoutField) shoutField.value = '❌ Analysis failed: ' + err.message;
@@ -516,18 +516,18 @@ Example output:
     }
 
     async function performSearch() {
-        const year = yearInput.value.trim();
-        const keyword = keywordInput.value.trim();
+        const year = yearInput ? yearInput.value.trim() : '';
+        const keyword = keywordInput ? keywordInput.value.trim() : '';
         if (year && (isNaN(year) || year < 1900 || year > 2030)) {
             if (statusDiv) statusDiv.innerHTML = '⚠️ Please enter a valid year (1900–2030) or leave empty.';
             return;
         }
         if (statusDiv) statusDiv.innerHTML = '🔍 Searching Wikipedia...';
-        resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
+        if (resultsContainer) resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
         try {
             const results = await searchWikipedia(year, keyword);
             if (!results.length) {
-                resultsContainer.innerHTML = '<p>No results. Try different keyword or year.</p>';
+                if (resultsContainer) resultsContainer.innerHTML = '<p>No results. Try different keyword or year.</p>';
                 if (statusDiv) statusDiv.innerHTML = 'No results.';
                 return;
             }
@@ -539,17 +539,17 @@ Example output:
                     <button class="analyze-btn" data-title="${escapeHtml(r.title)}" data-url="${r.url}">🧩 Analyze</button>
                 </div>`;
             }
-            resultsContainer.innerHTML = html;
+            if (resultsContainer) resultsContainer.innerHTML = html;
             if (statusDiv) statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
             attachAnalyzeButtons();
         } catch (err) {
             if (statusDiv) statusDiv.innerHTML = '⚠️ Search error. Please try again.';
-            resultsContainer.innerHTML = '<p>Search failed. Reload the page and try again.</p>';
+            if (resultsContainer) resultsContainer.innerHTML = '<p>Search failed. Reload the page and try again.</p>';
             console.error(err);
         }
     }
 
-    // Event listeners
+    // Event listeners (safe)
     if (vaultBtn) vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
     if (searchBtn) searchBtn.addEventListener('click', performSearch);
     if (resetBtn) resetBtn.addEventListener('click', () => {
