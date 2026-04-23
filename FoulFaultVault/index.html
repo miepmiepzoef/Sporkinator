@@ -386,7 +386,7 @@
         }
     }
 
-    async function searchWikipedia(year, keyword) {
+    /*async function searchWikipedia(year, keyword) {
         let searchTerm = '';
         if (year && year.trim() !== '') {
             searchTerm = `${year}`;
@@ -401,7 +401,21 @@
             } else {
                 searchTerm = 'scandal OR cover-up OR corruption';
             }
-        }
+        }*/
+	let searchTerm = 
+		if (year && year.trim() !== '') {
+    if (keyword && keyword.trim() !== '') {
+        searchTerm = `${year} ${keyword}`;
+    } else {
+        searchTerm = `${year} scandal|cover-up|corruption|whistleblower|leak|investigation`;
+    }
+} else {
+    if (keyword && keyword.trim() !== '') {
+        searchTerm = `${keyword} scandal|cover-up|corruption|whistleblower|leak|investigation`;
+    } else {
+        searchTerm = 'scandal|cover-up|corruption|whistleblower|leak|investigation';
+    }
+}
         const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         const resp = await fetch(url);
         const data = await resp.json();
