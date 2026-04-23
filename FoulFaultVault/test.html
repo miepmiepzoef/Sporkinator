@@ -1,505 +1,55 @@
-
-<!DOCTYPE html>
+	<!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>FoulFaultVault – Saved Cases</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        .vault-container { max-width: 1400px; margin: 20px auto; background: white; /*border-radius: 28px; padding: 24px; box-shadow: 0 8px 20px rgba(0,0,0,0.05); */}
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
-        th { background: #0a1c2f; color: white; }
-        .delete-btn { background: #0a1c2f; color: white !important; border: none; padding: 4px 10px; border-radius: 20px; cursor: pointer; }
-        .delete-btn:hover { background: #c33; }
-        .back-btn { background: #0a1c2f; margin-right: 10px; }
-        .search-input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 28px; border: 1px solid #ccc; font-size: 1rem; }
-    </style>
+    <title>FoulFaultVault</title>
+		<link rel="stylesheet" href="../css/style.css">
+		<meta charset="UTF-8> 
+		<meta name="description" content="Foul, Fault, Vault, Search Engine">
+		<meta name="keywords" content="Bananas, Sporkinator, Cutlery, Foul, Fault, Vault, Search Engine"> 
+		<meta name="author" content="Muppet">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <style>/*
+Source - https://stackoverflow.com/a/23741073
+Posted by Clément, modified by community. See post 'Timeline' for change history
+Retrieved 2026-04-23, License - CC BY-SA 4.0
+*/
+
+form  { display: table;      }
+p     { display: table-row;  }
+label { display: table-cell; }
+input { display: table-cell; }
+		</style>
 </head>
 <body>
 <div id="header-placeholder"></div>
-    <h1>Vault</h1>
-    <p class="citation">Access Granted</p>
-<div class="vault-container">
-    <p class="instructions"> Saved Files</p>
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 Filter by title, shout, whisper, third layer, lenses, confidence...">
-    <button id="refreshBtn" class="back-btn">⟳ Refresh</button>
-    <button id="backBtn" class="back-btn">← Back to Search</button>
-    <div id="vaultContent"><p>Loading...</p></div>
-</div>
+<h1>Test</h1>
+<p class="citation">Just checking</p>
+<h2>Testpagina</h2>
+		<p>U zit hier verkeerd</p>
+
+/*Source - https://stackoverflow.com/a/23741073
+Posted by Clément, modified by community. See post 'Timeline' for change history
+Retrieved 2026-04-23, License - CC BY-SA 4.0*/
+
+<form>
+  <p>
+    <label for="a">Short label:</label>
+    <input id="a" type="text">
+  </p>
+  <p>
+    <label for="b">Very very very long label:</label>
+    <input id="b" type="text">
+  </p>
+</form>
+
 <div id="footer-placeholder"></div>
-    <div id="banner-placeholder"></div>
+<div id="banner-placeholder"></div>
 <script>
-    fetch('../header.html').then(r => r.text()).then(d => document.getElementById('header-placeholder').innerHTML = d);
-    fetch('../footer.html').then(r => r.text()).then(d => document.getElementById('footer-placeholder').innerHTML = d);
-    fetch('../banner.html').then(r => r.text()).then(d => document.getElementById('banner-placeholder').innerHTML = d);
-    // Example case to pre‑populate if vault is empty
-    const exampleCase = {
-        timestamp: new Date().toISOString(),
-        title: "Example: Watergate Scandal",
-        url: "https://en.wikipedia.org/wiki/Watergate",
-        shout: "President Nixon: 'I am not a crook.'",
-        whisper: "Some journalists questioned the official denial.",
-        thirdLayer: "Secret recordings revealed cover‑up. (Sources: Washington Post, Senate hearings)",
-        sacrificial: "Two aides resigned; no prosecution of Nixon.",
-        lenses: "Limited Hangout, Teflon Shield",
-        confidence: "High"
-    };
-
-    function render() {
-        const stored = localStorage.getItem('ffv_analyses');
-        let analyses = stored ? JSON.parse(stored) : [];
-
-        // If empty, add example case
-        if (analyses.length === 0) {
-            analyses = [exampleCase];
-            localStorage.setItem('ffv_analyses', JSON.stringify(analyses));
-        }
-
-        const searchTerm = document.getElementById('searchInput')?.value.toLowerCase() || '';
-        const filtered = analyses.filter(item => {
-            return (item.title?.toLowerCase().includes(searchTerm) ||
-                    item.shout?.toLowerCase().includes(searchTerm) ||
-                    item.whisper?.toLowerCase().includes(searchTerm) ||
-                    item.thirdLayer?.toLowerCase().includes(searchTerm) ||
-                    item.sacrificial?.toLowerCase().includes(searchTerm) ||
-                    item.lenses?.toLowerCase().includes(searchTerm) ||
-                    item.confidence?.toLowerCase().includes(searchTerm));
-        });
-
-        const container = document.getElementById('vaultContent');
-        if (!filtered.length) {
-            container.innerHTML = '<p>No matching cases. Try a different search term.</p>';
-            return;
-        }
-        let html = `<table><thead><tr><th>Date</th><th>Title</th><th>SHOUT</th><th>WHISPER</th><th>THIRD LAYER</th><th>Sacrificial</th><th>Lenses</th><th>Confidence</th><th></th></tr></thead><tbody>`;
-        filtered.forEach((a, idx) => {
-            // Need original index for deletion (from full array, not filtered)
-            const originalIndex = analyses.findIndex(orig => orig.title === a.title && orig.url === a.url);
-            html += `<tr>
-                <td>${escapeHtml(a.timestamp || '')}</td>
-                <td><a href="${escapeHtml(a.url)}" target="_blank">${escapeHtml(a.title)}</a></td>
-                <td>${escapeHtml(a.shout || '')}</td>
-                <td>${escapeHtml(a.whisper || '')}</td>
-                <td>${escapeHtml(a.thirdLayer || '')}</td>
-                <td>${escapeHtml(a.sacrificial || '')}</td>
-                <td>${escapeHtml(a.lenses || '')}</td>
-                <td>${escapeHtml(a.confidence || '')}</td>
-                <td><button class="delete-btn" data-index="${originalIndex}">Delete</button></td>
-            </tr>`;
-        });
-        html += `</tbody></table>`;
-        container.innerHTML = html;
-
-        document.querySelectorAll('.delete-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                let idx = parseInt(btn.dataset.index);
-                let current = JSON.parse(localStorage.getItem('ffv_analyses') || '[]');
-                current.splice(idx, 1);
-                localStorage.setItem('ffv_analyses', JSON.stringify(current));
-                render(); // re-render with updated data
-            });
-        });
-    }
-
-    function escapeHtml(s) { 
-        if (!s) return '';
-        return String(s).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-    }
-
-    document.getElementById('refreshBtn').addEventListener('click', render);
-    document.getElementById('backBtn').addEventListener('click', () => window.location.href = 'index.html');
-    document.getElementById('searchInput').addEventListener('input', render);
-    render();
+	  // Load header, footer, banner
+    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
+    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
+    fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
+	
 </script>
 </body>
 </html>
-import * as BunnySDK from "@bunny.net/edgescript-sdk";
-
-BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
-  const url = new URL(request.url);
-  const path = url.pathname;
-
-  const corsHeaders = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
-  };
-
-  if (request.method === "OPTIONS") {
-    return new Response(null, { status: 204, headers: corsHeaders });
-  }
-
-  // /fetch endpoint (unchanged, works)
-  if (path === "/fetch" && request.method === "GET") {
-    const targetUrl = url.searchParams.get("url");
-    if (!targetUrl) {
-      return new Response(JSON.stringify({ error: "Missing url" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-    try {
-      const response = await fetch(targetUrl);
-      const text = await response.text();
-      return new Response(text, {
-        status: 200,
-        headers: { "Content-Type": "text/plain", ...corsHeaders },
-      });
-    } catch {
-      return new Response(JSON.stringify({ error: "Fetch failed" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-  }
-
-  // /gemini endpoint – using gemini-2.0-flash 
-  if (path === "/gemini" && request.method === "POST") {
-    const geminiKey = Deno.env.get("GEMINI_API_KEY");
-    if (!geminiKey) {
-      return new Response(JSON.stringify({ error: "Missing GEMINI_API_KEY" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    let body;
-    try {
-      body = await request.json();
-    } catch {
-      return new Response(JSON.stringify({ error: "Invalid JSON" }), {
-        status: 400,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    const userMessage = body.messages?.find((m: any) => m.role === "user")?.content || "";
-    const systemPrompt = body.messages?.find((m: any) => m.role === "system")?.content || "";
-
-    const geminiPayload = {
-      contents: [{ parts: [{ text: systemPrompt ? `${systemPrompt}\n\n${userMessage}` : userMessage }] }],
-    };
-
-    // Use v1beta and gemini-2.5-flash (as per your available models)
-    const geminiRes = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(geminiPayload),
-      }
-    );
-
-    const geminiData = await geminiRes.json();
-
-    if (geminiData.error) {
-      return new Response(JSON.stringify({ error: geminiData.error }), {
-        status: geminiRes.status,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    const content = geminiData.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!content) {
-      return new Response(JSON.stringify({ error: "No content from Gemini" }), {
-        status: 500,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    const openAiStyleResponse = {
-      choices: [{ message: { content } }],
-    };
-
-    return new Response(JSON.stringify(openAiStyleResponse), {
-      status: 200,
-      headers: { "Content-Type": "application/json", ...corsHeaders },
-    });
-  }
-
-  return new Response(JSON.stringify({ error: "Not found" }), {
-    status: 404,
-    headers: { "Content-Type": "application/json", ...corsHeaders },
-  });
-});
-
-     const PROXY_URL = 'https://vault-d9s2z.bunny.run';
-    let currentCase = null;
-    let analyses = [];
-
-    // DOM elements
-    const searchBtn = document.getElementById('searchBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const exportBtn = document.getElementById('exportBtn');
-    const vaultBtn = document.getElementById('vaultBtn');
-    const yearInput = document.getElementById('yearInput');
-    const keywordInput = document.getElementById('keywordInput');
-    const statusDiv = document.getElementById('statusMsg');
-    const resultsContainer = document.getElementById('resultsContainer');
-    const modal = document.getElementById('analysisModal');
-    const modalCaseTitle = document.getElementById('modalCaseTitle');
-    const modalCaseUrl = document.getElementById('modalCaseUrl');
-    const shoutField = document.getElementById('shoutField');
-    const whisperField = document.getElementById('whisperField');
-    const thirdLayerField = document.getElementById('thirdLayerField');
-    const sacrificialField = document.getElementById('sacrificialField');
-    const lensesField = document.getElementById('lensesField');
-    const confidenceField = document.getElementById('confidenceField');
-    const saveAnalysisBtn = document.getElementById('saveAnalysisBtn');
-    const closeModalBtn = document.getElementById('closeModalBtn');
-
-    // Load existing analyses from localStorage
-    function loadAnalysesFromStorage() {
-        const stored = localStorage.getItem('ffv_analyses');
-        analyses = stored ? JSON.parse(stored) : [];
-    }
-    function saveAnalysesToStorage() {
-        localStorage.setItem('ffv_analyses', JSON.stringify(analyses));
-    }
-    loadAnalysesFromStorage();
-
-    // Helper: save current case and return true/false
-    function saveCurrentAndClose() {
-        if (!currentCase) return false;
-        // Don't save if analysis failed or still loading
-        if (shoutField.value.startsWith('⏳') || shoutField.value.startsWith('❌')) {
-            alert('Analysis not ready or failed. Please wait.');
-            return false;
-        }
-        const newAnalysis = {
-            timestamp: new Date().toISOString(),
-            title: currentCase.title,
-            url: currentCase.url,
-            shout: shoutField.value,
-            whisper: whisperField.value,
-            thirdLayer: thirdLayerField.value,
-            sacrificial: sacrificialField.value,
-            lenses: lensesField.value,
-            confidence: confidenceField.value
-        };
-        const existingIndex = analyses.findIndex(a => a.title === newAnalysis.title && a.url === newAnalysis.url);
-        if (existingIndex !== -1) {
-            analyses[existingIndex] = newAnalysis;
-        } else {
-            analyses.push(newAnalysis);
-        }
-        saveAnalysesToStorage();
-        return true;
-    }
-
-    // Wikipedia search
-    async function searchWikipedia(year, keyword) {
-        let searchTerm = `${year}`;
-        if (keyword && keyword.trim() !== '') {
-            searchTerm = `${year} ${keyword}`;
-        } else {
-            searchTerm = `${year} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
-        }
-        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
-        const resp = await fetch(url);
-        const data = await resp.json();
-        return data.query.search.map(page => ({
-            title: page.title,
-            snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
-            url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
-            source: 'Wikipedia'
-        }));
-    }
-
-    async function performSearch() {
-        const year = yearInput.value.trim();
-        if (!year || isNaN(year) || year < 1900 || year > 2030) {
-            statusDiv.innerHTML = '⚠️ Please enter a valid year (1900–2030).';
-            return;
-        }
-        const keyword = keywordInput.value.trim();
-        statusDiv.innerHTML = `🔍 Searching Wikipedia for "${year}" ${keyword ? `+ "${keyword}"` : '...'}`;
-        resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
-        try {
-            const results = await searchWikipedia(year, keyword);
-            if (!results.length) {
-                resultsContainer.innerHTML = '<p>No results. Try different keyword</p>';
-                statusDiv.innerHTML = 'No results.';
-                return;
-            }
-            let html = '';
-            for (const r of results) {
-                html += `<div class="result-item">
-                    <strong><a href="${escapeHtml(r.url)}" target="_blank">${escapeHtml(r.title)}</a></strong>
-                    <p>${r.snippet}...</p>
-                    <button class="analyze-btn" data-title="${escapeHtml(r.title)}" data-url="${r.url}">🧩 Analyze</button>
-                </div>`;
-            }
-            resultsContainer.innerHTML = html;
-            statusDiv.innerHTML = `✅ Found ${results.length} articles. Click "Analyze".`;
-            // Attach analyze buttons with auto‑analysis, auto‑save, and redirect
-            document.querySelectorAll('.analyze-btn').forEach(btn => {
-                btn.addEventListener('click', async () => {
-                    currentCase = { title: btn.dataset.title, url: btn.dataset.url };
-                    modalCaseTitle.innerText = currentCase.title;
-                    modalCaseUrl.href = currentCase.url;
-
-                    // Show modal with loading message
-                    shoutField.value = '⏳ Fetching article...';
-                    whisperField.value = '';
-                    thirdLayerField.value = '';
-                    sacrificialField.value = '';
-                    lensesField.value = '';
-                    confidenceField.value = '';
-                    modal.style.display = 'flex';
-					window.scrollTo({ top: 0, behavior: 'smooth' });
-                    statusDiv.innerHTML = '📡 Fetching article via proxy...';
-
-                    try {
-                        // Fetch article text
-                        const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
-                        const articleRes = await fetch(fetchUrl);
-                        if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
-                        let articleText = await articleRes.text();
-                        if (articleText.length > 4000) articleText = articleText.slice(0, 4000) + '…';
-                        statusDiv.innerHTML = '🤖 Calling Gemini AI...';
-                        shoutField.value = '⏳ Analyzing with Gemini...';
-
-                        // Call Gemini proxy
-                        const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-        model: 'gpt-3.5-turbo',
-        messages: [
-            { role: 'system', content: 'Extract from the article the following fields pls. If a field is not clearly present, write "Not mentioned". SHOUT: The official, public narrative (what the institution wants you to believe), WHISPER : The safe criticism that does not challenge institutional authority, THIRD LAYER : The hidden operation or secret knowledge (requires ≥2 independent sources if available), SACRIFICIAL LAYER: What the institution offers up to absorb anger (apology, low-level employee, inquiry, compensation), LENSES (one or more of): Black Box | Evidence legally sealed, classified, or destroyed under privilege, Zombie File | Documents deleted, wiped, hidden from oversight, or kept in secret vaults, Limited Hangout | Apology or inquiry with no prosecution; blame on low-level employees, Structured Ambiguity| Vague official language, refusal to clarify, commercially sensitive, Fog Machine | Massive document release, contradictory statements, delayed investigations, Teflon Shield | Individuals moved to other roles without penalty; assets moved offshore, Victim Blame | Whistleblower or accuser investigated, smeared, or retaliated against, Protective Shield | Public inquiry, compensation fund, independent review announced, Zhang Shan | Rule change after court ruling, protest, or exposure (retroactive application), CONFIDENCE. Example: {"shout":"...","whisper":"...","thirdLayer":"... (sources: source1, source2)","sacrificial":"...","lenses":"...","confidence":"High"} Return ONLY valid JSON. Greetings Druid of the Green Isle' },
-            { role: 'user', content: `Title: ${currentCase.title}\nURL: ${currentCase.url}\n\nText:\n${articleText}` }
-        ],
-        temperature: 0.3
-    })
-});
-const data = await geminiRes.json();
-console.log('RAW GEMINI RESPONSE', JSON.stringify(data, null, 2));
-
-if (!geminiRes.ok) {
-    throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
-}
-if (!data.choices || !data.choices[0]) {
-    console.error('No choices in response:', data);
-    throw new Error('No choices in Gemini response');
-}
-
-let rawContent = data.choices[0].message.content;
-console.log('RAW CONTENT:', rawContent);
-
-// Attempt to extract JSON
-let parsed = null;
-let cleanContent = rawContent.trim();
-
-// Remove markdown code blocks
-cleanContent = cleanContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
-// Find first { and last }
-const firstBrace = cleanContent.indexOf('{');
-const lastBrace = cleanContent.lastIndexOf('}');
-if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
-    const jsonCandidate = cleanContent.substring(firstBrace, lastBrace + 1);
-    try {
-        parsed = JSON.parse(jsonCandidate);
-        console.log('Successfully parsed JSON:', parsed);
-    } catch (e) {
-        console.error('Failed to parse JSON candidate:', jsonCandidate, e);
-    }
-}
-
-if (!parsed) {
-    // If still no parsed, try a more aggressive approach: use the entire cleaned content
-    try {
-        parsed = JSON.parse(cleanContent);
-    } catch (e) {
-        console.error('Final parse attempt failed:', e);
-        throw new Error('Could not parse AI response as JSON. Raw: ' + rawContent.substring(0, 300));
-    }
-}
-
-// Fill fields
-shoutField.value = parsed.shout || '';
-whisperField.value = parsed.whisper || '';
-thirdLayerField.value = parsed.thirdLayer || '';
-sacrificialField.value = parsed.sacrificial || '';
-lensesField.value = parsed.lenses || '';
-confidenceField.value = parsed.confidence || '';
-
-// If all fields are empty, show raw response for debugging
-if (!shoutField.value && !whisperField.value && !thirdLayerField.value) {
-    shoutField.value = '⚠️ AI returned unexpected format. Raw response: ' + rawContent.substring(0, 500);
-}
-                        // Auto-save and redirect to vault
-                        if (saveCurrentAndClose()) {
-                            modal.style.display = 'none';
-                            window.location.href = 'vault.html';
-                        } else {
-                            statusDiv.innerHTML = '⚠️ Save failed, but analysis complete.';
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        shoutField.value = '❌ Analysis failed: ' + err.message;
-                        whisperField.value = '';
-                        thirdLayerField.value = '';
-                        sacrificialField.value = '';
-                        lensesField.value = '';
-                        confidenceField.value = '';
-                        statusDiv.innerHTML = '❌ Auto‑analyze error. Please try again.';
-                    }
-                });
-            });
-        } catch (err) {
-            statusDiv.innerHTML = `Error: ${err.message}`;
-        }
-    }
-
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-    }
-
-    // Manual save button (redirects to vault)
-    saveAnalysisBtn.addEventListener('click', () => {
-        if (saveCurrentAndClose()) {
-            modal.style.display = 'none';
-            window.location.href = 'vault.html';
-        }
-    });
-
-    // Export all analyses as JSON
-    exportBtn.addEventListener('click', () => {
-        if (!analyses.length) { alert('No analyses saved.'); return; }
-        const json = JSON.stringify(analyses, null, 2);
-        const blob = new Blob([json], { type: 'application/json' });
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `foulfaultvault_${new Date().toISOString().slice(0,19)}.json`;
-        a.click();
-        URL.revokeObjectURL(blob);
-    });
-
-    // Vault button
-    vaultBtn.addEventListener('click', () => {
-        window.location.href = 'vault.html';
-    });
-
-    searchBtn.addEventListener('click', performSearch);
-    resetBtn.addEventListener('click', () => {
-        yearInput.value = '';
-        keywordInput.value = '';
-        resultsContainer.innerHTML = '';
-        statusDiv.innerHTML = '';
-    });
-
-    // Close modal with X button
-    if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-        });
-    }
-    // Close modal when clicking outside the modal content
-    window.addEventListener('click', (event) => {
-        if (modal && !modal.querySelector('.modal-content').contains(event.target)) {
-            modal.style.display = 'none';
-        }
-    });
