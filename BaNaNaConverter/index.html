@@ -50,7 +50,7 @@
 				margin-top: 2px;
 				min-height: 20px;
 			}
-				.rating-slider {
+			.rating-slider {
 				text-align: center;
 				margin: 20px;
 			}
@@ -69,19 +69,19 @@
 				pointer-events: none;
 				transition: left 0.1s;
 			}
-			/* Hide the default thumb in WebKit browsers */
+/* Hide the default thumb in WebKit browsers */
 			#rating::-webkit-slider-thumb {
    			 	-webkit-appearance: none;
 				appearance: none;
-   			 	width: 1px; /* make it tiny */
-				height: 1px;
+   			 	width: 0.5px; /* make it tiny */
+				height: 0.5px;
     			background: transparent;
 			}
 
 /* Hide in Firefox */
 			#rating::-moz-range-thumb {
-    			width: 1px;
-    			height: 1px;
+    			width: 0.5px;
+    			height: 0.5px;
     			background: transparent;
     			border: none;
 			}
@@ -194,7 +194,7 @@
 					errorDiv.innerText = "Please, enter a positive number";
 					return;		
 				}
-				/*let b = m / 16.99;*/
+				
 				const cm1 = meters1 * 100;
 				let bananas = cm1 / length;
 				let bananaCount = Math.ceil(bananas);
@@ -230,7 +230,7 @@
 				const volume = 136.33;
 				//const v2 = 136.33 / 100
 				const meters3 = parseFloat(document.getElementById('meters3').value);
-				/*const m3 = meters3 * 1000000;*/	
+				
 				const resultSpan = document.getElementById('result3');
 				const errorDiv = document.getElementById( 'error-meters3');
 				errorDiv.innerText = '';
