@@ -6,7 +6,13 @@ body {
     line-height: 1.6;
     background-color: #fafafa;
 }
-
+.container {
+			text-align: center;
+			padding-top: 10px;
+            max-width: 1400px;
+            margin: 0 auto;
+			align-items: center;
+        }
 h1 {
     text-align: center;
     padding-bottom: 10px;
