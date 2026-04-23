@@ -400,7 +400,7 @@ const PROXY_URL = 'https://vault-d9s2z.bunny.run';
                 searchTerm = 'scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation';
             }
         }
-        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=99`;
+        const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&srprop=timestamp&format=json&origin=*&srlimit=99`;
         try {
             const resp = await fetch(url);
             const data = await resp.json();
