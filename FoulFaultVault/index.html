@@ -265,7 +265,8 @@
 <div id="footer-placeholder"></div>
 <div id="banner-placeholder"></div>
 
-<script>
+<script
+
     // Load header, footer, banner
     fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
@@ -275,7 +276,7 @@
     let currentCase = null;
     let analyses = [];
 
-    // DOM elements – with null checks
+    // DOM elements
     const searchBtn = document.getElementById('searchBtn');
     const resetBtn = document.getElementById('resetBtn');
     const vaultBtn = document.getElementById('vaultBtn');
@@ -295,17 +296,16 @@
     const confidenceField = document.getElementById('confidenceField');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-    // PDF download buttons (optional)
+    // PDF download buttons
     const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     if (downloadPdfBtn) downloadPdfBtn.addEventListener('click', () => {
         if (confirm('Download PDF?')) window.location.href = 'FoulFault Protocol v1.1.pdf';
     });
     const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
     if (downloadPdfBtn2) downloadPdfBtn2.addEventListener('click', () => {
-        if (confirm('Download PDF?')) window.location.href = 'The Cartographer`s Report.pdf';
+        if (confirm('Download PDF?')) window.location.href = 'The Cartographer\'s Report.pdf';
     });
 
-    // Helper functions
     function escapeHtml(str) {
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
@@ -314,7 +314,7 @@
         return value && value.trim() !== '' && value !== 'Not mentioned';
     }
 
-    // Local storage for analyses
+    // Local storage
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
         analyses = stored ? JSON.parse(stored) : [];
@@ -326,7 +326,6 @@
 
     function saveCurrentAndClose() {
         if (!currentCase) return false;
-        // Don't save if analysis is still loading or failed
         if (shoutField.value.startsWith('⏳') || shoutField.value.startsWith('❌')) {
             alert('Analysis not ready or failed. Please wait.');
             return false;
@@ -357,14 +356,12 @@
                     existing.thirdLayer = newAnalysis.thirdLayer;
                     existing.timestamp = newAnalysis.timestamp;
                     saveAnalysesToStorage();
-                    alert('Sources updated.');
                     return true;
                 } else {
                     alert('Analysis already complete. No changes saved.');
                     return false;
                 }
             } else {
-                // Merge missing fields
                 const mergeField = (oldVal, newVal) => !isCompleteField(oldVal) ? newVal : oldVal;
                 existing.shout = mergeField(existing.shout, newAnalysis.shout);
                 existing.whisper = mergeField(existing.whisper, newAnalysis.whisper);
@@ -375,13 +372,11 @@
                 existing.confidence = mergeField(existing.confidence, newAnalysis.confidence);
                 existing.timestamp = newAnalysis.timestamp;
                 saveAnalysesToStorage();
-                alert('Analysis updated with missing fields.');
                 return true;
             }
         } else {
             analyses.push(newAnalysis);
             saveAnalysesToStorage();
-            alert('Analysis saved.');
             return true;
         }
     }
@@ -408,55 +403,54 @@
         }));
     }
 
-    // Main analysis handler
     async function handleAnalyze(event) {
         const btn = event.currentTarget;
         currentCase = { title: btn.dataset.title, url: btn.dataset.url };
-        modalCaseTitle.innerText = currentCase.title;
-        modalCaseUrl.href = currentCase.url;
-        modalCaseUrl.innerText = currentCase.url;
+        if (modalCaseTitle) modalCaseTitle.innerText = currentCase.title;
+        if (modalCaseUrl) {
+            modalCaseUrl.href = currentCase.url;
+            modalCaseUrl.innerText = currentCase.url;
+        }
 
-        // Reset fields
+        // Reset fields with null checks
+        const resetField = (field) => { if (field && field.value !== undefined) field.value = ''; };
+        resetField(shoutField);
+        resetField(whisperField);
+        resetField(thirdLayerField);
+        resetField(sacrificialField);
+        resetField(lensesField);
+        resetField(confidenceField);
+        resetField(sourcesField);
         if (shoutField) shoutField.value = '⏳ Fetching article...';
-        if (whisperField) whisperField.value = '';
-        if (thirdLayerField)thirdLayerField.value = '';
-        if (sacrificialField)sacrificialField.value = '';
-        if (lensesField)lensesField.value = '';
-        if (confidenceField)confidenceField.value = '';
-        if (sourcesField) sourcesField.value = '';
-        modal.style.display = 'flex';
-        statusDiv.innerHTML = '📡 Fetching article via proxy...';
+        if (modal) modal.style.display = 'flex';
+        if (statusDiv) statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
         try {
-            // 1. Fetch article text via proxy
             const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
             const articleRes = await fetch(fetchUrl);
             if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
             let articleText = await articleRes.text();
             if (articleText.length > 5000) articleText = articleText.slice(0, 5000) + '…';
-            if (statusDiv) statusDiv.innerHTML = '🤖 Calling Gemini...';
-            shoutField.value = '⏳ Analyzing...';
+            if (statusDiv) statusDiv.innerHTML = '🤖 Calling AI...';
+            if (shoutField) shoutField.value = '⏳ Analyzing...';
 
-            // 2. Call Gemini (or OpenAI) via proxy
-            // Improved prompt: ask for JSON without HTML tags, provide clear examples
-            const systemPrompt = `You are an expert in narrative control analysis. Extract the following fields from the Wikipedia article and your own knowledge. Return ONLY valid JSON (if not found, "Not mentioned"). Fields:
-- "shout": the official narrative or public statement of the institution
-- "whisper": a safe alternative criticism that does not directly challenge the institution
-- "thirdLayer": the hidden operation, secret knowledge, or evidence of cover-up
-- "sources": a list of key sourcesas html links
-- "sacrificial": what was offered to absorb public anger (e.g., apology, compensation, inquiry, firing of a lower-level employee)
-- "lenses": one or more of these: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan. Separate by commas.
+            // System prompt – unchanged, including HTML links in sources
+            const systemPrompt = `You are an expert in narrative control analysis. Extract or infer the following fields from the Wikipedia article and your own knowledge. Return ONLY valid JSON. Do NOT use markdown code fences. The "sources" field may contain HTML links (e.g., <a href="url">text</a>). Use plain text for all other fields. If a field is not found, write "Not mentioned". Fields:
+- "shout": official narrative or public statement of the institution
+- "whisper": safe alternative criticism that does not directly challenge the institution
+- "thirdLayer": hidden operation, secret knowledge, or evidence of cover-up
+- "sources": HTML links to primary sources (e.g., court rulings, inquiry reports, news articles) – you can use your own knowledge
+- "sacrificial": what was offered to absorb public anger (apology, compensation, inquiry, firing)
+- "lenses": comma-separated list from: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan
 - "confidence": Low, Medium, or High
 Definition lenses: Definitions: Black Box = evidence legally sealed/classified/destroyed; Zombie File = documents deleted/hidden; Limited Hangout = apology no prosecution, blame low-level; Structured Ambiguity = vague language; Fog Machine = massive contradictory releases; Teflon Shield = move people/assets; Victim Blame = smear whistleblower; Protective Shield = public inquiry/compensation; Zhang Shan = retroactive rule change.
-
 Example output:
-{"shout":"We take full responsibility for the small spill.","whisper":"The spill is serious but BP is cooperating.","thirdLayer":"Internal emails projected 3.4 million gallons per day.","sources":"National Commission report, internal emails","sacrificial":"Compensation payments","lenses":"Limited Hangout, Structured Ambiguity","confidence":"High"}`;
+{"shout":"We take full responsibility for the small spill.","whisper":"The spill is serious but BP is cooperating.","thirdLayer":"Internal emails projected 3.4 million gallons per day.","sources":"<a href='https://example.com/report'>National Commission report</a>","sacrificial":"Compensation payments","lenses":"Limited Hangout, Structured Ambiguity","confidence":"High"}`;
 
             const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    // Use OpenAI format if proxy expects that; otherwise adjust
                     model: 'gpt-3.5-turbo',
                     messages: [
                         { role: 'system', content: systemPrompt },
@@ -476,7 +470,6 @@ Example output:
 
             // Clean and parse JSON
             let cleanContent = rawContent.trim();
-            // Remove markdown code fences
             cleanContent = cleanContent.replace(/```json\s*/g, '').replace(/```\s*/g, '');
             const firstBrace = cleanContent.indexOf('{');
             const lastBrace = cleanContent.lastIndexOf('}');
@@ -490,23 +483,27 @@ Example output:
             }
 
             // Fill fields
-            shoutField.value = parsed.shout || 'Not mentioned';
-            whisperField.value = parsed.whisper || 'Not mentioned';
-            thirdLayerField.value = parsed.thirdLayer || 'Not mentioned';
+            if (shoutField) shoutField.value = parsed.shout || 'Not mentioned';
+            if (whisperField) whisperField.value = parsed.whisper || 'Not mentioned';
+            if (thirdLayerField) thirdLayerField.value = parsed.thirdLayer || 'Not mentioned';
             if (sourcesField) sourcesField.value = parsed.sources || '';
-            sacrificialField.value = parsed.sacrificial || 'Not mentioned';
-            lensesField.value = parsed.lenses || 'Not mentioned';
-            confidenceField.value = parsed.confidence || 'Medium';
+            if (sacrificialField) sacrificialField.value = parsed.sacrificial || 'Not mentioned';
+            if (lensesField) lensesField.value = parsed.lenses || 'Not mentioned';
+            if (confidenceField) confidenceField.value = parsed.confidence || 'Medium';
 
-            if (statusDiv) statusDiv.innerHTML = '✅ Analysis complete. Save or close.';
-            // Optionally auto-save
-            saveCurrentAndClose();
-            modal.style.display = 'none';
-            // Redirect to vault if needed (optional)
-            // window.location.href = 'vault.html';
+            if (statusDiv) statusDiv.innerHTML = '✅ Analysis complete. Saving and redirecting...';
+            // Save to localStorage and redirect to vault
+            const saved = saveCurrentAndClose();
+            if (modal) modal.style.display = 'none';
+            if (saved) {
+                window.location.href = 'vault.html';
+            } else {
+                // If save failed (e.g., duplicate complete analysis), still redirect?
+                window.location.href = 'vault.html';
+            }
         } catch (err) {
             console.error(err);
-            shoutField.value = '❌ Analysis failed: ' + err.message;
+            if (shoutField) shoutField.value = '❌ Analysis failed: ' + err.message;
             if (statusDiv) statusDiv.innerHTML = '❌ Error. Please try again or check console.';
         }
     }
@@ -552,7 +549,7 @@ Example output:
         }
     }
 
-    // Event listeners with null checks
+    // Event listeners
     if (vaultBtn) vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
     if (searchBtn) searchBtn.addEventListener('click', performSearch);
     if (resetBtn) resetBtn.addEventListener('click', () => {
@@ -570,7 +567,6 @@ Example output:
             }
         }
     });
-
 </script>
 </body>
 </html>
