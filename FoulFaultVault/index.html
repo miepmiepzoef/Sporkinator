@@ -315,6 +315,12 @@
 	function escapeHtml(str) {
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
+		function attachAnalyzeButtons() {
+    document.querySelectorAll('.analyze-btn').forEach(btn => {
+        btn.removeEventListener('click', handleAnalyze);
+        btn.addEventListener('click', handleAnalyze);
+    });
+}
     // localStorage
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
@@ -414,12 +420,7 @@
             source: 'Wikipedia'
         }));
     }
-	function attachAnalyzeButtons() {
-    document.querySelectorAll('.analyze-btn').forEach(btn => {
-        btn.removeEventListener('click', handleAnalyze);
-        btn.addEventListener('click', handleAnalyze);
-    });
-}
+
 
 async function handleAnalyze(event) {
     const btn = event.currentTarget;
