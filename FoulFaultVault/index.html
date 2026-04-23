@@ -264,15 +264,13 @@
 </div>
 <div id="footer-placeholder"></div>
 <div id="banner-placeholder"></div>
-
-
 <script>
 	  // Load header, footer, banner
     fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
- const PROXY_URL = 'https://vault-d9s2z.bunny.run';
+const PROXY_URL = 'https://vault-d9s2z.bunny.run';
     let currentCase = null;
     let analyses = [];
 
@@ -296,22 +294,24 @@
     const confidenceField = document.getElementById('confidenceField');
     const closeModalBtn = document.getElementById('closeModalBtn');
 
-   const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    // PDF download buttons
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
     if (downloadPdfBtn) {
         downloadPdfBtn.addEventListener('click', () => {
-            if (confirm( 'You are about to dowload a PDF file. Continue?')) {
+            if (confirm('You are about to download a PDF file. Continue?')) {
                 window.location.href = 'FoulFault Protocol v1.1.pdf';
             }
         });
     }
-	const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
+    const downloadPdfBtn2 = document.getElementById('downloadPdfBtn2');
     if (downloadPdfBtn2) {
         downloadPdfBtn2.addEventListener('click', () => {
-            if (confirm( 'You are about to dowload a PDF file. Continue?')) {
+            if (confirm('You are about to download a PDF file. Continue?')) {
                 window.location.href = 'The Cartographer`s Report.pdf';
             }
         });
     }
+
     // Load existing analyses from localStorage
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
@@ -385,10 +385,9 @@
         }
     }
 
-    /*async function searchWikipedia(year, keyword) {
+    async function searchWikipedia(year, keyword) {
         let searchTerm = '';
         if (year && year.trim() !== '') {
-            searchTerm = `${year}`;
             if (keyword && keyword.trim() !== '') {
                 searchTerm = `${year} ${keyword}`;
             } else {
@@ -398,39 +397,24 @@
             if (keyword && keyword.trim() !== '') {
                 searchTerm = `${keyword} scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation`;
             } else {
-                searchTerm = 'scandal OR cover-up OR corruption';
+                searchTerm = 'scandal OR cover-up OR corruption OR whistleblower OR leak OR investigation';
             }
-        }*/
-	async function searchWikipedia(year, keyword) {
-		let searchTerm = '';
-		if (year && year.trim() '') {
-   			 if (keyword && keyword.trim() !== '') {
-        		searchTerm = `${year} ${keyword}`;
-			} else {
-        		searchTerm = `${year} scandal|cover-up|corruption|whistleblower|leak|investigation`;
-			}
-		} else {
-    		if (keyword && keyword.trim() !== '') {
-        		searchTerm = `${keyword} scandal|cover-up|corruption|whistleblower|leak|investigation`;
-    	    } else {
-        		searchTerm = 'scandal|cover-up|corruption|whistleblower|leak|investigation';
-    		}
-		}
+        }
         const url = `https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(searchTerm)}&format=json&origin=*&srlimit=25`;
         try {
-			const resp = await fetch(url);
-        	const data = await resp.json();
-        	return data.query.search.map(page => ({
-            	title: page.title,
-            	snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
-            	url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
-            	source: 'Wikipedia'
-       	 }));
-    } catch (err) {
-			console.error('Wikipedia fetch error:', err);
-			return [];
-		}
-	}
+            const resp = await fetch(url);
+            const data = await resp.json();
+            return data.query.search.map(page => ({
+                title: page.title,
+                snippet: page.snippet.replace(/<span class="searchmatch">/g, '<strong>').replace(/<\/span>/g, '</strong>'),
+                url: `https://en.wikipedia.org/wiki/${encodeURIComponent(page.title.replace(/ /g, '_'))}`,
+                source: 'Wikipedia'
+            }));
+        } catch (err) {
+            console.error('Wikipedia fetch error:', err);
+            return [];
+        }
+    }
 
     async function performSearch() {
         const year = yearInput.value.trim();
@@ -474,7 +458,6 @@
                     confidenceField.value = '';
                     if (sourcesField) sourcesField.value = '';
                     modal.style.display = 'flex';
-                    /*window.scrollTo({ top: 0, behavior: 'smooth' });*/
                     statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
                     try {
@@ -496,11 +479,11 @@
 - "shout": the official narrative or public statement of the institution
 - "whisper": a safe alternative criticism that does not directly challenge the institution
 - "thirdLayer": the hidden operation, secret knowledge, or evidence of cover-up
-- "sources": a list of key sourcesas html links
+- "sources": a list of key sources as HTML links
 - "sacrificial": what was offered to absorb public anger (e.g., apology, compensation, inquiry, firing of a lower-level employee)
 - "lenses": one or more of these: Black Box, Zombie File, Limited Hangout, Structured Ambiguity, Fog Machine, Teflon Shield, Victim Blame, Protective Shield, Zhang Shan. Separate by commas.
 - "confidence": Low, Medium, or High
-Definition lenses: Definitions: Black Box = evidence legally sealed/classified/destroyed; Zombie File = documents deleted/hidden; Limited Hangout = apology no prosecution, blame low-level; Structured Ambiguity = vague language; Fog Machine = massive contradictory releases; Teflon Shield = move people/assets; Victim Blame = smear whistleblower; Protective Shield = public inquiry/compensation; Zhang Shan = retroactive rule change.
+Definition lenses: Black Box = evidence legally sealed/classified/destroyed; Zombie File = documents deleted/hidden; Limited Hangout = apology no prosecution, blame low-level; Structured Ambiguity = vague language; Fog Machine = massive contradictory releases; Teflon Shield = move people/assets; Victim Blame = smear whistleblower; Protective Shield = public inquiry/compensation; Zhang Shan = retroactive rule change.
 
 Example output:
 {"shout":"We take full responsibility for the small spill.","whisper":"The spill is serious but BP is cooperating.","thirdLayer":"Internal emails projected 3.4 million gallons per day.","sources":"National Commission report, internal emails","sacrificial":"Compensation payments","lenses":"Limited Hangout, Structured Ambiguity","confidence":"High"}` },
@@ -549,10 +532,12 @@ Example output:
             statusDiv.innerHTML = `Error: ${err.message}`;
         }
     }
- function escapeHtml(str) {
+
+    function escapeHtml(str) {
         return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
 
+    // Event listeners
     if (vaultBtn) {
         vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
     }
@@ -563,9 +548,14 @@ Example output:
         resultsContainer.innerHTML = '';
         statusDiv.innerHTML = '';
     });
+
+    // Close modal with X button
     if (closeModalBtn) {
-        closeModalBtn.addEventListener('click', () => { modal.style.display = 'none'; });
+        closeModalBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
     }
+    // Close modal when clicking outside the modal content
     window.addEventListener('click', (event) => {
         if (modal && modal.style.display === 'flex') {
             const modalContent = modal.querySelector('.modal-content');
