@@ -312,7 +312,9 @@
             }
         });
     }
-
+	function escapeHtml(str) {
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
     // localStorage
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
@@ -450,12 +452,8 @@
         statusDiv.innerHTML = '⚠️ Search error. Please try again.';
         resultsContainer.innerHTML = '<p>Search failed. Reload the page and try again.</p>';
         console.error(err);
-    } catch (err) {
-		statusDiv.innerHTML = `Error: ${err.message}`;
-	}
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
     }
+    
 
     if (vaultBtn) {
         vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
