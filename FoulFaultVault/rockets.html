@@ -103,7 +103,14 @@
             background: white;
             font-size: 0.9rem;
         }
-        .rocket-badge {
+		textarea2 {
+			display: flex;
+			flex-wrap: wrap;
+			font-size: 0.9rem;
+			background: white;
+			border: 1px solid #d1d5db;
+		}
+		.rocket-badge {
             display: inline-flex;
             align-items: center;
             background: #eef2ff;
@@ -274,8 +281,8 @@
                 <input type="date" id="newDeadline">
             </div>
             <div class="form-field">
-                <label>⏰ Reminder (days before)</label>
-                <input type="number" id="newReminder" placeholder="2">
+                <span><label>⏰ Remind me</label>
+                <input type="number" id="newReminder" placeholder="2">days before</span>
             </div>
 		 	<div class="full-width">
            		<label>📝 Notes</label>
@@ -289,8 +296,7 @@
             <div id="subtaskList"></div>
             <button type="button" id="addSubtaskRowBtn" class="button-like" style="margin-top: 8px;">+ Add another sub‑task</button>
         </div>
-
-        <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
+		 <div style="display: flex; justify-content: flex-end; margin-top: 16px;">
             <button id="createTaskBtn" class="primary">🚀 Create task</button>
         </div>
 	</div>
@@ -310,7 +316,11 @@
             <input type="text" id="searchInput" placeholder="title">
         </div>
     </div>
-
+	  <div class="tabs">
+        <button class="tab" data-project="home">🏠 Home</button>
+        <button class="tab" data-project="work">💼 Work</button>
+        <button class="tab" data-project="hobby">🎨 Hobby</button>
+    </div>
     <div class="tasks-section">
         <div id="tasksContainer"></div>
     </div>
