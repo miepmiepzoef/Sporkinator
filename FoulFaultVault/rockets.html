@@ -103,8 +103,8 @@
             background: white;
             font-size: 0.9rem;
         }
-		.textarea2 {
-			/*display: flex;*/
+		.textarea {
+			display: flex;
 			flex-wrap: wrap;
 			font-size: 0.9rem;
 			background: white;
@@ -185,7 +185,7 @@
             min-width: 140px;
         }
         .form-field label {
-            /*display: block;*/
+            display: block;
             font-size: 0.75rem;
             font-weight: 600;
             margin-bottom: 4px;
@@ -257,12 +257,7 @@
    <div class="container2>
 	   <div class="add-task-form">
         <h3>✨ New task / project</h3>
-		<div class="backup-buttons">
-            <button id="exportBtn">📤 Export</button>
-            <button id="importBtn">📥 Import</button>
-            <input type="file" id="importFile" accept=".json" style="display:none">
-            <button id="clearAllBtn" class="danger">🗑 Clear</button>
-        </div>
+
         <div class="form-grid">
             <div class="form-field" style="flex:2">
                 <label>Title *</label>
@@ -277,19 +272,24 @@
                     <option value="multi">multi (stages)</option>
                 </select>
             </div>
-			<div class="full-width">
-           		<label>📝 Notes</label>
-            	<textarea rows="2" id="newNotes" placeholder="shopping list, links, details..."></textarea>
-       	 </div>
             <div class="form-field">
                 <label>📅 Deadline</label>
                 <input type="date" id="newDeadline">
             </div>
-           
-			 <div class="form-field">
+           		 <div class="form-field">
                 <span><label>⏰ Remind me</label>
                 <input type="number" id="newReminder" placeholder="2">days before</span>
             </div>
+	   			<div class="full-width">
+           		<label>📝 Notes</label>
+            	<textarea rows="2" id="newNotes" placeholder="shopping list, links, details..."></textarea>
+				</div>
+		<div class="backup-buttons">
+            <button id="exportBtn">📤 Export</button>
+            <button id="importBtn">📥 Import</button>
+            <input type="file" id="importFile" accept=".json" style="display:none">
+            <button id="clearAllBtn" class="danger">🗑 Clear</button>
+        </div>
 		</div>
 		
         <!-- dynamic subtasks container (only shown when rocket = multi) -->
