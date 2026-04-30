@@ -23,6 +23,26 @@ body {
             gap: 16px;
             align-items: flex-end;
         }
+.container3 {
+			text-align: center;
+            background: #eef2ff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            flex-wrap: wrap;
+			justify-content: center;
+            gap: 16px;
+            align-items: flex-end;
+        }
+.status {
+			position: sticky;
+			top: 0;
+			z-index: 10;
+            padding: 12px 32px;
+            background: #eef2ff;
+            font-size: 0.85rem;
+            color: #1e293b;
+            border-bottom: 1px solid #e2e8f0;
+        }
 h1 {
     text-align: center;
     padding-bottom: 10px;
