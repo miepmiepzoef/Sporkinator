@@ -161,9 +161,10 @@
 </head>
 <body>
 <div class="container">
-    <h1>🔡 v5.2 Semantic Parser – with Rating & Local Storage</h1>
-    <div class="sub">Type a word or short sentence – see how each consonant and vowel builds meaning.<br>
-    Rate the result and save it to your personal database (browser localStorage).</div>
+    <h1>🔡 v5.3 Semantic Parser – Unary Vowel Operators</h1>
+    <div class="sub">Every vowel is active: binary (C V C) or unary (C V).<br>
+    Emotions / pronouns / "am" injection / W→UU toggle included.<br>
+    Rate the result and save your own tangible meaning.</div>
 
     <div class="flex">
         <div class="toggle">
@@ -174,7 +175,7 @@
         </div>
     </div>
 
-    <input type="text" id="wordInput" placeholder="e.g., ANGER, I AM ANGRY, WATER, LOVE, STONE" value="ANGER">
+    <input type="text" id="wordInput" placeholder="e.g., ANGER, RELEASE, EASE, BELIEVE, BEAUTY" value="RELEASE">
     <button id="parseBtn">🔍 Parse & Derive Meaning</button>
 
     <div class="legend">
@@ -184,16 +185,16 @@
         </div>
         <div class="legend-col">
             <h3>🔸 Vowel operators</h3>
-            <div><span class="vow">A</span> = left initiates right</div>
-            <div><span class="vow">E</span> = left exits to right</div>
-            <div><span class="vow">I</span> = swap left & right</div>
-            <div><span class="vow">O</span> = repeat left once, then right</div>
-            <div><span class="vow">U</span> = unify left & right</div>
-            <div>Initial vowel → treat as consonant; final vowel → attach 'exit' flag</div>
+            <div><span class="vow">A</span> = binary: left initiates right ; unary: left initiates (action from left)</div>
+            <div><span class="vow">E</span> = binary: left exits to right ; unary: left exits (outward flow)</div>
+            <div><span class="vow">I</span> = binary: swap left & right ; unary: left becomes self‑referential (inward)</div>
+            <div><span class="vow">O</span> = binary: repeat left once, then right ; unary: repeat left once</div>
+            <div><span class="vow">U</span> = binary: unify left & right ; unary: left becomes container (reflexive)</div>
+            <div>Initial vowel acts on implicit <span class="cons">I</span> (self). No vowel is ignored.</div>
         </div>
         <div class="legend-col">
             <h3>📌 Special rules</h3>
-            <div>• Emotions (e.g., ANGER, SAD, FEAR, LOVE, JOY) → implicit <span class="cons">I</span> prefix</div>
+            <div>• Emotions → implicit <span class="cons">I</span> prefix</div>
             <div>• "am" before emotion → injects <span class="cons">M</span> (motion)</div>
             <div>• Pronouns: I→<span class="cons">I</span>, YOU→<span class="cons">U</span>, HE/SHE/IT→<span class="cons">H</span></div>
             <div>• Function words (a, an, the, is, are, be, of, to, for, and, or, but) → inert (quoted)</div>
@@ -204,13 +205,16 @@
         <!-- parsing results appear here -->
     </div>
 
-    <!-- Rating and save area – appears after parsing -->
+    <!-- Tangible meaning input and save area -->
     <div id="saveArea" style="display: none;">
         <div class="rating-area">
-            <span>📊 Does this derived meaning feel intuitively correct?</span>
+            <span>📊 Does the derived meaning feel intuitively correct?</span>
             <label><input type="radio" name="rating" value="yes"> Yes</label>
             <label><input type="radio" name="rating" value="no"> No</label>
             <label><input type="radio" name="rating" value="unsure" checked> Unsure</label>
+        </div>
+        <div>
+            <textarea id="tangibleMeaningInput" rows="2" placeholder="Your own tangible interpretation of the word (optional)..."></textarea>
         </div>
         <div class="flex">
             <button id="saveBtn">💾 Save to local database</button>
@@ -228,7 +232,7 @@
 
 <script>
     // --------------------------------------------------------------
-    // v5.2 Parser (same as before, with exposed parseSentence function)
+    // v5.3 Parser – Unary vowel operators (no vowel ignored)
     // --------------------------------------------------------------
     
     const primitiveMeanings = {
@@ -241,86 +245,128 @@
         'Y': 'branch / why', 'Z': 'zero / null'
     };
     
-    const vowelOps = {
-        'A': { name: 'INITIATES', apply: (L,R) => `${L} initiates ${R}` },
-        'E': { name: 'EXITS TO', apply: (L,R) => `${L} exits to ${R}` },
-        'I': { name: 'SWAPS', apply: (L,R) => `${R} then ${L}` },
-        'O': { name: 'REPEAT-LEFT-ONCE', apply: (L,R) => `(${L}) then (${L}) then ${R}` },
-        'U': { name: 'UNIFIES', apply: (L,R) => `unify(${L}, ${R})` }
-    };
-    
-    const emotionWords = new Set(['ANGER', 'SAD', 'FEAR', 'LOVE', 'JOY', 'GRIEF', 'HATE', 'ANGRY', 'HAPPY', 'SORROW', 'PANIC', 'CALM', 'HOPE']);
-    const functionWords = new Set(['A', 'AN', 'THE', 'OF', 'TO', 'FOR', 'AND', 'OR', 'BUT', 'SO', 'IS', 'ARE', 'WERE', 'BE', 'BEEN', 'AM']);
-    const pronouns = { 'I': 'I', 'YOU': 'U', 'HE': 'H', 'SHE': 'H', 'IT': 'H' };
-    
-    function combineWithImplicitUnion(parts) {
-        if (parts.length === 0) return '';
-        let result = parts[0];
-        for (let i = 1; i < parts.length; i++) result = `(${result} ∪ ${parts[i]})`;
-        return result;
+    // Binary operators (when vowel between two consonants)
+    function binaryApply(vowel, leftText, rightText) {
+        switch(vowel) {
+            case 'A': return `${leftText} initiates ${rightText}`;
+            case 'E': return `${leftText} exits to ${rightText}`;
+            case 'I': return `${rightText} then ${leftText}`; // swap
+            case 'O': return `(${leftText}) then (${leftText}) then ${rightText}`;
+            case 'U': return `unify(${leftText}, ${rightText})`;
+            default: return `${leftText} ? ${rightText}`;
+        }
     }
     
+    // Unary operators (vowel at end or before another vowel)
+    function unaryApply(vowel, leftText) {
+        switch(vowel) {
+            case 'A': return `${leftText} initiates (action)`;
+            case 'E': return `${leftText} exits outward`;
+            case 'I': return `${leftText} becomes self (inward)`;
+            case 'O': return `${leftText} repeats once`;
+            case 'U': return `${leftText} becomes container (reflexive)`;
+            default: return `${leftText} [${vowel}]`;
+        }
+    }
+    
+    // Generate a more tangible English sentence from the formal meaning
+    function makeTangible(formalMeaning, word) {
+        // Simple heuristic: remove parentheses, replace "unify" with "combined with", etc.
+        let tangible = formalMeaning
+            .replace(/\(/g, '')
+            .replace(/\)/g, '')
+            .replace(/unify\(/g, '')
+            .replace(/,/g, ' and')
+            .replace(/initiates/g, 'starts')
+            .replace(/exits to/g, 'flows into')
+            .replace(/then/g, 'followed by')
+            .replace(/becomes self/g, 'turns inward')
+            .replace(/becomes container/g, 'encloses itself')
+            .replace(/repeats once/g, 'repeats once')
+            .replace(/\s+/g, ' ').trim();
+        if (tangible.length > 80) tangible = tangible.substring(0, 80) + '…';
+        return `“${tangible}” – an interpretation of "${word}".`;
+    }
+    
+    // Main parsing function with state machine
     function parseString(str, logSteps = true) {
         let letters = str.toUpperCase().split('');
         let steps = [];
-        let parsedSegments = [];
+        let currentExpr = null; // current meaning as string
         let i = 0;
-        let currentLeft = null;
-        let currentLeftText = '';
-        while (i < letters.length) {
-            let ch = letters[i];
-            if (ch.match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
-                let consMeaning = primitiveMeanings[ch] || `primitive_${ch}`;
-                if (currentLeft === null) {
-                    currentLeft = ch;
-                    currentLeftText = consMeaning;
-                    if (logSteps) steps.push(`🔹 Consonant ${ch} → ${consMeaning}`);
-                } else {
-                    if (i+1 < letters.length && letters[i+1].match(/[AEIOU]/) && i+2 < letters.length && letters[i+2].match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
-                        let vowel = letters[i+1];
-                        let rightCons = letters[i+2];
-                        let rightMeaning = primitiveMeanings[rightCons] || `primitive_${rightCons}`;
-                        let op = vowelOps[vowel];
-                        if (op) {
-                            let combined = op.apply(currentLeftText, rightMeaning);
-                            if (logSteps) steps.push(`🔸 Vowel ${vowel} (${op.name}): combine (${currentLeftText}) + (${rightMeaning}) → ${combined}`);
-                            currentLeftText = combined;
-                            currentLeft = `${currentLeft}${vowel}${rightCons}`;
-                            i += 2;
-                        } else {
-                            steps.push(`⚠️ Unknown vowel ${vowel} – ignored`);
-                            i += 1;
-                        }
-                    } else {
-                        if (logSteps) steps.push(`🔹 Consecutive consonant ${ch} → implicit UNION with previous (${currentLeftText})`);
-                        parsedSegments.push(currentLeftText);
-                        currentLeft = ch;
-                        currentLeftText = consMeaning;
-                        if (logSteps) steps.push(` New segment: ${consMeaning}`);
-                        i += 1;
-                    }
-                }
-            } else if (ch.match(/[AEIOU]/)) {
-                if (i === 0) {
-                    let consMeaning = primitiveMeanings[ch] || `primitive_${ch}`;
-                    if (logSteps) steps.push(`🔹 Initial vowel treated as consonant: ${ch} → ${consMeaning}`);
-                    currentLeft = ch;
-                    currentLeftText = consMeaning;
-                } else if (i === letters.length - 1) {
-                    if (logSteps) steps.push(`🔸 Final vowel ${ch} → attach EXIT flag to previous segment (${currentLeftText})`);
-                    currentLeftText = `${currentLeftText} with EXIT`;
-                } else {
-                    if (logSteps) steps.push(`⚠️ Orphan vowel ${ch} at position ${i} (no following consonant) – ignored`);
-                }
-                i += 1;
+        
+        // helper: apply vowel (binary if next char is consonant, else unary)
+        function applyVowel(vowel, hasRight, rightMeaning) {
+            if (hasRight && rightMeaning) {
+                // binary
+                let newExpr = binaryApply(vowel, currentExpr, rightMeaning);
+                if (logSteps) steps.push(`🔸 Vowel ${vowel} (binary): (${currentExpr}) ${vowel} (${rightMeaning}) → ${newExpr}`);
+                currentExpr = newExpr;
+                return true;
             } else {
-                i += 1;
+                // unary
+                let newExpr = unaryApply(vowel, currentExpr);
+                if (logSteps) steps.push(`🔹 Vowel ${vowel} (unary on current): ${currentExpr} → ${newExpr}`);
+                currentExpr = newExpr;
+                return false;
             }
         }
-        if (currentLeft !== null) parsedSegments.push(currentLeftText);
-        let finalMeaning = parsedSegments.length === 0 ? '(empty)' : combineWithImplicitUnion(parsedSegments);
+        
+        while (i < letters.length) {
+            let ch = letters[i];
+            if (ch.match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) { // consonant
+                let consMeaning = primitiveMeanings[ch] || `primitive_${ch}`;
+                if (currentExpr === null) {
+                    currentExpr = consMeaning;
+                    if (logSteps) steps.push(`🔹 Consonant ${ch} → ${consMeaning}`);
+                } else {
+                    // We have a current expression and encounter a consonant.
+                    // Check if next char is vowel (to combine) or not.
+                    if (i+1 < letters.length && letters[i+1].match(/[AEIOU]/)) {
+                        // vowel ahead, but we need to see if it's binary with the following consonant?
+                        // Actually the pattern is: currentExpr (could be from previous) then vowel then next consonant.
+                        // But here we just got a consonant without a preceding vowel? That would be two consonants in a row.
+                        // According to rules, consecutive consonants should be unioned implicitly.
+                        if (logSteps) steps.push(`🔹 Consecutive consonant ${ch} → implicit UNION with previous (${currentExpr})`);
+                        currentExpr = `(${currentExpr} ∪ ${consMeaning})`;
+                    } else {
+                        // consonant at end, just union
+                        if (logSteps) steps.push(`🔹 Consonant ${ch} (end) → implicit UNION: ${currentExpr} ∪ ${consMeaning}`);
+                        currentExpr = `(${currentExpr} ∪ ${consMeaning})`;
+                    }
+                }
+                i++;
+            } else if (ch.match(/[AEIOU]/)) { // vowel
+                // If no current expression, we need an implicit self (I)
+                if (currentExpr === null) {
+                    currentExpr = primitiveMeanings['I'];
+                    if (logSteps) steps.push(`⚠️ Initial vowel ${ch} → implicit self (I) before applying`);
+                }
+                // Look ahead to see if next character is a consonant (binary) or not (unary)
+                if (i+1 < letters.length && letters[i+1].match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
+                    // binary: vowel acts between currentExpr and the next consonant
+                    let nextCons = letters[i+1];
+                    let rightMeaning = primitiveMeanings[nextCons] || `primitive_${nextCons}`;
+                    applyVowel(ch, true, rightMeaning);
+                    i += 2; // skip vowel and the consumed consonant
+                } else {
+                    // unary: vowel applies to currentExpr alone
+                    applyVowel(ch, false, null);
+                    i++;
+                }
+            } else {
+                i++; // ignore non-letters
+            }
+        }
+        
+        let finalMeaning = currentExpr || '(empty)';
         return { steps, finalMeaning };
     }
+    
+    // Preprocessing (emotions, pronouns, am injection, W→UU)
+    const emotionWords = new Set(['ANGER', 'SAD', 'FEAR', 'LOVE', 'JOY', 'GRIEF', 'HATE', 'ANGRY', 'HAPPY', 'SORROW', 'PANIC', 'CALM', 'HOPE', 'BEAUTY']);
+    const functionWords = new Set(['A', 'AN', 'THE', 'OF', 'TO', 'FOR', 'AND', 'OR', 'BUT', 'SO', 'IS', 'ARE', 'WERE', 'BE', 'BEEN', 'AM']);
+    const pronouns = { 'I': 'I', 'YOU': 'U', 'HE': 'H', 'SHE': 'H', 'IT': 'H' };
     
     function preprocessWord(word, replaceW, prevWasAm) {
         let upper = word.toUpperCase();
@@ -369,20 +415,21 @@
                 let finalMeaning = parseResult.finalMeaning;
                 if (infiniteRepeat && finalWord.includes('R*')) finalMeaning += ' (repeated 3 times)';
                 finalMeanings.push(finalMeaning);
-                allLogs.push(`→ Segment meaning: ${finalMeaning}`);
+                allLogs.push(`→ Formal meaning: ${finalMeaning}`);
                 allLogs.push('---');
             }
         }
-        let fullMeaning = finalMeanings.join(' ; ');
-        return { logs: allLogs, finalMeaning: fullMeaning || '(no meaning derived)' };
+        let fullFormal = finalMeanings.join(' ; ');
+        let tangible = makeTangible(fullFormal, sentence);
+        return { logs: allLogs, formalMeaning: fullFormal, tangibleMeaning: tangible };
     }
     
     // --------------------------------------------------------------
-    // Local Storage handling (database)
+    // Local Storage
     // --------------------------------------------------------------
-    const STORAGE_KEY = 'v52_parser_entries';
+    const STORAGE_KEY = 'v53_parser_entries';
     
-    function saveEntry(input, replaceW, infiniteRepeat, parseLogs, finalMeaning, rating) {
+    function saveEntry(input, replaceW, infiniteRepeat, parseLogs, formalMeaning, tangibleMeaning, rating, userTangible) {
         let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
         let entry = {
             id: Date.now(),
@@ -391,21 +438,18 @@
             replaceW: replaceW,
             infiniteRepeat: infiniteRepeat,
             parseLogs: parseLogs,
-            finalMeaning: finalMeaning,
-            rating: rating
+            formalMeaning: formalMeaning,
+            tangibleMeaning: tangibleMeaning,
+            rating: rating,
+            userTangible: userTangible || ''
         };
-        entries.unshift(entry); // newest first
+        entries.unshift(entry);
         localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
         return entry;
     }
     
-    function getEntries() {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    }
-    
-    function clearEntries() {
-        localStorage.setItem(STORAGE_KEY, '[]');
-    }
+    function getEntries() { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+    function clearEntries() { localStorage.setItem(STORAGE_KEY, '[]'); }
     
     function displaySavedEntries() {
         const entries = getEntries();
@@ -418,9 +462,10 @@
                 <div class="entry">
                     <strong>${e.timestamp}</strong><br>
                     <strong>Input:</strong> ${e.input}<br>
-                    <strong>Meaning:</strong> ${e.finalMeaning}<br>
-                    <strong>Rating:</strong> ${e.rating}<br>
-                    <strong>Options:</strong> W→UU=${e.replaceW}, R* repeat=${e.infiniteRepeat}
+                    <strong>Formal:</strong> ${e.formalMeaning}<br>
+                    <strong>Tangible:</strong> ${e.tangibleMeaning}<br>
+                    <strong>User interpretation:</strong> ${e.userTangible || '(none)'}<br>
+                    <strong>Rating:</strong> ${e.rating}
                 </div>
             `).join('');
         }
@@ -428,7 +473,7 @@
     }
     
     // --------------------------------------------------------------
-    // UI interaction
+    // UI
     // --------------------------------------------------------------
     let currentParseResult = null;
     
@@ -447,16 +492,18 @@
             replaceW: replaceW,
             infiniteRepeat: infiniteRepeat,
             logs: result.logs,
-            finalMeaning: result.finalMeaning
+            formalMeaning: result.formalMeaning,
+            tangibleMeaning: result.tangibleMeaning
         };
         let html = `<div><strong>📝 Input:</strong> ${sentence}</div>`;
         html += `<div><strong>🔧 Parsing steps:</strong></div>`;
         for (let log of result.logs) html += `<div class="step">${log}</div>`;
-        html += `<div class="final"><strong>📐 Final derived meaning:</strong> ${result.finalMeaning}</div>`;
+        html += `<div class="final"><strong>📐 Formal derived meaning:</strong> ${result.formalMeaning}</div>`;
+        html += `<div class="tangible"><strong>💡 Tangible interpretation:</strong> ${result.tangibleMeaning}</div>`;
         document.getElementById('output').innerHTML = html;
         document.getElementById('saveArea').style.display = 'block';
+        document.getElementById('tangibleMeaningInput').value = '';
         document.getElementById('saveMessage').innerHTML = '';
-        // reset rating to "unsure"
         let radios = document.querySelectorAll('input[name="rating"]');
         radios.forEach(r => { if (r.value === 'unsure') r.checked = true; });
     }
@@ -468,15 +515,19 @@
         }
         let ratingElem = document.querySelector('input[name="rating"]:checked');
         let rating = ratingElem ? ratingElem.value : 'unsure';
+        let userTangible = document.getElementById('tangibleMeaningInput').value.trim();
         let entry = saveEntry(
             currentParseResult.input,
             currentParseResult.replaceW,
             currentParseResult.infiniteRepeat,
             currentParseResult.logs,
-            currentParseResult.finalMeanincurrentParseResult.finalMeaning,
-            rating
+            currentParseResult.formalMeaning,
+            currentParseResult.tangibleMeaning,
+            rating,
+            userTangible
         );
         document.getElementById('saveMessage').innerHTML = `<span style="color:#aaffaa;">✅ Saved! (ID: ${entry.id})</span>`;
+        document.getElementById('tangibleMeaningInput').value = '';
     }
     
     document.getElementById('parseBtn').addEventListener('click', updateOutput);
@@ -491,7 +542,6 @@
     });
     document.getElementById('wordInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') updateOutput(); });
     
-    // initial parse
     updateOutput();
 </script>
 </body>
