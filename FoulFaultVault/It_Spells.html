@@ -9,47 +9,42 @@
 		<meta name="author" content="Muppet">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <style>
-        .legend {
-           /* background: #0c1119;*/
-            border-radius: 1rem;
-            padding: 1rem;
-            margin-bottom: 2rem;
+        /* {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Courier New', monospace;
+        }
+        body {
+            background: #0c1117;
+            color: #eef;
+            padding: 2rem;
             display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            justify-content: space-between;
+            justify-content: center;
+        }*/
+        .container {
+            max-width: 1100px;
+            width: 100%;
+           /* background: #151e2a;*/
+            border-radius: 2rem;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .legend-col {
-            flex: 1;
-            min-width: 200px;
+      /*  h1 {
+            margin-top: 0;
+            border-left: 5px solid #f9a826;
+            padding-left: 1rem;
+        }*/
+        .sub {
+            color: #aaa;
+            margin-bottom: 1.5rem;
         }
-        .legend-col h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1rem;
-            color: #f9a826;
-        }
-        .legend-item {
-            font-size: 0.8rem;
-            margin: 0.2rem 0;
-        }
-        .cons {
-            color: #88ddff;
-            font-weight: bold;
-        }
-        .vow {
-            color: #ffaa88;
-            font-weight: bold;
-        }
-        input, button {
+        textarea, input, button, select {
             width: 100%;
             padding: 0.8rem;
             font-size: 1rem;
             border-radius: 1rem;
             border: none;
             margin-bottom: 1rem;
-        }
-        input {
-            background: #1e2a3a;
+           /* background: #1e2a36;*/
             color: #eef;
             border: 1px solid #3a4a5a;
         }
@@ -58,237 +53,446 @@
             color: #0a0f1e;
             font-weight: bold;
             cursor: pointer;
+            transition: 0.2s;
+            border: none;
         }
+        button:hover {
+            background: #ffbc4a;
+        }
+        .flex {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .legend {
+           /* background: #0f161f;*/
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 1rem 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+        .legend-col {
+            flex: 1;
+            min-width: 180px;
+        }
+        .legend-col h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 0.9rem;
+            color: #f9a826;
+        }
+        .cons { color: #88ddff; font-weight: bold; }
+        .vow { color: #ffaa88; font-weight: bold; }
         .output {
-            /*background: #0c1119;*/
+            background: #0f161f;
             border-radius: 1rem;
             padding: 1rem;
             margin-top: 1.5rem;
-            font-family: monospace;
             white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 0.9rem;
         }
         .step {
             border-left: 3px solid #f9a826;
-            padding: 0.5rem 0 0.5rem 1rem;
             margin: 0.5rem 0;
-            background: #0f141c;
+            padding-left: 1rem;
         }
         .final {
-            background: #1a2230;
+            background: #1e2a36;
             padding: 0.8rem;
             border-radius: 0.8rem;
             margin-top: 1rem;
             font-weight: bold;
+            font-size: 1rem;
         }
-        hr {
-            border-color: #2a3a44;
+        .rating-area {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin: 1rem 0;
+            padding: 0.5rem;
+            background: #0f161f;
+            border-radius: 1rem;
         }
-        .warning {
-            color: #ffaa88;
+        .rating-area label {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .message {
+            background: #1e2a36;
+            border-radius: 0.8rem;
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+        hr { border-color: #2a3a44; margin: 1rem 0; }
+        .warning { color: #ffaa88; }
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1e2a36;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            margin-right: 1rem;
+        }
+        .toggle input {
+            width: auto;
+            margin: 0;
+        }
+        .saved-entries {
+            background: #0f161f;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 2rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .entry {
+            border-bottom: 1px solid #2a3a44;
+            padding: 0.5rem;
+            font-size: 0.8rem;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🔡 v5.4 Pure Semantic Parser</h1>
-    <p>No dictionary – every word is parsed letter by letter. Consonants = primitives, vowels = operators between them.</p>
+    <h1>🔡 v5.2 Semantic Parser – with Rating & Local Storage</h1>
+    <div class="sub">Type a word or short sentence – see how each consonant and vowel builds meaning.<br>
+    Rate the result and save it to your personal database (browser localStorage).</div>
 
-    <!-- Legend: consonant meanings + vowel operators -->
-    <div class="legend">
-        <div class="legend-col">
-            <h3>🔹 Consonants (primitives)</h3>
-            <div class="legend-item"><span class="cons">B</span> = body / root</div>
-            <div class="legend-item"><span class="cons">C</span> = container / shape_curved</div>
-            <div class="legend-item"><span class="cons">D</span> = durable / object</div>
-            <div class="legend-item"><span class="cons">F</span> = flow / fluid</div>
-            <div class="legend-item"><span class="cons">G</span> = ground / base</div>
-            <div class="legend-item"><span class="cons">H</span> = holding / enclosure</div>
-            <div class="legend-item"><span class="cons">K</span> = cut / separation / stop</div>
-            <div class="legend-item"><span class="cons">L</span> = layer / level</div>
-            <div class="legend-item"><span class="cons">M</span> = motion / mass</div>
-            <div class="legend-item"><span class="cons">N</span> = negation / not</div>
-            <div class="legend-item"><span class="cons">P</span> = person / point</div>
-            <div class="legend-item"><span class="cons">Q</span> = question / query</div>
-            <div class="legend-item"><span class="cons">R</span> = repeat / again</div>
-            <div class="legend-item"><span class="cons">S</span> = state / stillness</div>
-            <div class="legend-item"><span class="cons">T</span> = tool / touch / straight</div>
-            <div class="legend-item"><span class="cons">V</span> = view / vision</div>
-            <div class="legend-item"><span class="cons">W</span> = wave / water</div>
-            <div class="legend-item"><span class="cons">X</span> = negation / hide</div>
-            <div class="legend-item"><span class="cons">Y</span> = why / question</div>
-            <div class="legend-item"><span class="cons">Z</span> = end / final</div>
+    <div class="flex">
+        <div class="toggle">
+            <input type="checkbox" id="replaceWCheckbox"> 🔄 Replace 'W' with 'UU' (double container)
         </div>
-        <div class="legend-col">
-            <h3>🔸 Vowels (operators)</h3>
-            <div class="legend-item"><span class="vow">A</span> = UNION – merge meanings (siblings)</div>
-            <div class="legend-item"><span class="vow">E</span> = SEQUENCE – first then second (temporal)</div>
-            <div class="legend-item"><span class="vow">I</span> = PROPERTY – second is attribute of first</div>
-            <div class="legend-item"><span class="vow">O</span> = ALTERNATIVE – xor (either left or right)</div>
-            <div class="legend-item"><span class="vow">U</span> = CONTAINER – second inside first</div>
-            <h3 style="margin-top:1rem;">📐 How parsing works</h3>
-            <div class="legend-item">1. Split word into letters (case‑insensitive).</div>
-            <div class="legend-item">2. Identify consonants (C) and vowels (V).</div>
-            <div class="legend-item">3. Starting from left, combine C V C → apply operator to left and right.</div>
-            <div class="legend-item">4. Result becomes new left, continue if another vowel+consonant follows.</div>
-            <div class="legend-item">5. Extra vowels without a following consonant are ignored (warning).</div>
-            <div class="legend-item">6. Consecutive consonants without vowel are treated as separate primitives (no operator).</div>
+        <div class="toggle">
+            <input type="checkbox" id="infiniteRepeatCheckbox"> 🔁 Simulate R* as 3 repeats
         </div>
     </div>
 
-    <input type="text" id="wordInput" placeholder="Type a word (e.g., cat, door, dream, blackbird)" value="cat">
-    <button id="parseBtn">Parse & Derive Meaning</button>
+    <input type="text" id="wordInput" placeholder="e.g., ANGER, I AM ANGRY, WATER, LOVE, STONE" value="ANGER">
+    <button id="parseBtn">🔍 Parse & Derive Meaning</button>
+
+    <div class="legend">
+        <div class="legend-col">
+            <h3>🔹 Consonants (primitives)</h3>
+            <div>A=action/initiate, B=barrier/bound, C=create, D=direction, E=exit/exterior, F=flow/force, G=gather/ground, H=hold/hide, I=inward/self, J=join, K=kinetic/cut, L=layer/level, M=motion, N=negation/not, O=orbit/cycle, P=push, Q=query, R=repeat/rotate, S=separate/split, T=terminus/tool, U=under/container, V=void, W=wave/water (or UU if toggled), X=cross/negation, Y=branch/why, Z=zero/null</div>
+        </div>
+        <div class="legend-col">
+            <h3>🔸 Vowel operators</h3>
+            <div><span class="vow">A</span> = left initiates right</div>
+            <div><span class="vow">E</span> = left exits to right</div>
+            <div><span class="vow">I</span> = swap left & right</div>
+            <div><span class="vow">O</span> = repeat left once, then right</div>
+            <div><span class="vow">U</span> = unify left & right</div>
+            <div>Initial vowel → treat as consonant; final vowel → attach 'exit' flag</div>
+        </div>
+        <div class="legend-col">
+            <h3>📌 Special rules</h3>
+            <div>• Emotions (e.g., ANGER, SAD, FEAR, LOVE, JOY) → implicit <span class="cons">I</span> prefix</div>
+            <div>• "am" before emotion → injects <span class="cons">M</span> (motion)</div>
+            <div>• Pronouns: I→<span class="cons">I</span>, YOU→<span class="cons">U</span>, HE/SHE/IT→<span class="cons">H</span></div>
+            <div>• Function words (a, an, the, is, are, be, of, to, for, and, or, but) → inert (quoted)</div>
+        </div>
+    </div>
+
     <div id="output" class="output">
-        <!-- results will appear here -->
+        <!-- parsing results appear here -->
+    </div>
+
+    <!-- Rating and save area – appears after parsing -->
+    <div id="saveArea" style="display: none;">
+        <div class="rating-area">
+            <span>📊 Does this derived meaning feel intuitively correct?</span>
+            <label><input type="radio" name="rating" value="yes"> Yes</label>
+            <label><input type="radio" name="rating" value="no"> No</label>
+            <label><input type="radio" name="rating" value="unsure" checked> Unsure</label>
+        </div>
+        <div class="flex">
+            <button id="saveBtn">💾 Save to local database</button>
+            <button id="showSavedBtn">📂 Show saved entries</button>
+            <button id="clearSavedBtn">🗑️ Clear all saved entries</button>
+        </div>
+        <div id="saveMessage" class="message"></div>
+    </div>
+
+    <div id="savedEntriesContainer" class="saved-entries" style="display: none;">
+        <h3>📋 Saved entries</h3>
+        <div id="savedEntriesList"></div>
     </div>
 </div>
 
 <script>
     // --------------------------------------------------------------
-    // Pure v5.4 parser – no dictionary, only letter rules
+    // v5.2 Parser (same as before, with exposed parseSentence function)
     // --------------------------------------------------------------
     
-    const consonantMeanings = {
-        'B': 'body / root',
-        'C': 'container / shape_curved',
-        'D': 'durable / object',
-        'F': 'flow / fluid',
-        'G': 'ground / base',
-        'H': 'holding / enclosure',
-        'K': 'cut / separation / stop',
-        'L': 'layer / level',
-        'M': 'motion / mass',
-        'N': 'negation / not',
-        'P': 'person / point',
-        'Q': 'question / query',
-        'R': 'repeat / again',
-        'S': 'state / stillness',
-        'T': 'tool / touch / straight',
-        'V': 'view / vision',
-        'W': 'wave / water',
-        'X': 'negation / hide',
-        'Y': 'why / question',
-        'Z': 'end / final'
+    const primitiveMeanings = {
+        'A': 'action / initiate', 'B': 'barrier / bound', 'C': 'create', 'D': 'direction / vector',
+        'E': 'exit / exterior', 'F': 'flow / force', 'G': 'gather / ground', 'H': 'hold / hide',
+        'I': 'inward / self', 'J': 'join / connect', 'K': 'kinetic / motion / cut', 'L': 'layer / level',
+        'M': 'motion / mass', 'N': 'negation / not', 'O': 'orbit / cycle', 'P': 'push / pressure',
+        'Q': 'query / quest', 'R': 'repeat / rotate', 'S': 'separate / split', 'T': 'terminus / end / tool',
+        'U': 'under / container', 'V': 'void / empty', 'W': 'wave / water', 'X': 'cross / intersect / negation',
+        'Y': 'branch / why', 'Z': 'zero / null'
     };
     
-    const vowelOperators = {
-        'A': { name: 'UNION', desc: 'merge (union)' },
-        'E': { name: 'SEQUENCE', desc: 'temporal order' },
-        'I': { name: 'PROPERTY', desc: 'attribute of' },
-        'O': { name: 'ALTERNATIVE', desc: 'xor' },
-        'U': { name: 'CONTAINER', desc: 'inside' }
+    const vowelOps = {
+        'A': { name: 'INITIATES', apply: (L,R) => `${L} initiates ${R}` },
+        'E': { name: 'EXITS TO', apply: (L,R) => `${L} exits to ${R}` },
+        'I': { name: 'SWAPS', apply: (L,R) => `${R} then ${L}` },
+        'O': { name: 'REPEAT-LEFT-ONCE', apply: (L,R) => `(${L}) then (${L}) then ${R}` },
+        'U': { name: 'UNIFIES', apply: (L,R) => `unify(${L}, ${R})` }
     };
     
-    // Helper to get meaning text for a consonant
-    function consMeaning(letter) {
-        return consonantMeanings[letter] || `unknown primitive (${letter})`;
+    const emotionWords = new Set(['ANGER', 'SAD', 'FEAR', 'LOVE', 'JOY', 'GRIEF', 'HATE', 'ANGRY', 'HAPPY', 'SORROW', 'PANIC', 'CALM', 'HOPE']);
+    const functionWords = new Set(['A', 'AN', 'THE', 'OF', 'TO', 'FOR', 'AND', 'OR', 'BUT', 'SO', 'IS', 'ARE', 'WERE', 'BE', 'BEEN', 'AM']);
+    const pronouns = { 'I': 'I', 'YOU': 'U', 'HE': 'H', 'SHE': 'H', 'IT': 'H' };
+    
+    function combineWithImplicitUnion(parts) {
+        if (parts.length === 0) return '';
+        let result = parts[0];
+        for (let i = 1; i < parts.length; i++) result = `(${result} ∪ ${parts[i]})`;
+        return result;
     }
     
-    // Parse a single word into semantic steps
-    function parseWord(word) {
-        const upper = word.toUpperCase();
-        const letters = upper.split('');
-        
-        // First, extract consonants and vowels in order
-        let tokens = []; // each token: {type, letter, index}
-        for (let i = 0; i < letters.length; i++) {
+    function parseString(str, logSteps = true) {
+        let letters = str.toUpperCase().split('');
+        let steps = [];
+        let parsedSegments = [];
+        let i = 0;
+        let currentLeft = null;
+        let currentLeftText = '';
+        while (i < letters.length) {
             let ch = letters[i];
             if (ch.match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
-                tokens.push({ type: 'consonant', letter: ch, index: i });
-            } else if (ch.match(/[AEIOU]/)) {
-                tokens.push({ type: 'vowel', letter: ch, index: i });
-            } else {
-                // ignore non-letters (should not happen)
-            }
-        }
-        
-        // Now combine using rules: C V C pattern
-        let steps = [];
-        let currentMeaning = null;
-        let i = 0;
-        while (i < tokens.length) {
-            if (tokens[i].type === 'consonant') {
-                let cons = tokens[i];
-                let consText = consMeaning(cons.letter);
-                if (currentMeaning === null) {
-                    // start new meaning
-                    currentMeaning = { text: consText, raw: `(${cons.letter}: ${consText})` };
-                    steps.push({ type: 'start', cons: cons.letter, meaning: consText });
-                    i++;
+                let consMeaning = primitiveMeanings[ch] || `primitive_${ch}`;
+                if (currentLeft === null) {
+                    currentLeft = ch;
+                    currentLeftText = consMeaning;
+                    if (logSteps) steps.push(`🔹 Consonant ${ch} → ${consMeaning}`);
                 } else {
-                    // we have a current meaning, need a vowel then next consonant
-                    if (i < tokens.length && tokens[i].type === 'vowel') {
-                        let vowel = tokens[i];
-                        if (i+1 < tokens.length && tokens[i+1].type === 'consonant') {
-                            let nextCons = tokens[i+1];
-                            let nextText = consMeaning(nextCons.letter);
-                            let op = vowelOperators[vowel.letter];
-                            let opName = op ? op.name : 'UNKNOWN';
-                            let opDesc = op ? op.desc : 'unknown operator';
-                            // Combine: left + operator + right
-                            let combinedText = `(${currentMeaning.text}) ${opName} (${nextText})`;
-                            steps.push({ type: 'combine', vowel: vowel.letter, opName, left: currentMeaning.text, right: nextText });
-                            currentMeaning = { text: combinedText, raw: `${currentMeaning.raw} ${vowel.letter} ${nextCons.letter}` };
-                            i += 2; // skip vowel and next consonant
+                    if (i+1 < letters.length && letters[i+1].match(/[AEIOU]/) && i+2 < letters.length && letters[i+2].match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
+                        let vowel = letters[i+1];
+                        let rightCons = letters[i+2];
+                        let rightMeaning = primitiveMeanings[rightCons] || `primitive_${rightCons}`;
+                        let op = vowelOps[vowel];
+                        if (op) {
+                            let combined = op.apply(currentLeftText, rightMeaning);
+                            if (logSteps) steps.push(`🔸 Vowel ${vowel} (${op.name}): combine (${currentLeftText}) + (${rightMeaning}) → ${combined}`);
+                            currentLeftText = combined;
+                            currentLeft = `${currentLeft}${vowel}${rightCons}`;
+                            i += 2;
                         } else {
-                            // vowel but no following consonant -> orphan vowel
-                            steps.push({ type: 'warning', msg: `Vowel '${vowel.letter}' at position ${vowel.index} has no following consonant → ignored.` });
-                            i++;
+                            steps.push(`⚠️ Unknown vowel ${vowel} – ignored`);
+                            i += 1;
                         }
                     } else {
-                        // two consonants in a row without vowel -> treat as separate primitives (no operator)
-                        steps.push({ type: 'warning', msg: `No vowel between consonant ${cons.letter} and next token → treating as separate primitive.` });
-                        // Actually, we should just push the new consonant as a separate meaning? For simplicity, we reset.
-                        // Better: combine with implicit something? But spec says vowel required. So we break and start new.
-                        steps.push({ type: 'separate', cons: cons.letter, meaning: consText });
-                        currentMeaning = { text: consText, raw: `(${cons.letter}: ${consText})` };
-                        i++;
+                        if (logSteps) steps.push(`🔹 Consecutive consonant ${ch} → implicit UNION with previous (${currentLeftText})`);
+                        parsedSegments.push(currentLeftText);
+                        currentLeft = ch;
+                        currentLeftText = consMeaning;
+                        if (logSteps) steps.push(` New segment: ${consMeaning}`);
+                        i += 1;
                     }
                 }
+            } else if (ch.match(/[AEIOU]/)) {
+                if (i === 0) {
+                    let consMeaning = primitiveMeanings[ch] || `primitive_${ch}`;
+                    if (logSteps) steps.push(`🔹 Initial vowel treated as consonant: ${ch} → ${consMeaning}`);
+                    currentLeft = ch;
+                    currentLeftText = consMeaning;
+                } else if (i === letters.length - 1) {
+                    if (logSteps) steps.push(`🔸 Final vowel ${ch} → attach EXIT flag to previous segment (${currentLeftText})`);
+                    currentLeftText = `${currentLeftText} with EXIT`;
+                } else {
+                    if (logSteps) steps.push(`⚠️ Orphan vowel ${ch} at position ${i} (no following consonant) – ignored`);
+                }
+                i += 1;
             } else {
-                // unexpected vowel at start or after already processed
-                steps.push({ type: 'warning', msg: `Orphan vowel '${tokens[i].letter}' at start or misplaced → ignored.` });
-                i++;
+                i += 1;
             }
         }
-        
-        return { steps, finalMeaning: currentMeaning ? currentMeaning.text : '(no valid consonant sequence)' };
+        if (currentLeft !== null) parsedSegments.push(currentLeftText);
+        let finalMeaning = parsedSegments.length === 0 ? '(empty)' : combineWithImplicitUnion(parsedSegments);
+        return { steps, finalMeaning };
     }
     
-    // Main render
-    function renderParse(word) {
-        if (!word.trim()) {
-            return '<span class="warning">Please enter a word.</span>';
+    function preprocessWord(word, replaceW, prevWasAm) {
+        let upper = word.toUpperCase();
+        if (pronouns[upper]) return { processed: pronouns[upper], log: `Pronoun ${word} → primitive ${pronouns[upper]}`, injectM: false };
+        if (functionWords.has(upper)) {
+            if (upper === 'AM') return { processed: null, log: `Copula "am" → will inject M before next emotion`, injectM: true };
+            return { processed: null, log: `Function word "${word}" → inert (quoted)`, injectM: false };
         }
-        const result = parseWord(word);
-        let html = `<div><strong>🔍 Parsing "${word}"</strong></div>`;
-        for (let step of result.steps) {
-            if (step.type === 'start') {
-                html += `<div class="step">🔹 Consonant <span class="cons">${step.cons}</span> → ${step.meaning}</div>`;
-            } else if (step.type === 'combine') {
-                html += `<div class="step">🔸 Vowel <span class="vow">${step.vowel}</span> (${step.opName}): combine left [${step.left}] + right [${step.right}]</div>`;
-            } else if (step.type === 'warning') {
-                html += `<div class="step warning">⚠️ ${step.msg}</div>`;
-            } else if (step.type === 'separate') {
-                html += `<div class="step">🔹 Separate consonant <span class="cons">${step.cons}</span> → ${step.meaning} (no operator)</div>`;
+        let isEmotion = emotionWords.has(upper);
+        let prefix = isEmotion ? 'I' : '';
+        let prefixLog = isEmotion ? `Emotion → implicit I prefix` : '';
+        let processedWord = upper;
+        if (replaceW) processedWord = processedWord.replace(/W/g, 'UU');
+        let full = prefix + processedWord;
+        let log = (prefixLog ? prefixLog + '; ' : '') + (replaceW && processedWord !== upper ? `Replaced W with UU → ${processedWord}` : '');
+        return { processed: full, log, injectM: false };
+    }
+    
+    function parseSentence(sentence, replaceW, infiniteRepeat) {
+        let words = sentence.trim().toUpperCase().split(/\s+/);
+        let allLogs = [];
+        let finalMeanings = [];
+        let previousWasAm = false;
+        for (let w of words) {
+            let pre = preprocessWord(w, replaceW, previousWasAm);
+            if (pre.injectM) {
+                previousWasAm = true;
+                allLogs.push(pre.log);
+                continue;
+            } else {
+                let injectM = previousWasAm;
+                previousWasAm = false;
+                let wordToParse = pre.processed;
+                if (!wordToParse) {
+                    allLogs.push(pre.log);
+                    continue;
+                }
+                let finalWord = wordToParse;
+                if (injectM && emotionWords.has(w.toUpperCase())) {
+                    finalWord = 'M' + wordToParse;
+                    allLogs.push(`"am" before emotion → injected M (motion) → ${finalWord}`);
+                }
+                allLogs.push(`Parsing: ${finalWord}`);
+                let parseResult = parseString(finalWord, true);
+                allLogs.push(...parseResult.steps);
+                let finalMeaning = parseResult.finalMeaning;
+                if (infiniteRepeat && finalWord.includes('R*')) finalMeaning += ' (repeated 3 times)';
+                finalMeanings.push(finalMeaning);
+                allLogs.push(`→ Segment meaning: ${finalMeaning}`);
+                allLogs.push('---');
             }
         }
-        html += `<div class="final">📐 Final derived meaning: ${result.finalMeaning}</div>`;
-        return html;
+        let fullMeaning = finalMeanings.join(' ; ');
+        return { logs: allLogs, finalMeaning: fullMeaning || '(no meaning derived)' };
     }
     
-    document.getElementById('parseBtn').addEventListener('click', () => {
-        let word = document.getElementById('wordInput').value.trim();
-        document.getElementById('output').innerHTML = renderParse(word);
-    });
-    document.getElementById('wordInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            let word = document.getElementById('wordInput').value.trim();
-            document.getElementById('output').innerHTML = renderParse(word);
+    // --------------------------------------------------------------
+    // Local Storage handling (database)
+    // --------------------------------------------------------------
+    const STORAGE_KEY = 'v52_parser_entries';
+    
+    function saveEntry(input, replaceW, infiniteRepeat, parseLogs, finalMeaning, rating) {
+        let entries = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+        let entry = {
+            id: Date.now(),
+            timestamp: new Date().toISOString(),
+            input: input,
+            replaceW: replaceW,
+            infiniteRepeat: infiniteRepeat,
+            parseLogs: parseLogs,
+            finalMeaning: finalMeaning,
+            rating: rating
+        };
+        entries.unshift(entry); // newest first
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+        return entry;
+    }
+    
+    function getEntries() {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    }
+    
+    function clearEntries() {
+        localStorage.setItem(STORAGE_KEY, '[]');
+    }
+    
+    function displaySavedEntries() {
+        const entries = getEntries();
+        const container = document.getElementById('savedEntriesList');
+        if (!container) return;
+        if (entries.length === 0) {
+            container.innerHTML = '<div>No saved entries yet.</div>';
+        } else {
+            container.innerHTML = entries.map(e => `
+                <div class="entry">
+                    <strong>${e.timestamp}</strong><br>
+                    <strong>Input:</strong> ${e.input}<br>
+                    <strong>Meaning:</strong> ${e.finalMeaning}<br>
+                    <strong>Rating:</strong> ${e.rating}<br>
+                    <strong>Options:</strong> W→UU=${e.replaceW}, R* repeat=${e.infiniteRepeat}
+                </div>
+            `).join('');
+        }
+        document.getElementById('savedEntriesContainer').style.display = 'block';
+    }
+    
+    // --------------------------------------------------------------
+    // UI interaction
+    // --------------------------------------------------------------
+    let currentParseResult = null;
+    
+    function updateOutput() {
+        let sentence = document.getElementById('wordInput').value.trim();
+        if (!sentence) {
+            document.getElementById('output').innerHTML = '<span class="warning">Please enter a word or sentence.</span>';
+            document.getElementById('saveArea').style.display = 'none';
+            return;
+        }
+        let replaceW = document.getElementById('replaceWCheckbox').checked;
+        let infiniteRepeat = document.getElementById('infiniteRepeatCheckbox').checked;
+        let result = parseSentence(sentence, replaceW, infiniteRepeat);
+        currentParseResult = {
+            input: sentence,
+            replaceW: replaceW,
+            infiniteRepeat: infiniteRepeat,
+            logs: result.logs,
+            finalMeaning: result.finalMeaning
+        };
+        let html = `<div><strong>📝 Input:</strong> ${sentence}</div>`;
+        html += `<div><strong>🔧 Parsing steps:</strong></div>`;
+        for (let log of result.logs) html += `<div class="step">${log}</div>`;
+        html += `<div class="final"><strong>📐 Final derived meaning:</strong> ${result.finalMeaning}</div>`;
+        document.getElementById('output').innerHTML = html;
+        document.getElementById('saveArea').style.display = 'block';
+        document.getElementById('saveMessage').innerHTML = '';
+        // reset rating to "unsure"
+        let radios = document.querySelectorAll('input[name="rating"]');
+        radios.forEach(r => { if (r.value === 'unsure') r.checked = true; });
+    }
+    
+    function saveCurrent() {
+        if (!currentParseResult) {
+            document.getElementById('saveMessage').innerHTML = '<span class="warning">Nothing to save. Please parse first.</span>';
+            return;
+        }
+        let ratingElem = document.querySelector('input[name="rating"]:checked');
+        let rating = ratingElem ? ratingElem.value : 'unsure';
+        let entry = saveEntry(
+            currentParseResult.input,
+            currentParseResult.replaceW,
+            currentParseResult.infiniteRepeat,
+            currentParseResult.logs,
+            currentParseResult.finalMeanincurrentParseResult.finalMeaning,
+            rating
+        );
+        document.getElementById('saveMessage').innerHTML = `<span style="color:#aaffaa;">✅ Saved! (ID: ${entry.id})</span>`;
+    }
+    
+    document.getElementById('parseBtn').addEventListener('click', updateOutput);
+    document.getElementById('saveBtn').addEventListener('click', saveCurrent);
+    document.getElementById('showSavedBtn').addEventListener('click', displaySavedEntries);
+    document.getElementById('clearSavedBtn').addEventListener('click', () => {
+        if (confirm('Delete all saved entries? This cannot be undone.')) {
+            clearEntries();
+            document.getElementById('savedEntriesList').innerHTML = '<div>No saved entries yet.</div>';
+            document.getElementById('saveMessage').innerHTML = '<span style="color:#ffaa88;">🗑️ All entries cleared.</span>';
         }
     });
+    document.getElementById('wordInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') updateOutput(); });
     
     // initial parse
-    document.getElementById('output').innerHTML = renderParse('cat');
+    updateOutput();
 </script>
 </body>
 </html>
