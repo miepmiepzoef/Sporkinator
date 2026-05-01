@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Caracter Builder</title>
+    <title>Caracter Building</title>
 		<link rel="stylesheet" href="../css/style.css">
 		<meta charset="UTF-8> 
 		<meta name="description" content="Caracters, Builder, DIY, Linguistics, Language">
@@ -126,7 +126,8 @@
     </style>
 </head>
 <body>
-<h1>🧩 SEMANTIC PRIMITIVE v5.4 · Reality Sandbox</h1>
+<div id="footer-placeholder"></div>
+<h1>Caracter Building</h1>
 <div class="toolbar">
     <button class="tool-btn" data-panel="interpreter">📖 Word/Sentence Interpreter</button>
     <button class="tool-btn" data-panel="builder">🎨 Character Builder (layers + fetch)</button>
@@ -230,7 +231,16 @@
     </div>
 </div>
 
+</div>
+<div id="footer-placeholder"></div>
+<div id="banner-placeholder"></div>
 <script>
+	  // Load header, footer, banner
+    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
+    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
+    fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
+
+	
     // --------------------------------------------------------------
     // v5.4 Simulation Core
     // --------------------------------------------------------------
