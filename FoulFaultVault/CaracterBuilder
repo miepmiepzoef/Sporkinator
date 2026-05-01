@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>v5.4 Reality Lab – Word Interpreter · Character Builder · Emotion Comparator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', monospace;
+        }
+        body {
+            background: #0a0f1e;
+            color: #eef;
+            padding: 2rem;
+            margin: 0;
+        }
+        h1 {
+            font-size: 1.6rem;
+            margin-top: 0;
+            border-left: 4px solid #f9a826;
+            padding-left: 1rem;
+        }
+        .toolbar {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0 2rem;
+            flex-wrap: wrap;
+        }
+        .tool-btn {
+            background: #1e2a3a;
+            border: none;
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 2rem;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+        .tool-btn.active {
+            background: #f9a826;
+            color: #0a0f1e;
+            box-shadow: 0 0 8px #f9a826;
+        }
+        .panel {
+            background: #11161f;
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            display: none;
+        }
+        .panel.active {
+            display: block;
+        }
+        .flex-row {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            align-items: flex-start;
+        }
+        .canvas-area {
+            background: #1e2a36;
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+        }
+        canvas {
+            background: #2a3a44;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            width: 200px;
+            height: 200px;
+        }
+        .attributes {
+            background: #0f141c;
+            border-radius: 1rem;
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.8rem;
+            white-space: pre-wrap;
+        }
+        input, textarea, select, button {
+            background: #1e2a3a;
+            border: 1px solid #3a4a5a;
+            color: #eef;
+            padding: 0.5rem;
+            border-radius: 0.8rem;
+            font-size: 0.9rem;
+        }
+        button {
+            background: #f9a826;
+            color: #0a0f1e;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .compare-group {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .persona-card {
+            background: #0f141c;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            text-align: center;
+            width: 240px;
+        }
+        hr {
+            border-color: #2a3a44;
+        }
+        .layer-badge {
+            background: #2a3a44;
+            border-radius: 2rem;
+            padding: 0.2rem 0.6rem;
+            font-size: 0.7rem;
+            display: inline-block;
+            margin: 0.2rem;
+        }
+    </style>
+</head>
+<body>
+<h1>🧩 SEMANTIC PRIMITIVE v5.4 · Reality Sandbox</h1>
+<div class="toolbar">
+    <button class="tool-btn" data-panel="interpreter">📖 Word/Sentence Interpreter</button>
+    <button class="tool-btn" data-panel="builder">🎨 Character Builder (layers + fetch)</button>
+    <button class="tool-btn" data-panel="compare">😊 Emotion Comparator · Happy vs other</button>
+</div>
+
+<!-- =========================== PANEL 1: INTERPRETER =========================== -->
+<div id="interpreter" class="panel active">
+    <h2>🔮 Enter a word or sentence (v5.4 theory)</h2>
+    <p><em>Examples: "big dog", "happy cat", "I feel joy", "tree R*", "blackbird"</em></p>
+    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <input type="text" id="sentenceInput" placeholder="type something..." style="flex:2; min-width: 200px;">
+        <button id="parseBtn">Render Reality</button>
+        <button id="resetContextBtn">⟳ Reset Context</button>
+    </div>
+    <div class="flex-row" style="margin-top: 1.5rem;">
+        <div class="canvas-area">
+            <canvas id="realityCanvas" width="200" height="200"></canvas>
+            <div style="margin-top: 0.5rem; font-size: 0.8rem;">current reality</div>
+        </div>
+        <div class="attributes" style="flex:1">
+            <strong>📌 Current Context (attributes + focus)</strong>
+            <pre id="contextDisplay" style="margin-top: 0.5rem;">(empty)</pre>
+            <div><span class="layer-badge">Base CSS</span> <span class="layer-badge">Personal overrides active</span></div>
+        </div>
+    </div>
+    <div class="attributes" style="margin-top: 1rem;">
+        <strong>💬 Parsing log (v5.4 steps)</strong>
+        <pre id="parseLog" style="max-height: 150px; overflow-y: auto;"></pre>
+    </div>
+</div>
+
+<!-- =========================== PANEL 2: CHARACTER BUILDER =========================== -->
+<div id="builder" class="panel">
+    <h2>🧬 Build your creature (layers & fetch modules)</h2>
+    <div class="flex-row">
+        <div class="canvas-area">
+            <canvas id="builderCanvas" width="200" height="200"></canvas>
+            <button id="generateCreatureBtn" style="margin-top: 0.8rem;">✨ Generate / Update</button>
+        </div>
+        <div style="flex:2">
+            <div><strong>🏗️ Layers (LRC / LRK / LVI)</strong></div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0;">
+                <label><input type="checkbox" id="layerLRC" checked> LRC (root physics)</label>
+                <label><input type="checkbox" id="layerLRK"> LRK (animations)</label>
+                <label><input type="checkbox" id="layerLVI" checked> LVI (viewport attention)</label>
+            </div>
+            <div><strong>📦 Fetch modules (simulated CSS)</strong></div>
+            <div style="display: flex; gap: 1rem; margin: 0.5rem 0;">
+                <label><input type="checkbox" id="fetchWings"> 🦅 fetch "wings.css"</label>
+                <label><input type="checkbox" id="fetchHorns"> 🐏 fetch "horns.css"</label>
+                <label><input type="checkbox" id="fetchGlow"> ✨ fetch "glow.css"</label>
+            </div>
+            <div><strong>🎨 Personal overrides (CSS properties)</strong></div>
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                <select id="sizeSelect">
+                    <option value="small">small → size: 0.7</option>
+                    <option value="medium" selected>medium → size: 1.0</option>
+                    <option value="large">large → size: 1.4</option>
+                </select>
+                <select id="colorSelect">
+                    <option value="#b87c4f">brown (natural)</option>
+                    <option value="#6a9fb5" selected>blue (calm)</option>
+                    <option value="#e06c6c">red (fierce)</option>
+                    <option value="#b5cc88">green (earthy)</option>
+                </select>
+                <input type="text" id="extraTrait" placeholder="extra trait (e.g. fluffy, shiny)" value="friendly">
+            </div>
+        </div>
+    </div>
+    <div class="attributes" style="margin-top: 1rem;">
+        <strong>🧬 Resulting CSS cascade (merged)</strong>
+        <pre id="creatureSpec" style="margin-top: 0.5rem;"></pre>
+    </div>
+</div>
+
+<!-- =========================== PANEL 3: EMOTION COMPARATOR =========================== -->
+<div id="compare" class="panel">
+    <h2>😃😢 Emotion Comparator – two personas, same prompt</h2>
+    <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+        <input type="text" id="emotionPrompt" placeholder="e.g. happy, sad, angry, joyful" value="happy">
+        <button id="compareBtn">Compare</button>
+    </div>
+    <div class="compare-group" id="compareContainer" style="margin-top: 1.5rem;">
+        <!-- Persona A (Alice) -->
+        <div class="persona-card">
+            <h3>🧑‍🎨 Alice (optimistic CSS)</h3>
+            <canvas id="aliceCanvas" width="150" height="150" style="width:150px; height:150px;"></canvas>
+            <div id="aliceEmoText" style="margin-top: 0.5rem;">—</div>
+        </div>
+        <!-- Persona B (Bob) -->
+        <div class="persona-card">
+            <h3>🧑‍🔧 Bob (pessimistic CSS)</h3>
+            <canvas id="bobCanvas" width="150" height="150" style="width:150px; height:150px;"></canvas>
+            <div id="bobEmoText" style="margin-top: 0.5rem;">—</div>
+        </div>
+    </div>
+    <div class="attributes" style="margin-top: 1rem;">
+        <strong>⚙️ How it works:</strong> Each persona has a different mapping for the same emotion word (personal CSS override).<br>
+        Alice's "happy" → bright aura + smile ; Bob's "happy" → subdued + small smile.
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // v5.4 Simulation Core
+    // --------------------------------------------------------------
+    
+    // ----- Base CSS (shared reality) -----
+    const baseCSS = {
+        defaultCreature: { shape: "circle", size: 1.0, color: "#b87c4f", eyes: "normal", mouth: "neutral", extras: [] },
+        // emotion mappings (default)
+        emotion: {
+            happy: { mouth: "smile", aura: "#ffdd77", extra: "glow" },
+            sad: { mouth: "sad", aura: "#88aaff", extra: "tear" },
+            angry: { mouth: "frown", aura: "#ff6666", extra: "fire" },
+            joyful: { mouth: "bigsmile", aura: "#ffee88", extra: "sparkles" }
+        }
+    };
+    
+    // ----- Personal CSS for two personas (override) -----
+    const personaCSS = {
+        alice: {
+            name: "Alice",
+            overrides: {
+                // Alice sees happy as very expressive
+                emotion: { happy: { mouth: "bigsmile", aura: "#ffaa33", size: 1.2, extra: "stars" } }
+            }
+        },
+        bob: {
+            name: "Bob",
+            overrides: {
+                emotion: { happy: { mouth: "small_smile", aura: "#ccaa77", size: 0.9, extra: "fade" } }
+            }
+        }
+    };
+    
+    // Fetchable modules (simulated)
+    const fetchModules = {
+        "wings.css": { extras: ["wings"] },
+        "horns.css": { extras: ["horns"] },
+        "glow.css": { extras: ["glow"] }
+    };
+    
+    // Current reality context for interpreter (stack, focus, attributes)
+    let currentContext = {
+        attributes: { size: 1.0, color: "#b87c4f", extras: [] },
+        focus: null, // last created object
+        objects: [] // simple list
+    };
+    
+    // Helper to draw creature on canvas given a spec
+    function drawCreature(canvasId, spec) {
+        const canvas = document.getElementById(canvasId);
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        const w = canvas.width, h = canvas.height;
+        ctx.clearRect(0, 0, w, h);
+        const size = spec.size || 1.0;
+        const radius = 40 * size;
+        const centerX = w/2, centerY = h/2;
+        ctx.fillStyle = spec.color || "#b87c4f";
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, radius, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = "#222";
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        // Eyes
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        ctx.arc(centerX - radius*0.35, centerY - radius*0.2, radius*0.15, 0, 2*Math.PI);
+        ctx.arc(centerX + radius*0.35, centerY - radius*0.2, radius*0.15, 0, 2*Math.PI);
+        ctx.fill();
+        ctx.fillStyle = "#000";
+        ctx.beginPath();
+        ctx.arc(centerX - radius*0.35, centerY - radius*0.2, radius*0.07, 0, 2*Math.PI);
+        ctx.arc(centerX + radius*0.35, centerY - radius*0.2, radius*0.07, 0, 2*Math.PI);
+        ctx.fill();
+        // Mouth based on emotion or neutral
+        const mouthType = spec.mouth || "neutral";
+        ctx.beginPath();
+        ctx.strokeStyle = "#442200";
+        ctx.lineWidth = 3;
+        if (mouthType === "smile") {
+            ctx.arc(centerX, centerY + radius*0.2, radius*0.3, 0.1, Math.PI - 0.1);
+            ctx.stroke();
+        } else if (mouthType === "bigsmile") {
+            ctx.arc(centerX, centerY + radius*0.25, radius*0.4, 0, Math.PI);
+            ctx.stroke();
+        } else if (mouthType === "sad") {
+            ctx.arc(centerX, centerY + radius*0.3, radius*0.3, Math.PI, 2*Math.PI);
+            ctx.stroke();
+        } else if (mouthType === "frown") {
+            ctx.arc(centerX, centerY + radius*0.15, radius*0.25, Math.PI, 2*Math.PI);
+            ctx.stroke();
+        } else if (mouthType === "small_smile") {
+            ctx.arc(centerX, centerY + radius*0.2, radius*0.2, 0.2, Math.PI - 0.2);
+            ctx.stroke();
+        } else {
+            // neutral line
+            ctx.moveTo(centerX - radius*0.2, centerY + radius*0.2);
+            ctx.lineTo(centerX + radius*0.2, centerY + radius*0.2);
+            ctx.stroke();
+        }
+        // extras (wings/horns etc)
+        if (spec.extras && spec.extras.includes("wings")) {
+            ctx.fillStyle = "#ccc";
+            ctx.beginPath();
+            ctx.moveTo(centerX - radius*0.9, centerY - radius*0.4);
+            ctx.quadraticCurveTo(centerX - radius*1.3, centerY, centerX - radius*0.8, centerY+radius*0.2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(centerX + radius*0.9, centerY - radius*0.4);
+            ctx.quadraticCurveTo(centerX + radius*1.3, centerY, centerX + radius*0.8, centerY+radius*0.2);
+            ctx.fill();
+        }
+        if (spec.extras && spec.extras.includes("horns")) {
+            ctx.fillStyle = "#8B5A2B";
+            ctx.beginPath();
+            ctx.moveTo(centerX - radius*0.5, centerY - radius*0.7);
+            ctx.lineTo(centerX - radius*0.2, centerY - radius*0.9);
+            ctx.lineTo(centerX - radius*0.8, centerY - radius*0.5);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(centerX + radius*0.5, centerY - radius*0.7);
+            ctx.lineTo(centerX + radius*0.2, centerY - radius*0.9);
+            ctx.lineTo(centerX + radius*0.8, centerY - radius*0.5);
+            ctx.fill();
+        }
+        if (spec.extras && spec.extras.includes("glow")) {
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "gold";
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius+5, 0, 2*Math.PI);
+            ctx.fillStyle = "rgba(255,200,100,0.2)";
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+    }
+    
+    // Parse a simple word/sentence according to v5.4 (simplified)
+    function parseSentence(sentence, logElement, context) {
+        let log = [];
+        let words = sentence.toLowerCase().split(/\s+/);
+        let attributes = { ...context.attributes };
+        let lastObject = context.focus;
+        for (let w of words) {
+            if (["a","an","the","of","to","for","and","or","but","if","then","so","as"].includes(w)) {
+                log.push(`⏭️ function word "${w}" → inert`);
+                continue;
+            }
+            // atomic word lookup
+            let wordData = null;
+            if (baseCSS.emotion[w]) {
+                wordData = { type: "emotion", value: baseCSS.emotion[w] };
+                log.push(`😊 emotion word "${w}" → applying ${Object.keys(wordData.value).join(", ")}`);
+            } else if (w === "big") {
+                attributes.size = (attributes.size || 1) * 1.5;
+                log.push(`📏 adjective "big" → size now ${attributes.size.toFixed(2)}`);
+            } else if (w === "small") {
+                attributes.size = (attributes.size || 1) * 0.7;
+                log.push(`📏 adjective "small" → size now ${attributes.size.toFixed(2)}`);
+            } else if (w === "happy" || w === "sad" || w === "angry" || w === "joyful") {
+                // emotion again
+                let emo = baseCSS.emotion[w] || baseCSS.emotion.happy;
+                attributes.mouth = emo.mouth;
+                attributes.aura = emo.aura;
+                log.push(`🎭 emotion "${w}" → mouth:${emo.mouth}`);
+            } else if (w === "feel") {
+                log.push(`👁️ perception verb "feel" – ready to apply next emotion to self`);
+                // next word will be emotion
+                continue;
+            } else if (w === "tree") {
+                lastObject = { type: "tree", size: attributes.size };
+                log.push(`🌲 instantiated tree (size ${attributes.size})`);
+            } else if (w === "cat") {
+                lastObject = { type: "cat", size: attributes.size };
+                log.push(`🐱 cat created`);
+            } else if (w === "dog") {
+                lastObject = { type: "dog", size: attributes.size };
+                log.push(`🐕 dog created`);
+            } else if (w.endsWith("r*")) {
+                let baseWord = w.slice(0, -2);
+                log.push(`🔄 R* repeat: "${baseWord}" 3 times`);
+                for (let i=0;i<3;i++) parseSentence(baseWord, {inner:true}, context);
+            } else if (w === "blackbird") {
+                // compound: black A bird
+                log.push(`🐦 compound "blackbird" → black ∪ bird (dark color + avian)`);
+                attributes.color = "#2c2c2c";
+                attributes.extras = [...(attributes.extras||[]), "wings"];
+            } else {
+                log.push(`❓ unknown word "${w}" → treated as inert (not in dictionary)`);
+            }
+            // handle perception verb + emotion sequence
+            if (words.indexOf("feel") >=0 && words.indexOf(w)>words.indexOf("feel") && baseCSS.emotion[w]) {
+                let emo = baseCSS.emotion[w];
+                attributes.mouth = emo.mouth;
+                log.push(`✨ feel + ${w} → applying ${emo.mouth} to self`);
+            }
+        }
+        context.attributes = attributes;
+        context.focus = lastObject;
+        if (logElement) logElement.innerText = log.join("\n");
+        return { attributes, focus: lastObject };
+    }
+    
+    // Helper to update the interpreter UI
+    function updateInterpreterUI(context) {
+        let attr = context.attributes;
+        let spec = {
+            size: attr.size || 1.0,
+            color: attr.color || "#b87c4f",
+            mouth: attr.mouth || "neutral",
+            extras: attr.extras || []
+        };
+        drawCreature("realityCanvas", spec);
+        document.getElementById("contextDisplay").innerText = JSON.stringify(attr, null, 2);
+    }
+    
+    // Event listeners for panel switching
+    document.querySelectorAll(".tool-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+            let panelId = btn.getAttribute("data-panel");
+            document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
+            document.getElementById(panelId).classList.add("active");
+            document.querySelectorAll(".tool-btn").forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            if (panelId === "builder") generateCharacterFromSelections();
+            if (panelId === "compare") runComparison();
+        });
+    });
+    
+    // Interpreter logic
+    document.getElementById("parseBtn").addEventListener("click", () => {
+        let sentence = document.getElementById("sentenceInput").value;
+        let logDiv = document.getElementById("parseLog");
+        let newContext = parseSentence(sentence, logDiv, currentContext);
+        currentContext.attributes = newContext.attributes;
+        currentContext.focus = newContext.focus;
+        updateInterpreterUI(currentContext);
+    });
+    document.getElementById("resetContextBtn").addEventListener("click", () => {
+        currentContext = { attributes: { size: 1.0, color: "#b87c4f", extras: [] }, focus: null, objects: [] };
+       updateInterpreterUI(currentContext);
+    });
+    document.getElementById("resetContextBtn").addEventListener("click", () => {
+        currentContext = { attributes: { size: 1.0, color: "#b87c4f", extras: [] }, focus: null, objects: [] };
+        updateInterpreterUI(currentContext);
+        document.getElementById("parseLog").innerText = "(context reset)";
+        document.getElementById("sentenceInput").value = "";
+    });
+    
+    // Character builder
+    function generateCharacterFromSelections() {
+        let layers = { LRC: document.getElementById("layerLRC").checked, LRK: document.getElementById("layerLRK").checked, LVI: document.getElementById("layerLVI").checked };
+        let sizeVal = document.getElementById("sizeSelect").value;
+        let colorVal = document.getElementById("colorSelect").value;
+        let extraTrait = document.getElementById("extraTrait").value;
+        let extras = [];
+        if (document.getElementById("fetchWings").checked) extras.push("wings");
+        if (document.getElementById("fetchHorns").checked) extras.push("horns");
+        if (document.getElementById("fetchGlow").checked) extras.push("glow");
+        if (extraTrait) extras.push(extraTrait);
+        let sizeMap = { small: 0.7, medium: 1.0, large: 1.4 };
+        let spec = {
+            size: sizeMap[sizeVal],
+            color: colorVal,
+            mouth: "neutral",
+            extras: extras,
+            layers: layers
+        };
+        drawCreature("builderCanvas", spec);
+        document.getElementById("creatureSpec").innerText = JSON.stringify(spec, null, 2);
+    }
+    document.getElementById("generateCreatureBtn").addEventListener("click", generateCharacterFromSelections);
+    window.addEventListener("load", () => { generateCharacterFromSelections(); updateInterpreterUI(currentContext); });
+    
+    // Emotion comparator
+    function runComparison() {
+        let emotion = document.getElementById("emotionPrompt").value.trim().toLowerCase();
+        let aliceSpec = { ...baseCSS.defaultCreature, ...personaCSS.alice.overrides.emotion[emotion] || baseCSS.emotion[emotion] || { mouth: "neutral" } };
+        let bobSpec = { ...baseCSS.defaultCreature, ...personaCSS.bob.overrides.emotion[emotion] || baseCSS.emotion[emotion] || { mouth: "neutral" } };
+        drawCreature("aliceCanvas", aliceSpec);
+        drawCreature("bobCanvas", bobSpec);
+        document.getElementById("aliceEmoText").innerHTML = `😊 ${emotion}<br>mouth: ${aliceSpec.mouth}<br>${aliceSpec.aura ? "aura: "+aliceSpec.aura : ""}`;
+        document.getElementById("bobEmoText").innerHTML = `😐 ${emotion}<br>mouth: ${bobSpec.mouth}<br>${bobSpec.aura ? "aura: "+bobSpec.aura : ""}`;
+    }
+    document.getElementById("compareBtn").addEventListener("click", runComparison);
+    // initial compare
+    runComparison();
+</script>
+</body>
+</html>
