@@ -160,11 +160,13 @@
     </style>
 </head>
 <body>
+<div id="header-placeholder"></div>
+<h1>It Spells</h1>
 <div class="container">
-    <h1>🔡 v5.3 Semantic Parser – Unary Vowel Operators</h1>
-    <div class="sub">Every vowel is active: binary (C V C) or unary (C V).<br>
-    Emotions / pronouns / "am" injection / W→UU toggle included.<br>
-    Rate the result and save your own tangible meaning.</div>
+  
+    <p>Every vowel is active: binary (C V C) or unary (C V).
+    Emotions / pronouns / "am" injection / W→UU toggle included.
+    Rate the result and save your own tangible meaning.</p>
 
     <div class="flex">
         <div class="toggle">
@@ -229,9 +231,15 @@
         <div id="savedEntriesList"></div>
     </div>
 </div>
-
+<div id="footer-placeholder"></div>
+<div id="banner-placeholder"></div>
 <script>
-    // --------------------------------------------------------------
+	  // Load header, footer, banner
+    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
+    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
+    fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
+
+	// --------------------------------------------------------------
     // v5.3 Parser – Unary vowel operators (no vowel ignored)
     // --------------------------------------------------------------
     
