@@ -9,37 +9,36 @@
 		<meta name="author" content="Muppet">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <style>
-  <style>
-        */ {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', 'Courier New', monospace;
-        }
-        body {
-            background: #0a0f1e;
-            color: #eef;
-            padding: 2rem;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-        }
-        .container {
-            max-width: 900px;
-            width: 100%;
-            background: #11161f;
-            border-radius: 1.5rem;
-            padding: 1.8rem;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        h1 {
-            font-size: 1.8rem;
-            margin-top: 0;
-            border-left: 5px solid #f9a826;
-            padding-left: 1rem;
-        }*/
-        .sub {
-            color: #aaa;
+        .legend {
+           /* background: #0c1119;*/
+            border-radius: 1rem;
+            padding: 1rem;
             margin-bottom: 2rem;
-            font-size: 0.85rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+            justify-content: space-between;
+        }
+        .legend-col {
+            flex: 1;
+            min-width: 200px;
+        }
+        .legend-col h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #f9a826;
+        }
+        .legend-item {
+            font-size: 0.8rem;
+            margin: 0.2rem 0;
+        }
+        .cons {
+            color: #88ddff;
+            font-weight: bold;
+        }
+        .vow {
+            color: #ffaa88;
+            font-weight: bold;
         }
         input, button {
             width: 100%;
@@ -59,71 +58,97 @@
             color: #0a0f1e;
             font-weight: bold;
             cursor: pointer;
-            transition: 0.2s;
-        }
-        button:hover {
-            background: #ffbc4a;
         }
         .output {
-            background: #0c1119;
+            /*background: #0c1119;*/
             border-radius: 1rem;
             padding: 1rem;
             margin-top: 1.5rem;
-            border-left: 4px solid #f9a826;
             font-family: monospace;
             white-space: pre-wrap;
-            word-break: break-word;
         }
-        .word-block {
+        .step {
+            border-left: 3px solid #f9a826;
+            padding: 0.5rem 0 0.5rem 1rem;
+            margin: 0.5rem 0;
+            background: #0f141c;
+        }
+        .final {
             background: #1a2230;
-            margin: 1rem 0;
-            padding: 1rem;
+            padding: 0.8rem;
             border-radius: 0.8rem;
-        }
-        .word-title {
-            font-size: 1.3rem;
+            margin-top: 1rem;
             font-weight: bold;
-            color: #f9a826;
         }
-        .letter-box {
-            display: inline-block;
-            background: #0a0f1e;
-            padding: 0.2rem 0.5rem;
-            margin: 0.2rem;
-            border-radius: 0.5rem;
-            font-family: monospace;
-            font-size: 1.2rem;
+        hr {
+            border-color: #2a3a44;
         }
-        .consonant { color: #88ddff; }
-        .vowel { color: #ffaa88; }
-        .operator-desc { color: #aaffaa; font-size: 0.8rem; margin-left: 0.5rem; }
-        hr { border-color: #2a3a44; margin: 1rem 0; }
-        .meaning {
-            background: #0a0f1e;
-            padding: 0.5rem;
-            border-radius: 0.5rem;
-            margin-top: 0.8rem;
+        .warning {
+            color: #ffaa88;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>🧠 v5.4 Semantic Primitive Parser</h1>
-    <div class="sub">Enter a word or sentence – see how each letter (consonant/vowel) builds meaning</div>
-    <input type="text" id="wordInput" placeholder="e.g., cat, dog, big, blackbird, I feel happy, tree R*" value="cat">
-    <button id="parseButton">🔍 Parse & Show Meaning</button>
-    <div id="outputArea" class="output">
+    <h1>🔡 v5.4 Pure Semantic Parser</h1>
+    <p>No dictionary – every word is parsed letter by letter. Consonants = primitives, vowels = operators between them.</p>
+
+    <!-- Legend: consonant meanings + vowel operators -->
+    <div class="legend">
+        <div class="legend-col">
+            <h3>🔹 Consonants (primitives)</h3>
+            <div class="legend-item"><span class="cons">B</span> = body / root</div>
+            <div class="legend-item"><span class="cons">C</span> = container / shape_curved</div>
+            <div class="legend-item"><span class="cons">D</span> = durable / object</div>
+            <div class="legend-item"><span class="cons">F</span> = flow / fluid</div>
+            <div class="legend-item"><span class="cons">G</span> = ground / base</div>
+            <div class="legend-item"><span class="cons">H</span> = holding / enclosure</div>
+            <div class="legend-item"><span class="cons">K</span> = cut / separation / stop</div>
+            <div class="legend-item"><span class="cons">L</span> = layer / level</div>
+            <div class="legend-item"><span class="cons">M</span> = motion / mass</div>
+            <div class="legend-item"><span class="cons">N</span> = negation / not</div>
+            <div class="legend-item"><span class="cons">P</span> = person / point</div>
+            <div class="legend-item"><span class="cons">Q</span> = question / query</div>
+            <div class="legend-item"><span class="cons">R</span> = repeat / again</div>
+            <div class="legend-item"><span class="cons">S</span> = state / stillness</div>
+            <div class="legend-item"><span class="cons">T</span> = tool / touch / straight</div>
+            <div class="legend-item"><span class="cons">V</span> = view / vision</div>
+            <div class="legend-item"><span class="cons">W</span> = wave / water</div>
+            <div class="legend-item"><span class="cons">X</span> = negation / hide</div>
+            <div class="legend-item"><span class="cons">Y</span> = why / question</div>
+            <div class="legend-item"><span class="cons">Z</span> = end / final</div>
+        </div>
+        <div class="legend-col">
+            <h3>🔸 Vowels (operators)</h3>
+            <div class="legend-item"><span class="vow">A</span> = UNION – merge meanings (siblings)</div>
+            <div class="legend-item"><span class="vow">E</span> = SEQUENCE – first then second (temporal)</div>
+            <div class="legend-item"><span class="vow">I</span> = PROPERTY – second is attribute of first</div>
+            <div class="legend-item"><span class="vow">O</span> = ALTERNATIVE – xor (either left or right)</div>
+            <div class="legend-item"><span class="vow">U</span> = CONTAINER – second inside first</div>
+            <h3 style="margin-top:1rem;">📐 How parsing works</h3>
+            <div class="legend-item">1. Split word into letters (case‑insensitive).</div>
+            <div class="legend-item">2. Identify consonants (C) and vowels (V).</div>
+            <div class="legend-item">3. Starting from left, combine C V C → apply operator to left and right.</div>
+            <div class="legend-item">4. Result becomes new left, continue if another vowel+consonant follows.</div>
+            <div class="legend-item">5. Extra vowels without a following consonant are ignored (warning).</div>
+            <div class="legend-item">6. Consecutive consonants without vowel are treated as separate primitives (no operator).</div>
+        </div>
+    </div>
+
+    <input type="text" id="wordInput" placeholder="Type a word (e.g., cat, door, dream, blackbird)" value="cat">
+    <button id="parseBtn">Parse & Derive Meaning</button>
+    <div id="output" class="output">
         <!-- results will appear here -->
     </div>
 </div>
 
 <script>
     // --------------------------------------------------------------
-    // v5.4 Semantic Parser – Letter‑level breakdown
+    // Pure v5.4 parser – no dictionary, only letter rules
     // --------------------------------------------------------------
     
-    // Primitive meanings for consonants (user can extend this)
-    const primitiveMeanings = {
+    const consonantMeanings = {
+        'B': 'body / root',
         'C': 'container / shape_curved',
         'D': 'durable / object',
         'F': 'flow / fluid',
@@ -134,231 +159,136 @@
         'M': 'motion / mass',
         'N': 'negation / not',
         'P': 'person / point',
+        'Q': 'question / query',
         'R': 'repeat / again',
         'S': 'state / stillness',
         'T': 'tool / touch / straight',
-        'U': 'you / container (as vowel)',
         'V': 'view / vision',
         'W': 'wave / water',
         'X': 'negation / hide',
         'Y': 'why / question',
-        'Z': 'end / final',
-        // Add more as needed – for demo we cover A-Z
-        'A': '(vowel) merge/union',
-        'E': '(vowel) sequence',
-        'I': '(vowel) property/attribute',
-        'O': '(vowel) alternative/xor',
-        'B': 'body / root',
-        'Q': 'question / query'
+        'Z': 'end / final'
     };
     
-    // Vowel operator semantics (binary between two consonants)
-    const vowelSemantics = {
-        'A': { name: 'UNION', desc: 'merge meanings (union of sets) – sibling relationship' },
-        'E': { name: 'SEQUENCE', desc: 'temporal order – first consonant then second' },
-        'I': { name: 'PROPERTY', desc: 'second consonant becomes attribute/property of first' },
-        'O': { name: 'ALTERNATIVE', desc: 'mutual exclusive (xor)' },
-        'U': { name: 'CONTAINER', desc: 'second consonant is inside first (nesting)' }
+    const vowelOperators = {
+        'A': { name: 'UNION', desc: 'merge (union)' },
+        'E': { name: 'SEQUENCE', desc: 'temporal order' },
+        'I': { name: 'PROPERTY', desc: 'attribute of' },
+        'O': { name: 'ALTERNATIVE', desc: 'xor' },
+        'U': { name: 'CONTAINER', desc: 'inside' }
     };
     
-    // Dictionary of atomic words (common short words that are not parsed as CVC)
-    const atomicDictionary = {
-        'cat': { type: 'animal', attributes: { fur: true, meow: true, size: 'small' }, visual: '🐱' },
-        'dog': { type: 'animal', attributes: { fur: true, bark: true, size: 'medium' }, visual: '🐕' },
-        'big': { type: 'adjective', attributes: { size: 'large' } },
-        'small': { type: 'adjective', attributes: { size: 'small' } },
-        'run': { type: 'verb', attributes: { action: 'move_fast' } },
-        'happy': { type: 'emotion', attributes: { mood: 'joy', mouth: 'smile' } },
-        'sad': { type: 'emotion', attributes: { mood: 'grief', mouth: 'frown' } },
-        'tree': { type: 'plant', attributes: { trunk: true, leaves: true }, visual: '🌲' },
-        'bird': { type: 'animal', attributes: { wings: true, fly: true }, visual: '🐦' },
-        'black': { type: 'color', attributes: { color: '#000' } },
-        'feel': { type: 'perception_verb', attributes: { applies_emotion: true } },
-        'i': { type: 'pronoun', attributes: { self: true } }
-    };
-    
-    // Helper: check if a word is atomic (in dictionary or short heuristic)
-    function isAtomicWord(word) {
-        let lower = word.toLowerCase();
-        if (atomicDictionary[lower]) return true;
-        // heuristic: 2-4 letters and contains a vowel? but we'll rely on dictionary for demo
-        return false;
+    // Helper to get meaning text for a consonant
+    function consMeaning(letter) {
+        return consonantMeanings[letter] || `unknown primitive (${letter})`;
     }
     
-    // Parse a single word according to v5.4: either atomic or treat as C V C pattern
+    // Parse a single word into semantic steps
     function parseWord(word) {
-        let lower = word.toLowerCase();
-        // Atomic word lookup
-        if (atomicDictionary[lower]) {
-            return {
-                type: 'atomic',
-                word: lower,
-                meaning: atomicDictionary[lower],
-                breakdown: `📖 Atomic word (dictionary entry): ${lower} → ${JSON.stringify(atomicDictionary[lower].attributes)}`
-            };
-        }
+        const upper = word.toUpperCase();
+        const letters = upper.split('');
         
-        // Check for compound (two atomic words concatenated, e.g., blackbird)
-        // Try to split into two known atomic words
-        for (let i = 2; i <= word.length-2; i++) {
-            let first = word.slice(0, i).toLowerCase();
-            let second = word.slice(i).toLowerCase();
-            if (atomicDictionary[first] && atomicDictionary[second]) {
-                return {
-                    type: 'compound',
-                    word: word,
-                    left: first,
-                    right: second,
-                    operator: 'A', // implicit union
-                    breakdown: `🔗 Compound: "${first}" + implicit A (union) + "${second}" → union of both meanings`,
-                    meaning: { union: [atomicDictionary[first].attributes, atomicDictionary[second].attributes] }
-                };
-            }
-        }
-        
-        // Otherwise, parse as consonant-vowel-consonant sequence (C V C ...)
-        let letters = word.toUpperCase().split('');
-        let result = {
-            type: 'cvc_sequence',
-            word: word,
-            steps: [],
-            finalMeaning: {}
-        };
-        
-        let currentMeaning = null;
-        let i = 0;
-        while (i < letters.length) {
+        // First, extract consonants and vowels in order
+        let tokens = []; // each token: {type, letter, index}
+        for (let i = 0; i < letters.length; i++) {
             let ch = letters[i];
             if (ch.match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
-                // consonant
-                let consMeaning = primitiveMeanings[ch] || `primitive_${ch}`;
-                result.steps.push({ type: 'consonant', letter: ch, meaning: consMeaning });
+                tokens.push({ type: 'consonant', letter: ch, index: i });
+            } else if (ch.match(/[AEIOU]/)) {
+                tokens.push({ type: 'vowel', letter: ch, index: i });
+            } else {
+                // ignore non-letters (should not happen)
+            }
+        }
+        
+        // Now combine using rules: C V C pattern
+        let steps = [];
+        let currentMeaning = null;
+        let i = 0;
+        while (i < tokens.length) {
+            if (tokens[i].type === 'consonant') {
+                let cons = tokens[i];
+                let consText = consMeaning(cons.letter);
                 if (currentMeaning === null) {
-                    currentMeaning = { primitive: ch, meaningText: consMeaning };
+                    // start new meaning
+                    currentMeaning = { text: consText, raw: `(${cons.letter}: ${consText})` };
+                    steps.push({ type: 'start', cons: cons.letter, meaning: consText });
+                    i++;
                 } else {
-                    // Need a vowel before next consonant? Wait, pattern is C V C
-                    // So after a consonant, we expect a vowel, then next consonant.
-                    // But if no vowel found, treat as implicit? For simplicity, if next is consonant, we push as separate.
-                    // Actually v5.4 vowel operators exist only between consonants inside a word.
-                    // So we look ahead for a vowel.
-                    if (i+1 < letters.length && letters[i+1].match(/[AEIOU]/)) {
-                        let vowel = letters[i+1];
-                        let vowelInfo = vowelSemantics[vowel] || { name: 'UNKNOWN', desc: 'unknown operator' };
-                        if (i+2 < letters.length && letters[i+2].match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
-                            let nextCons = letters[i+2];
-                            let nextMeaning = primitiveMeanings[nextCons] || `primitive_${nextCons}`;
-                            result.steps.push({ type: 'vowel', letter: vowel, operator: vowelInfo.name, desc: vowelInfo.desc });
-                            result.steps.push({ type: 'consonant', letter: nextCons, meaning: nextMeaning });
-                            // Combine: currentMeaning (left) + vowel + nextMeaning (right)
-                            let combined = `(${currentMeaning.meaningText}) ${vowelInfo.name} (${nextMeaning})`;
-                            currentMeaning = { meaningText: combined, left: currentMeaning, operator: vowel, right: nextMeaning };
+                    // we have a current meaning, need a vowel then next consonant
+                    if (i < tokens.length && tokens[i].type === 'vowel') {
+                        let vowel = tokens[i];
+                        if (i+1 < tokens.length && tokens[i+1].type === 'consonant') {
+                            let nextCons = tokens[i+1];
+                            let nextText = consMeaning(nextCons.letter);
+                            let op = vowelOperators[vowel.letter];
+                            let opName = op ? op.name : 'UNKNOWN';
+                            let opDesc = op ? op.desc : 'unknown operator';
+                            // Combine: left + operator + right
+                            let combinedText = `(${currentMeaning.text}) ${opName} (${nextText})`;
+                            steps.push({ type: 'combine', vowel: vowel.letter, opName, left: currentMeaning.text, right: nextText });
+                            currentMeaning = { text: combinedText, raw: `${currentMeaning.raw} ${vowel.letter} ${nextCons.letter}` };
                             i += 2; // skip vowel and next consonant
                         } else {
-                            // vowel but no following consonant -> invalid, treat vowel as separate? skip
-                            result.steps.push({ type: 'vowel_orphan', letter: vowel, desc: 'no following consonant' });
-                            i += 1;
+                            // vowel but no following consonant -> orphan vowel
+                            steps.push({ type: 'warning', msg: `Vowel '${vowel.letter}' at position ${vowel.index} has no following consonant → ignored.` });
+                            i++;
                         }
                     } else {
-                        // no vowel, just consonants adjacent: treat as implicit union? In v5.4, adjacent consonants are not allowed without vowel.
-                        // So we push as separate primitive.
-                        result.steps.push({ type: 'consonant', letter: ch, meaning: consMeaning, note: 'no vowel between' });
-                        i += 1;
+                        // two consonants in a row without vowel -> treat as separate primitives (no operator)
+                        steps.push({ type: 'warning', msg: `No vowel between consonant ${cons.letter} and next token → treating as separate primitive.` });
+                        // Actually, we should just push the new consonant as a separate meaning? For simplicity, we reset.
+                        // Better: combine with implicit something? But spec says vowel required. So we break and start new.
+                        steps.push({ type: 'separate', cons: cons.letter, meaning: consText });
+                        currentMeaning = { text: consText, raw: `(${cons.letter}: ${consText})` };
+                        i++;
                     }
                 }
-                i += 1;
-            } else if (ch.match(/[AEIOU]/)) {
-                // vowel without preceding consonant? at start of word? treat as orphan.
-                result.steps.push({ type: 'vowel_initial', letter: ch, desc: 'vowel at start – ignored or as operator on empty? In theory, needs left consonant' });
-                i += 1;
             } else {
-                i += 1;
+                // unexpected vowel at start or after already processed
+                steps.push({ type: 'warning', msg: `Orphan vowel '${tokens[i].letter}' at start or misplaced → ignored.` });
+                i++;
             }
         }
-        result.finalMeaning = currentMeaning ? currentMeaning.meaningText : '(no valid CVC pattern)';
-        return result;
+        
+        return { steps, finalMeaning: currentMeaning ? currentMeaning.text : '(no valid consonant sequence)' };
     }
     
-    // Parse a sentence (split by spaces)
-    function parseSentence(sentence) {
-        let words = sentence.trim().split(/\s+/);
-        let results = [];
-        for (let w of words) {
-            if (w === "") continue;
-            // handle R* postfix: if word ends with R*, treat separately
-            if (w.endsWith('R*')) {
-                let base = w.slice(0, -2);
-                let baseResult = parseWord(base);
-                results.push({
-                    raw: w,
-                    type: 'repeat',
-                    base: base,
-                    repeatCount: 3,
-                    details: `🔁 Repeat "${base}" 3 times (or until K/X) – ${baseResult.breakdown || baseResult.finalMeaning}`
-                });
-            } else {
-                results.push(parseWord(w));
+    // Main render
+    function renderParse(word) {
+        if (!word.trim()) {
+            return '<span class="warning">Please enter a word.</span>';
+        }
+        const result = parseWord(word);
+        let html = `<div><strong>🔍 Parsing "${word}"</strong></div>`;
+        for (let step of result.steps) {
+            if (step.type === 'start') {
+                html += `<div class="step">🔹 Consonant <span class="cons">${step.cons}</span> → ${step.meaning}</div>`;
+            } else if (step.type === 'combine') {
+                html += `<div class="step">🔸 Vowel <span class="vow">${step.vowel}</span> (${step.opName}): combine left [${step.left}] + right [${step.right}]</div>`;
+            } else if (step.type === 'warning') {
+                html += `<div class="step warning">⚠️ ${step.msg}</div>`;
+            } else if (step.type === 'separate') {
+                html += `<div class="step">🔹 Separate consonant <span class="cons">${step.cons}</span> → ${step.meaning} (no operator)</div>`;
             }
         }
-        return results;
-    }
-    
-    // Render output
-    function renderParseResults(parsedWords) {
-        let html = '';
-        for (let p of parsedWords) {
-            html += `<div class="word-block">`;
-            html += `<div class="word-title">📌 ${p.raw || p.word}</div>`;
-            
-            if (p.type === 'atomic') {
-                html += `<div>${p.breakdown}</div>`;
-                html += `<div class="meaning">🎯 Meaning: ${JSON.stringify(p.meaning.attributes)} ${p.meaning.visual || ''}</div>`;
-            }
-            else if (p.type === 'compound') {
-                html += `<div>${p.breakdown}</div>`;
-                html += `<div class="meaning">🔗 Combined: left "${p.left}" ∪ right "${p.right}" → union attributes</div>`;
-            }
-            else if (p.type === 'cvc_sequence') {
-                html += `<div><strong>Letter‑by‑letter parse:</strong></div>`;
-                for (let step of p.steps) {
-                    let colorClass = (step.type === 'consonant') ? 'consonant' : 'vowel';
-                    html += `<span class="letter-box ${colorClass}">${step.letter}</span>`;
-                    if (step.meaning) html += `<span class="operator-desc"> → ${step.meaning}</span>`;
-                    if (step.operator) html += `<span class="operator-desc"> [${step.operator}: ${step.desc}]</span>`;
-                    html += `<br>`;
-                }
-                html += `<div class="meaning"><strong>📐 Combined semantic meaning:</strong> ${p.finalMeaning}</div>`;
-            }
-            else if (p.type === 'repeat') {
-                html += `<div>${p.details}</div>`;
-                html += `<div class="meaning">⚠️ Repetition yields multiple instances of the base meaning.</div>`;
-            }
-            else {
-                html += `<div>${JSON.stringify(p)}</div>`;
-            }
-            html += `</div><hr>`;
-        }
+        html += `<div class="final">📐 Final derived meaning: ${result.finalMeaning}</div>`;
         return html;
     }
     
-    // Main parse and display
-    function parseAndDisplay() {
-        let input = document.getElementById("wordInput").value;
-        if (!input.trim()) {
-            document.getElementById("outputArea").innerHTML = '<span style="color:#ff8888">Please enter a word or sentence.</span>';
-            return;
+    document.getElementById('parseBtn').addEventListener('click', () => {
+        let word = document.getElementById('wordInput').value.trim();
+        document.getElementById('output').innerHTML = renderParse(word);
+    });
+    document.getElementById('wordInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            let word = document.getElementById('wordInput').value.trim();
+            document.getElementById('output').innerHTML = renderParse(word);
         }
-        let parsed = parseSentence(input);
-        let html = renderParseResults(parsed);
-        document.getElementById("outputArea").innerHTML = html;
-    }
-    
-    document.getElementById("parseButton").addEventListener("click", parseAndDisplay);
-    document.getElementById("wordInput").addEventListener("keypress", function(e) {
-        if (e.key === 'Enter') parseAndDisplay();
     });
     
-    // Initial parse
-    parseAndDisplay();
+    // initial parse
+    document.getElementById('output').innerHTML = renderParse('cat');
 </script>
 </body>
 </html>
