@@ -43,12 +43,12 @@ body {
             color: #1e293b;
             border-bottom: 1px solid #e2e8f0;
         }
-.input-group {
+.column {
             display: flex;
             flex-direction: column;
             gap: 6px;
         }
-.input-group label {
+.column label {
             font-size: 0.7rem;
             font-weight: 600;
             text-transform: uppercase;
@@ -57,7 +57,7 @@ body {
 			text-align: right;
 			width: 100%;
         }
-input, select {
+column, select {
             padding: 8px 12px;
             border: 1px solid #cbd5e1;
             border-radius: 12px;
