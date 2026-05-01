@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>It_Spells</title>
+    <title>Forspeller</title>
 		<link rel="stylesheet" href="../css/style.css">
 		<meta charset="UTF-8> 
 		<meta name="description" content="Spells, Linguistics, Language">
@@ -161,47 +161,14 @@
 </head>
 <body>
 <div id="header-placeholder"></div>
-<h1>It Spells</h1>
+<h1>Forspeller</h1>
+	<p class="citation">Version 5.4</p>
+	<p>What if we look at letters as if they were atoms, carrying a specific mass and charge. Where consonants function as stable concepts, and vowals behave as dynamic operaters to com-bine them. Similary, different combinations would result in different outcomes.
+	This 'Forspeller' is based on the idea that words carry mass and explores the chemistry behind it. <a href=div_id="theory">It uses a given set of concepts per letter, and rules for parsing.</a> Both created after multiple testing, however, still in development.</p>
+	<p>Keep in mind that the meaning of a word, according to this speller, might differ from the meaning as we know it. The goal is not to fit the theory to the given meaning, rather to create a theory that potentialy unlocks a new way of looking at things.</p>
 <div class="container">
-  
-    <p>Every vowel is active: binary (C V C) or unary (C V).
-    Emotions / pronouns / "am" injection / W→UU toggle included.
-    Rate the result and save your own tangible meaning.</p>
-
-    <div class="flex">
-        <div class="toggle">
-            <input type="checkbox" id="replaceWCheckbox"> 🔄 Replace 'W' with 'UU' (double container)
-        </div>
-        <div class="toggle">
-            <input type="checkbox" id="infiniteRepeatCheckbox"> 🔁 Simulate R* as 3 repeats
-        </div>
-    </div>
-
     <input type="text" id="wordInput" placeholder="e.g., ANGER, RELEASE, EASE, BELIEVE, BEAUTY" value="RELEASE">
     <button id="parseBtn">🔍 Parse & Derive Meaning</button>
-
-    <div class="legend">
-        <div class="legend-col">
-            <h3>🔹 Consonants (primitives)</h3>
-            <div>A=action/initiate, B=barrier/bound, C=create, D=direction, E=exit/exterior, F=flow/force, G=gather/ground, H=hold/hide, I=inward/self, J=join, K=kinetic/cut, L=layer/level, M=motion, N=negation/not, O=orbit/cycle, P=push, Q=query, R=repeat/rotate, S=separate/split, T=terminus/tool, U=under/container, V=void, W=wave/water (or UU if toggled), X=cross/negation, Y=branch/why, Z=zero/null</div>
-        </div>
-        <div class="legend-col">
-            <h3>🔸 Vowel operators</h3>
-            <div><span class="vow">A</span> = binary: left initiates right ; unary: left initiates (action from left)</div>
-            <div><span class="vow">E</span> = binary: left exits to right ; unary: left exits (outward flow)</div>
-            <div><span class="vow">I</span> = binary: swap left & right ; unary: left becomes self‑referential (inward)</div>
-            <div><span class="vow">O</span> = binary: repeat left once, then right ; unary: repeat left once</div>
-            <div><span class="vow">U</span> = binary: unify left & right ; unary: left becomes container (reflexive)</div>
-            <div>Initial vowel acts on implicit <span class="cons">I</span> (self). No vowel is ignored.</div>
-        </div>
-        <div class="legend-col">
-            <h3>📌 Special rules</h3>
-            <div>• Emotions → implicit <span class="cons">I</span> prefix</div>
-            <div>• "am" before emotion → injects <span class="cons">M</span> (motion)</div>
-            <div>• Pronouns: I→<span class="cons">I</span>, YOU→<span class="cons">U</span>, HE/SHE/IT→<span class="cons">H</span></div>
-            <div>• Function words (a, an, the, is, are, be, of, to, for, and, or, but) → inert (quoted)</div>
-        </div>
-    </div>
 
     <div id="output" class="output">
         <!-- parsing results appear here -->
@@ -231,6 +198,40 @@
         <div id="savedEntriesList"></div>
     </div>
 </div>
+	    <div class="legend">
+        <div class="legend-col">
+            <h3>🔹 Consonants (primitives)</h3>
+            <div>A=action/initiate, B=barrier/bound, C=create, D=direction, E=exit/exterior, F=flow/force, G=gather/ground, H=hold/hide, I=inward/self, J=join, K=kinetic/cut, L=layer/level, M=motion, N=negation/not, O=orbit/cycle, P=push, Q=query, R=repeat/rotate, S=separate/split, T=terminus/tool, U=under/container, V=void, W=wave/water (or UU if toggled), X=cross/negation, Y=branch/why, Z=zero/null</div>
+        </div>
+        <div class="legend-col">
+            <h3>🔸 Vowel operators</h3>
+            <div><span class="vow">A</span> = binary: left initiates right ; unary: left initiates (action from left)</div>
+            <div><span class="vow">E</span> = binary: left exits to right ; unary: left exits (outward flow)</div>
+            <div><span class="vow">I</span> = binary: swap left & right ; unary: left becomes self‑referential (inward)</div>
+            <div><span class="vow">O</span> = binary: repeat left once, then right ; unary: repeat left once</div>
+            <div><span class="vow">U</span> = binary: unify left & right ; unary: left becomes container (reflexive)</div>
+            <div>Initial vowel acts on implicit <span class="cons">I</span> (self). No vowel is ignored.</div>
+        </div>
+			<div id="theory"></div>
+        <div class="legend-col">
+            <h3>📌 Special rules</h3>
+            <div>• Emotions → implicit <span class="cons">I</span> prefix</div>
+            <div>• "am" before emotion → injects <span class="cons">M</span> (motion)</div>
+            <div>• Pronouns: I→<span class="cons">I</span>, YOU→<span class="cons">U</span>, HE/SHE/IT→<span class="cons">H</span></div>
+            <div>• Function words (a, an, the, is, are, be, of, to, for, and, or, but) → inert (quoted)</div>
+			<br>
+			 <p>Every vowel is active: binary (C V C) or unary (C V).</p>
+        </div>
+		<p>Under evaluation: Check to see how they result in a slightly different view. Which one resonates better?</p>
+		   <div class="flex">
+        <div class="toggle">
+            <input type="checkbox" id="replaceWCheckbox"> 🔄 Simulate 'W' as 'UU'
+        </div>
+        <div class="toggle">
+            <input type="checkbox" id="infiniteRepeatCheckbox"> 🔁 Simulate R* as 3 repeats
+        </div>
+    </div>
+    </div>
 <div id="footer-placeholder"></div>
 <div id="banner-placeholder"></div>
 <script>
