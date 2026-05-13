@@ -70,15 +70,16 @@ h1 {
     border-bottom: 2px solid #333; /* line */
     margin-bottom: 0;
 }
-h2 {
+h2, h3 {
     text-align: center;
 }
 h3 {
 	font-weight: bold;
 }
-p, {
+p {
     text-align: center;
 }
+p3 {font-weight: bold;}
 
 button {
     background: #0a1c2f;
