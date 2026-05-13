@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>TITLE</title>
+		<link rel="stylesheet" href="../css/style.css">
+		<meta charset="UTF-8> 
+		<meta name="description" content="CONTENT">
+		<meta name="keywords" content="Bananas, Sporkinator, Cutlery, CONTENT"> 
+		<meta name="author" content="Muppet">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <style>
+    </style>
+</head>
+<body>
+  <div id="header-placeholder"></div>
+  <h1>TITLE</h1>
+  <div class="container">
+  </div>
+<div id="footer-placeholder"></div>
+<div id="banner-placeholder"></div>
+<script>
+	  // Load header, footer, banner
+    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
+    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
+    fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
+  </script>
+</body>
+</html>
