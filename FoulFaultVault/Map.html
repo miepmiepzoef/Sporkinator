@@ -9,8 +9,69 @@
 		<meta name="author" content="Muppet">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <style> 
-		hyphens: none;
-		white-space: no-wrap;
+		  .flex-row {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .controls {
+            flex: 1;
+            min-width: 250px;
+        }
+        .canvas-area {
+            flex: 2;
+            min-width: 500px;
+            text-align: center;
+        }
+        canvas {
+            background: #0a0f1a;
+            border-radius: 2rem;
+            width: 100%;
+            height: auto;
+            border: 2px solid #2a3a44;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+        input, button {
+            width: 100%;
+            padding: 0.8rem;
+            font-size: 1rem;
+            border-radius: 1rem;
+            border: none;
+            margin-bottom: 1rem;
+            background: #1e2a36;
+            color: #eef;
+            border: 1px solid #3a4a5a;
+        }
+        .meaning-box {
+            background: #0f161f;
+            border-radius: 1rem;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-size: 0.8rem;
+        }
+        .legend {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+            justify-content: center;
+        }
+        .legend span {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        .toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #1e2a36;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            margin-right: 1rem;
+        }
 	</style>
 </head>
 <body>
@@ -21,67 +82,31 @@
 		<h2>Off the charts</h2>
 	<p>This map compiles descriptions from Robert Monroe’s explorations, later Monroe Institute explorer materials, theosophical sources, and modern channeled accounts. It is offered as a reference, not a belief system.
 	</p></div><br>
-<p3>FOCUS LEVELS</p3> (addresses in consciousness)
-<p>FOCUS 10: Mind awake, body asleep. Deep physical relaxation with alert awareness.
-	<br>The entry state for non‑physical exploration. (Monroe)
-<br>FOCUS 12: Expanded awareness beyond the body.
-	<br>Gateway for receiving information, problem‑solving, and remote viewing. (Monroe)
-<br>FOCUS 15: No time / no space.
-	<br>Access to universal knowledge; psi phenomena become effortless. (Monroe)
-<br>FOCUS 21: The edge of time/space. 
-	<br>Bridge to other dimensions; access to information outside linear time. (Monroe)
-<br>FOCUS 22: Chaotic, unstructured zone. 
-	<br>Described as where consciousness goes under influence of drugs, alcohol, anesthesia, or severe disorientation (coma, dementia). 
-	Not a structured plane. (Monroe)
-<br>FOCUS 23: The Stuck Zone.
-	<br>Souls recently deceased but unaware of death, obsessed with earthly attachments, can remain trapped. (Monroe)
-<br>FOCUS 24-26: Belief System Territories.
-	<br>Self‑created realities formed by shared religious or ideological beliefs. Inhabitants group by like conviction. Function as consensus‑based environments. (Monroe Institute explorer synthesis)
-<br>FOCUS 27: The Park.
-	<br>Described as an artificial reception center created by human minds to ease the trauma of death. A transitional waiting area. (Monroe)
-<br>FOCUS 34/35: The Council / The Gathering. 
-	<br>Location associated with non-physical intelligences said to observe Earth. Nature and intent ambiguous. (Post‑Monroe channeled material)
-</p><br>
-<p3>THE SEVEN PLANES</p3> (Theosophical model, reinterpreted by later esoteric sources)
-<p>PHYSICAL PLANE: Dense matter. Where embodied life occurs.
-<br>ASTRAL PLANE: Interpenetrates the physical. Divided into seven sub-layers. Heavily influenced by thought‑forms and described as partially artificial or manipulated.
-<br>MENTAL PLANE: Higher thought‑forms. Used for programming and implant insertion. 
-	<br>(according to some accounts)
-<br>BUDDHIC PLANE: Intuitional. Access said to require clearing certain psychological patterns 
-	<br>(e.g., victim‑victimizer dynamic).
-<br>ATMIC PLANE: Spiritual will. Often described as blocked by artificial grids.
-<br>ANUPADAKA PLANE: Monadic. Pure being.
-<br>ADI PLANE: Divine. The "outside" of the matrix.
-</p><br>
-<p3>ENGINEERED INFRASTRUCTURE</p3> (as described in modern esoteric narratives)
-<p>REVERSAL 55 GRID: Artificial construct based on Fibonacci mathematics. Spins at 55/53 (compared to natural merkaba 33⅓ / 11⅔). Said to be unstable and on a finite timeline.
-<br>FALSE ASCENSION MATRIX: Inorganic technology installed into astral plane. Purported to force reincarnation via a "false white light" tunnel. All afterlife reception centers (including Focus 27) are understood by some accounts to be subsystems within this matrix, not exits from it.
-<br>VICTIM-VICTIMIZER SOFTWARE: Psychological operating system; cycles between powerlessness and domination. Generates emotional energy (fear, hatred) harvestable by certain entities.
-<br>ALIEN IMPLANTS: Crystalline or technological devices placed in energy body, often during childhood. Reported to anchor mind control and distort perception.
-<br>BELIEF SYSTEM TRAPS: Consensus hallucinations that become self-sustaining. Belief in a specific heaven causes one to go there after death and remain until reincarnated.
-</p><br>
-<p3>ACCESS METHODS</p3>
-<p>SOBER (e.g., Monroe audio / Hemi-Sync): Controlled, intentional navigation to known addresses. User retains ability to refuse "false light" or deceptive entities. Requires training and practice.
-<br>SUBSTANCE-INDUCED (e.g., DMT, LSD, ketamine): Often described as uncontrolled entry into Focus 22. No map or protection; encounters may be chaotic or deceptive. Consent is considered uninformed because the user does not know the nature of the destination. 
-	<br>(Mapping drug states specifically to Focus 22 is a later interpolation, not directly from Monroe.) 
-<br>RITUAL SUBSTANCE USE (e.g., ayahuasca with shamanic framework): Intermediate case. Ritual provides some structure, but portals may still be opened unintentionally. 
-</p><br>
-<p3>ORIGINAL (NON-ARTIFICIAL) BLUEPRINTS</p3>
-<p>DRAGON GRID (Krystal Spiral): Organic geometry (45-degree tri-tone wave). Runs on Base-12 mathematics. Sustains itself from Zero Point (Source energy). Described as the original template before hijacking.
-<br>ZERO POINT FIELD: The aspect of consciousness that was never inside any artificial matrix. Accessible by revoking all contracts and agreements.
-<br>LOCALE III (Monroe): Beyond Focus levels. Described by Monroe as another reality system outside standard focus training. Later sources have associated it with beings such as "Orion dissenters" or "Dragon people".
-	<br>(This is a synthesis, not original to Monroe.)
-</p>
-<div class="container">
-<h3>NOTES ON NAVIGATION</h3>
-<p>Explicit, informed consent revocation is required to exit the reincarnation loop according to some accounts. 
-<br>Fibonacci-based layers are described as designed to collapse; the collapse is reportedly in progress.
-<br>Belief systems create real planes – but those planes are described by some as artificial consensus traps. 
-<br>Before entering any "light", one may ask:
-	<br<em>Does this light come from my own source, or from an external system?</em>
-<p>This map is descriptive, not prescriptive. Verification is left to the individual through practice.
-<br><small>Last Updated: 14 May 2026</small></p>
-  </div>
+<div class="flex-row">
+        <div class="controls">
+            <div class="toggle">
+                <input type="checkbox" id="replaceWCheckbox"> 🔄 Replace 'W' with 'UU'
+            </div>
+            <input type="text" id="wordInput" placeholder="e.g., TRUTH, LIE, STORY, WISDOM" value="TRUTH">
+            <button id="parseBtn">✨ Parse & Animate</button>
+            <div class="meaning-box" id="meaningBox">
+                <strong>📐 Formal meaning:</strong><br>
+                <span id="formalMeaning">—</span><br>
+                <strong>💡 Tangible:</strong><br>
+                <span id="tangibleMeaning">—</span>
+            </div>
+            <div class="legend">
+                <div><span style="background: #88ddff;"></span> Consonant (primitive)</div>
+                <div><span style="background: #ffaa88;"></span> Vowel operator (edge)</div>
+                <div><span style="background: #ff6666;"></span> Exit particle</div>
+                <div><span style="background: #f9a826;"></span> Self‑circle / loop</div>
+                <div><span style="background: #aaaaff;"></span> Holder shell (H)</div>
+            </div>
+        </div>
+        <div class="canvas-area">
+            <canvas id="storyCanvas" width="600" height="600" style="width:100%; max-width:600px; height:auto; background:#0a0f1a;"></canvas>
+        </div>
+    </div>
 <div id="footer-placeholder"></div>
 <div id="banner-placeholder"></div>
 <script>
@@ -89,6 +114,325 @@
     fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
+
+	  const primitiveMeanings = {
+        'A': 'action/initiate', 'B': 'barrier/bound', 'C': 'create', 'D': 'direction/vector',
+        'E': 'exit/exterior', 'F': 'flow/force', 'G': 'gather/ground', 'H': 'hold/hide',
+        'I': 'inward/self', 'J': 'join/connect', 'K': 'kinetic/cut', 'L': 'layer/level',
+        'M': 'motion/mass', 'N': 'negation/not', 'O': 'orbit/cycle', 'P': 'push/pressure',
+        'Q': 'query/quest', 'R': 'repeat/rotate', 'S': 'separate/split', 'T': 'terminus/tool',
+        'U': 'under/container', 'V': 'void/empty', 'W': 'wave/water', 'X': 'cross/negation',
+        'Y': 'branch/why', 'Z': 'zero/null'
+    };
+    const vowelOps = {
+        'A': { name: 'INITIATES', binary: (L,R) => `${L} initiates ${R}`, unary: (L) => `${L} initiates (action)` },
+        'E': { name: 'EXITS TO', binary: (L,R) => `${L} exits to ${R}`, unary: (L) => `${L} exits outward` },
+        'I': { name: 'SWAPS', binary: (L,R) => `${R} then ${L}`, unary: (L) => `${L} becomes self (inward)` },
+        'O': { name: 'REPEAT-LEFT-ONCE', binary: (L,R) => `(${L}) then (${L}) then ${R}`, unary: (L) => `${L} repeats once` },
+        'U': { name: 'UNIFIES', binary: (L,R) => `unify(${L}, ${R})`, unary: (L) => `${L} becomes container (reflexive)` }
+    };
+    const emotionWords = new Set(['ANGER','SAD','FEAR','LOVE','JOY','GRIEF','HATE','ANGRY','HAPPY','SORROW','PANIC','CALM','HOPE','BEAUTY','WISDOM']);
+    const functionWords = new Set(['A','AN','THE','OF','TO','FOR','AND','OR','BUT','SO','IS','ARE','WERE','BE','BEEN','AM']);
+    const pronouns = { 'I':'I', 'YOU':'U', 'HE':'H', 'SHE':'H', 'IT':'H' };
+
+    // Graph building: nodes, edges, flags
+    let graph = { nodes: [], edges: [], hasExit: false, hasHolder: false, hasSelfCircle: false, hasUnaryLoop: false };
+
+    function resetGraph() {
+        graph = { nodes: [], edges: [], hasExit: false, hasHolder: false, hasSelfCircle: false, hasUnaryLoop: false };
+    }
+
+    function addNode(id, label, type='cons') {
+        if (!graph.nodes.find(n => n.id === id)) {
+            graph.nodes.push({ id, label, type });
+        }
+        if (label === 'H') graph.hasHolder = true;
+        return id;
+    }
+
+    function addEdge(from, to, operator, isUnary=false) {
+        graph.edges.push({ from, to, operator, isUnary });
+        if (operator === 'U' && from === to) graph.hasSelfCircle = true;
+        if (isUnary && operator === 'I') graph.hasSelfCircle = true; // unary I makes self-referential
+    }
+
+    function addExitFlag() { graph.hasExit = true; }
+
+    // Modified parse that builds graph while generating meaning
+    function parseStringWithGraph(str, logSteps = false) {
+        let letters = str.toUpperCase().split('');
+        let currentExpr = null;
+        let nodeCounter = 0;
+        let lastNodeId = null;
+        let exitFlagAttached = false;
+
+        function getNodeId(label) {
+            // find existing node with same label? For simplicity, create new each time (keeps structure)
+            let id = `n${nodeCounter++}`;
+            addNode(id, label);
+            return id;
+        }
+
+        function applyBinary(vowel, leftNodeId, rightLabel) {
+            let rightNodeId = getNodeId(rightLabel);
+            addEdge(leftNodeId, rightNodeId, vowel);
+            return rightNodeId; // new current node is the result (right side)
+        }
+
+        function applyUnary(vowel, nodeId) {
+            // create a self-loop edge or mark property
+            addEdge(nodeId, nodeId, vowel, true);
+            if (vowel === 'I') graph.hasSelfCircle = true;
+            return nodeId;
+        }
+
+        let i = 0;
+        while (i < letters.length) {
+            let ch = letters[i];
+            if (ch.match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) { // consonant
+                let consLabel = ch;
+                let nodeId = getNodeId(consLabel);
+                if (lastNodeId === null) {
+                    lastNodeId = nodeId;
+                } else {
+                    // consecutive consonant: implicit UNION (undirected edge)
+                    addEdge(lastNodeId, nodeId, 'UNION');
+                    lastNodeId = nodeId;
+                }
+                i++;
+            } else if (ch.match(/[AEIOU]/)) { // vowel
+                if (lastNodeId === null) {
+                    // initial vowel: treat as unary on implicit self? For simplicity, create a dummy "I" node
+                    let selfNode = getNodeId('I');
+                    lastNodeId = applyUnary(ch, selfNode);
+                } else {
+                    // look ahead for next consonant for binary, else unary
+                    if (i+1 < letters.length && letters[i+1].match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
+                        let nextCons = letters[i+1];
+                        lastNodeId = applyBinary(ch, lastNodeId, nextCons);
+                        i++; // skip the consumed consonant
+                    } else {
+                        lastNodeId = applyUnary(ch, lastNodeId);
+                    }
+                }
+                i++;
+            } else {
+                i++;
+            }
+        }
+        if (lastNodeId && letters.length > 0 && letters[letters.length-1].match(/[AEIOU]/)) {
+            // final vowel already handled as unary, but we mark exit flag
+            addExitFlag();
+        }
+        return { formalMeaning: '(graph built)', tangible: '(see animation)' };
+    }
+
+    // Preprocess (same as before)
+    function preprocessWord(word, replaceW, prevWasAm) {
+        let upper = word.toUpperCase();
+        if (pronouns[upper]) return { processed: pronouns[upper], log: `Pronoun → ${pronouns[upper]}`, injectM: false };
+        if (functionWords.has(upper)) {
+            if (upper === 'AM') return { processed: null, log: `am → inject M`, injectM: true };
+            return { processed: null, log: `Function word ignored`, injectM: false };
+        }
+        let isEmotion = emotionWords.has(upper);
+        let prefix = isEmotion ? 'I' : '';
+        let processedWord = upper;
+        if (replaceW) processedWord = processedWord.replace(/W/g, 'UU');
+        let full = prefix + processedWord;
+        return { processed: full, log: isEmotion ? 'Emotion → I prefix' : '', injectM: false };
+    }
+
+    function parseSentence(sentence, replaceW) {
+        let words = sentence.trim().toUpperCase().split(/\s+/);
+        let previousWasAm = false;
+        let fullParsedString = '';
+        for (let w of words) {
+            let pre = preprocessWord(w, replaceW, previousWasAm);
+            if (pre.injectM) {
+                previousWasAm = true;
+                continue;
+            }
+            let injectM = previousWasAm;
+            previousWasAm = false;
+            let wordToParse = pre.processed;
+            if (!wordToParse) continue;
+            if (injectM && emotionWords.has(w.toUpperCase())) {
+                wordToParse = 'M' + wordToParse;
+            }
+            fullParsedString += wordToParse;
+        }
+        resetGraph();
+        parseStringWithGraph(fullParsedString);
+        // simple tangible meaning from presence of flags
+        let tangible = '';
+        if (graph.hasSelfCircle) tangible += 'self‑circle, ';
+        if (graph.hasHolder) tangible += 'held, ';
+        if (graph.hasExit) tangible += 'outward flow, ';
+        tangible = tangible || 'no strong features';
+        return { formalMeaning: `${graph.nodes.length} primitives, ${graph.edges.length} relations`, tangibleMeaning: tangible, graph: graph };
+    }
+
+    // --------------------------------------------------------------
+    // Animation & Canvas Drawing
+    // --------------------------------------------------------------
+    let animationId = null;
+    let angle = 0;
+    let particles = [];
+
+    function drawGraph(ctx, width, height, graph, angleOffset) {
+        ctx.clearRect(0, 0, width, height);
+        let centerX = width/2, centerY = height/2;
+        let radius = Math.min(width, height) * 0.3;
+        let nodes = graph.nodes;
+        if (nodes.length === 0) {
+            ctx.fillStyle = '#aaa';
+            ctx.font = '16px monospace';
+            ctx.fillText("No graph generated", width/2-80, height/2);
+            return;
+        }
+        // position nodes on a circle
+        let positions = nodes.map((_, idx) => {
+            let rad = angleOffset + (idx / nodes.length) * Math.PI * 2;
+            return {
+                x: centerX + radius * Math.cos(rad),
+                y: centerY + radius * Math.sin(rad)
+            };
+        });
+        // draw edges
+        ctx.lineWidth = 2;
+        for (let edge of graph.edges) {
+            let fromIdx = nodes.findIndex(n => n.id === edge.from);
+            let toIdx = nodes.findIndex(n => n.id === edge.to);
+            if (fromIdx === -1 || toIdx === -1) continue;
+            let fromPos = positions[fromIdx];
+            let toPos = positions[toIdx];
+            ctx.beginPath();
+            if (edge.from === edge.to) {
+                // self-loop: draw a small arc near the node
+                let rad = angleOffset + (fromIdx / nodes.length) * Math.PI * 2;
+                let loopRadius = radius * 0.3;
+                let cx = fromPos.x + loopRadius * Math.cos(rad + 0.8);
+                let cy = fromPos.y + loopRadius * Math.sin(rad + 0.8);
+                ctx.arc(cx, cy, loopRadius, rad, rad + Math.PI * 1.5);
+                ctx.strokeStyle = '#f9a826';
+                ctx.setLineDash([5, 5]);
+            } else {
+                ctx.moveTo(fromPos.x, fromPos.y);
+                ctx.lineTo(toPos.x, toPos.y);
+                ctx.strokeStyle = edge.operator === 'UNION' ? '#88aaff' : '#ffaa88';
+                ctx.setLineDash([]);
+            }
+            ctx.stroke();
+            // draw operator label near middle
+            if (edge.operator && edge.operator !== 'UNION') {
+                let midX = (fromPos.x + toPos.x)/2;
+                let midY = (fromPos.y + toPos.y)/2;
+                ctx.fillStyle = '#ffaa88';
+                ctx.font = '12px monospace';
+                ctx.fillText(edge.operator, midX-5, midY-5);
+            }
+        }
+        // draw nodes
+        for (let i = 0; i < nodes.length; i++) {
+            let pos = positions[i];
+            let node = nodes[i];
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, 18, 0, 2*Math.PI);
+            ctx.fillStyle = node.type === 'cons' ? '#2a4a6a' : '#4a3a2a';
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+            ctx.fillStyle = '#eef';
+            ctx.font = 'bold 14px monospace';
+            ctx.fillText(node.label, pos.x-6, pos.y+5);
+            // if holder and self-circle, draw shell
+            if (graph.hasHolder && (graph.hasSelfCircle || node.label === 'H')) {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 28, 0, 2*Math.PI);
+                ctx.strokeStyle = '#aaaaff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 6]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+        // draw exit particles
+        if (graph.hasExit) {
+            for (let p of particles) {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, 4, 0, 2*Math.PI);
+                ctx.fillStyle = '#ff6666';
+                ctx.fill();
+            }
+        }
+    }
+
+    function animate(canvas, graph) {
+        const ctx = canvas.getContext('2d');
+        const width = canvas.width, height = canvas.height;
+        let lastTimestamp = 0;
+        function step(timestamp) {
+            if (!graph) return;
+            angle += 0.005;
+            // update particles
+            if (graph.hasExit) {
+                if (particles.length < 30 && Math.random() < 0.3) {
+                    particles.push({
+                        x: width/2 + (Math.random() - 0.5)*200,
+                        y: height/2 + (Math.random() - 0.5)*200,
+                        vx: (Math.random() - 0.5)*2,
+                        vy: (Math.random() - 0.5)*2 - 1,
+                        life: 1.0
+                    });
+                }
+                for (let i=0; i<particles.length; i++) {
+                    particles[i].x += particles[i].vx;
+                    particles[i].y += particles[i].vy;
+                    particles[i].life -= 0.01;
+                    if (particles[i].life <= 0 || particles[i].x < 0 || particles[i].x > width || particles[i].y < 0 || particles[i].y > height) {
+                        particles.splice(i,1);
+                        i--;
+                    }
+                }
+            } else {
+                particles = [];
+            }
+            drawGraph(ctx, width, height, graph, angle);
+            requestAnimationFrame(step);
+        }
+        if (animationId) cancelAnimationFrame(animationId);
+        animationId = requestAnimationFrame(step);
+    }
+
+    // --------------------------------------------------------------
+    // UI Integration
+    // --------------------------------------------------------------
+    const wordInput = document.getElementById('wordInput');
+    const parseBtn = document.getElementById('parseBtn');
+    const replaceWCheck = document.getElementById('replaceWCheckbox');
+    const formalSpan = document.getElementById('formalMeaning');
+    const tangibleSpan = document.getElementById('tangibleMeaning');
+    const canvas = document.getElementById('storyCanvas');
+
+    function update() {
+        let sentence = wordInput.value.trim();
+        if (!sentence) return;
+        let replaceW = replaceWCheck.checked;
+        let result = parseSentence(sentence, replaceW);
+        formalSpan.innerText = result.formalMeaning;
+        tangibleSpan.innerText = result.tangibleMeaning;
+        // restart animation with new graph
+        if (animationId) cancelAnimationFrame(animationId);
+        particles = [];
+        angle = 0;
+        animate(canvas, result.graph);
+    }
+
+    parseBtn.addEventListener('click', update);
+    wordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') update(); });
+    update();
   </script>
 </body>
 </html>
