@@ -114,7 +114,10 @@
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
-	  const primitiveMeanings = {
+  // --------------------------------------------------------------
+    // v5.3 Parser with Enhanced Drawing
+    // --------------------------------------------------------------
+    const primitiveMeanings = {
         'A': 'action/initiate', 'B': 'barrier/bound', 'C': 'create', 'D': 'direction/vector',
         'E': 'exit/exterior', 'F': 'flow/force', 'G': 'gather/ground', 'H': 'hold/hide',
         'I': 'inward/self', 'J': 'join/connect', 'K': 'kinetic/cut', 'L': 'layer/level',
@@ -134,13 +137,11 @@
     const functionWords = new Set(['A','AN','THE','OF','TO','FOR','AND','OR','BUT','SO','IS','ARE','WERE','BE','BEEN','AM']);
     const pronouns = { 'I':'I', 'YOU':'U', 'HE':'H', 'SHE':'H', 'IT':'H' };
 
-    // Graph building: nodes, edges, flags
-    let graph = { nodes: [], edges: [], hasExit: false, hasHolder: false, hasSelfCircle: false, hasUnaryLoop: false };
+    let graph = { nodes: [], edges: [], hasExit: false, hasHolder: false, hasSelfCircle: false, selfCircleNodeId: null };
 
     function resetGraph() {
-        graph = { nodes: [], edges: [], hasExit: false, hasHolder: false, hasSelfCircle: false, hasUnaryLoop: false };
+        graph = { nodes: [], edges: [], hasExit: false, hasHolder: false, hasSelfCircle: false, selfCircleNodeId: null };
     }
-
     function addNode(id, label, type='cons') {
         if (!graph.nodes.find(n => n.id === id)) {
             graph.nodes.push({ id, label, type });
@@ -148,68 +149,57 @@
         if (label === 'H') graph.hasHolder = true;
         return id;
     }
-
     function addEdge(from, to, operator, isUnary=false) {
         graph.edges.push({ from, to, operator, isUnary });
-        if (operator === 'U' && from === to) graph.hasSelfCircle = true;
-        if (isUnary && operator === 'I') graph.hasSelfCircle = true; // unary I makes self-referential
+        if ((operator === 'U' && from === to) || (isUnary && operator === 'I')) {
+            graph.hasSelfCircle = true;
+            graph.selfCircleNodeId = from; // node that has the self-loop
+        }
+        return;
     }
-
     function addExitFlag() { graph.hasExit = true; }
 
-    // Modified parse that builds graph while generating meaning
-    function parseStringWithGraph(str, logSteps = false) {
+    function parseStringWithGraph(str) {
         let letters = str.toUpperCase().split('');
-        let currentExpr = null;
         let nodeCounter = 0;
         let lastNodeId = null;
-        let exitFlagAttached = false;
 
         function getNodeId(label) {
-            // find existing node with same label? For simplicity, create new each time (keeps structure)
             let id = `n${nodeCounter++}`;
             addNode(id, label);
             return id;
         }
-
         function applyBinary(vowel, leftNodeId, rightLabel) {
             let rightNodeId = getNodeId(rightLabel);
             addEdge(leftNodeId, rightNodeId, vowel);
-            return rightNodeId; // new current node is the result (right side)
+            return rightNodeId;
         }
-
         function applyUnary(vowel, nodeId) {
-            // create a self-loop edge or mark property
             addEdge(nodeId, nodeId, vowel, true);
-            if (vowel === 'I') graph.hasSelfCircle = true;
             return nodeId;
         }
 
         let i = 0;
         while (i < letters.length) {
             let ch = letters[i];
-            if (ch.match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) { // consonant
-                let consLabel = ch;
-                let nodeId = getNodeId(consLabel);
+            if (ch.match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
+                let nodeId = getNodeId(ch);
                 if (lastNodeId === null) {
                     lastNodeId = nodeId;
                 } else {
-                    // consecutive consonant: implicit UNION (undirected edge)
                     addEdge(lastNodeId, nodeId, 'UNION');
                     lastNodeId = nodeId;
                 }
                 i++;
-            } else if (ch.match(/[AEIOU]/)) { // vowel
+            } else if (ch.match(/[AEIOU]/)) {
                 if (lastNodeId === null) {
-                    // initial vowel: treat as unary on implicit self? For simplicity, create a dummy "I" node
                     let selfNode = getNodeId('I');
                     lastNodeId = applyUnary(ch, selfNode);
                 } else {
-                    // look ahead for next consonant for binary, else unary
                     if (i+1 < letters.length && letters[i+1].match(/[BCDFGHJKLMNPQRSTVWXYZ]/)) {
                         let nextCons = letters[i+1];
                         lastNodeId = applyBinary(ch, lastNodeId, nextCons);
-                        i++; // skip the consumed consonant
+                        i++;
                     } else {
                         lastNodeId = applyUnary(ch, lastNodeId);
                     }
@@ -219,27 +209,24 @@
                 i++;
             }
         }
-        if (lastNodeId && letters.length > 0 && letters[letters.length-1].match(/[AEIOU]/)) {
-            // final vowel already handled as unary, but we mark exit flag
+        if (letters.length > 0 && letters[letters.length-1].match(/[AEIOU]/)) {
             addExitFlag();
         }
-        return { formalMeaning: '(graph built)', tangible: '(see animation)' };
     }
 
-    // Preprocess (same as before)
     function preprocessWord(word, replaceW, prevWasAm) {
         let upper = word.toUpperCase();
-        if (pronouns[upper]) return { processed: pronouns[upper], log: `Pronoun → ${pronouns[upper]}`, injectM: false };
+        if (pronouns[upper]) return { processed: pronouns[upper], injectM: false };
         if (functionWords.has(upper)) {
-            if (upper === 'AM') return { processed: null, log: `am → inject M`, injectM: true };
-            return { processed: null, log: `Function word ignored`, injectM: false };
+            if (upper === 'AM') return { processed: null, injectM: true };
+            return { processed: null, injectM: false };
         }
         let isEmotion = emotionWords.has(upper);
         let prefix = isEmotion ? 'I' : '';
         let processedWord = upper;
         if (replaceW) processedWord = processedWord.replace(/W/g, 'UU');
         let full = prefix + processedWord;
-        return { processed: full, log: isEmotion ? 'Emotion → I prefix' : '', injectM: false };
+        return { processed: full, injectM: false };
     }
 
     function parseSentence(sentence, replaceW) {
@@ -263,7 +250,6 @@
         }
         resetGraph();
         parseStringWithGraph(fullParsedString);
-        // simple tangible meaning from presence of flags
         let tangible = '';
         if (graph.hasSelfCircle) tangible += 'self‑circle, ';
         if (graph.hasHolder) tangible += 'held, ';
@@ -273,7 +259,7 @@
     }
 
     // --------------------------------------------------------------
-    // Animation & Canvas Drawing
+    // Animation & Drawing 
     // --------------------------------------------------------------
     let animationId = null;
     let angle = 0;
@@ -290,6 +276,7 @@
             ctx.fillText("No graph generated", width/2-80, height/2);
             return;
         }
+
         // position nodes on a circle
         let positions = nodes.map((_, idx) => {
             let rad = angleOffset + (idx / nodes.length) * Math.PI * 2;
@@ -298,7 +285,8 @@
                 y: centerY + radius * Math.sin(rad)
             };
         });
-        // draw edges
+
+        // 1) Draw edges
         ctx.lineWidth = 2;
         for (let edge of graph.edges) {
             let fromIdx = nodes.findIndex(n => n.id === edge.from);
@@ -308,7 +296,7 @@
             let toPos = positions[toIdx];
             ctx.beginPath();
             if (edge.from === edge.to) {
-                // self-loop: draw a small arc near the node
+                // self-loop: arc near the node
                 let rad = angleOffset + (fromIdx / nodes.length) * Math.PI * 2;
                 let loopRadius = radius * 0.3;
                 let cx = fromPos.x + loopRadius * Math.cos(rad + 0.8);
@@ -323,7 +311,6 @@
                 ctx.setLineDash([]);
             }
             ctx.stroke();
-            // draw operator label near middle
             if (edge.operator && edge.operator !== 'UNION') {
                 let midX = (fromPos.x + toPos.x)/2;
                 let midY = (fromPos.y + toPos.y)/2;
@@ -332,32 +319,74 @@
                 ctx.fillText(edge.operator, midX-5, midY-5);
             }
         }
-        // draw nodes
-        for (let i = 0; i < nodes.length; i++) {
-            let pos = positions[i];
-            let node = nodes[i];
-            ctx.beginPath();
-            ctx.arc(pos.x, pos.y, 18, 0, 2*Math.PI);
-            ctx.fillStyle = node.type === 'cons' ? '#2a4a6a' : '#4a3a2a';
-            ctx.fill();
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-            ctx.fillStyle = '#eef';
-            ctx.font = 'bold 14px monospace';
-            ctx.fillText(node.label, pos.x-6, pos.y+5);
-            // if holder and self-circle, draw shell
-            if (graph.hasHolder && (graph.hasSelfCircle || node.label === 'H')) {
+
+        // 2) Draw dotted line from holder (H) to self‑circle node (if both exist)
+        if (graph.hasHolder && graph.hasSelfCircle && graph.selfCircleNodeId) {
+            let holderIdx = nodes.findIndex(n => n.label === 'H');
+            let circleIdx = nodes.findIndex(n => n.id === graph.selfCircleNodeId);
+            if (holderIdx !== -1 && circleIdx !== -1) {
+                let fromPos = positions[holderIdx];
+                let toPos = positions[circleIdx];
                 ctx.beginPath();
-                ctx.arc(pos.x, pos.y, 28, 0, 2*Math.PI);
-                ctx.strokeStyle = '#aaaaff';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([4, 6]);
+                ctx.moveTo(fromPos.x, fromPos.y);
+                ctx.lineTo(toPos.x, toPos.y);
+                ctx.strokeStyle = '#cc88ff';
+                ctx.setLineDash([8, 6]);
+                ctx.lineWidth = 2.5;
                 ctx.stroke();
                 ctx.setLineDash([]);
             }
         }
-        // draw exit particles
+
+        // 3) Draw nodes with shapes: square for T, double circle for U, circle otherwise
+        for (let i = 0; i < nodes.length; i++) {
+            let pos = positions[i];
+            let node = nodes[i];
+            ctx.beginPath();
+            if (node.label === 'T') {
+                // square for terminus
+                ctx.rect(pos.x-14, pos.y-14, 28, 28);
+                ctx.fillStyle = '#4a2a6a';
+            } else {
+                ctx.arc(pos.x, pos.y, 18, 0, 2*Math.PI);
+                ctx.fillStyle = node.label === 'U' ? '#3a5a3a' : '#2a4a6a';
+            }
+            ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            if (node.label === 'U') {
+                // double border for container
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 22, 0, 2*Math.PI);
+                ctx.strokeStyle = '#aaffaa';
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 18, 0, 2*Math.PI);
+                ctx.fillStyle = '#3a5a3a';
+                ctx.fill();
+                ctx.strokeStyle = '#aaffaa';
+                ctx.stroke();
+            } else {
+                ctx.stroke();
+            }
+            ctx.fillStyle = '#eef';
+            ctx.font = 'bold 14px monospace';
+            ctx.fillText(node.label, pos.x-6, pos.y+5);
+
+            // holder shell (dashed outer ring) if H
+            if (node.label === 'H') {
+                ctx.beginPath();
+                ctx.arc(pos.x, pos.y, 30, 0, 2*Math.PI);
+                ctx.strokeStyle = '#aaaaff';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([4, 8]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+        }
+
+        // 4) Exit particles (unchanged)
         if (graph.hasExit) {
             for (let p of particles) {
                 ctx.beginPath();
@@ -374,8 +403,9 @@
         let lastTimestamp = 0;
         function step(timestamp) {
             if (!graph) return;
+            // slower rotation: 0.001 per frame (was 0.005)
             angle += 0.001;
-            // update particles
+            // update exit particles
             if (graph.hasExit) {
                 if (particles.length < 30 && Math.random() < 0.3) {
                     particles.push({
@@ -406,7 +436,7 @@
     }
 
     // --------------------------------------------------------------
-    // UI Integration
+    // UI Integration (with toggle auto‑refresh)
     // --------------------------------------------------------------
     const wordInput = document.getElementById('wordInput');
     const parseBtn = document.getElementById('parseBtn');
@@ -422,7 +452,6 @@
         let result = parseSentence(sentence, replaceW);
         formalSpan.innerText = result.formalMeaning;
         tangibleSpan.innerText = result.tangibleMeaning;
-        // restart animation with new graph
         if (animationId) cancelAnimationFrame(animationId);
         particles = [];
         angle = 0;
@@ -430,6 +459,7 @@
     }
 
     parseBtn.addEventListener('click', update);
+    replaceWCheck.addEventListener('change', update); // auto‑refresh on toggle
     wordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') update(); });
     update();
   </script>
