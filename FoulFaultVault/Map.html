@@ -38,12 +38,12 @@
             border-radius: 1rem;
             border: none;
             margin-bottom: 1rem;
-            background: #1e2a36;
+           /* background: #1e2a36;*/
             color: #eef;
             border: 1px solid #3a4a5a;
         }
         .meaning-box {
-            background: #0f161f;
+           /* background: #0f161f;*/
             border-radius: 1rem;
             padding: 1rem;
             margin-top: 1rem;
@@ -84,7 +84,7 @@
 <div class="flex-row">
         <div class="controls">
             <div class="toggle">
-                <input type="checkbox" id="replaceWCheckbox"> 🔄 Replace 'W' with 'UU'
+                <input type="checkbox" id="replaceWCheckbox">Replace 'W' with 'UU'
             </div>
             <input type="text" id="wordInput" placeholder="e.g., TRUTH, LIE, STORY, WISDOM" value="TRUTH">
             <button id="parseBtn">✨ Parse & Animate</button>
@@ -386,7 +386,7 @@
             }
         }
 
-        // 4) Exit particles (unchanged)
+        // 4) Exit particles 
         if (graph.hasExit) {
             for (let p of particles) {
                 ctx.beginPath();
@@ -403,8 +403,7 @@
         let lastTimestamp = 0;
         function step(timestamp) {
             if (!graph) return;
-            // slower rotation: 0.001 per frame (was 0.005)
-            angle += 0.001;
+            angle += 0.0008;
             // update exit particles
             if (graph.hasExit) {
                 if (particles.length < 30 && Math.random() < 0.3) {
