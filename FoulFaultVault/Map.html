@@ -67,7 +67,6 @@
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: #1e2a36;
             padding: 0.3rem 0.8rem;
             border-radius: 2rem;
             margin-right: 1rem;
@@ -375,7 +374,7 @@
         let lastTimestamp = 0;
         function step(timestamp) {
             if (!graph) return;
-            angle += 0.005;
+            angle += 0.001;
             // update particles
             if (graph.hasExit) {
                 if (particles.length < 30 && Math.random() < 0.3) {
