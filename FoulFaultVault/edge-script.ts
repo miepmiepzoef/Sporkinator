@@ -42,7 +42,7 @@ BunnySDK.net.http.serve(async (request: Request): Promise<Response> => {
   if (path === "/gemini" && request.method === "POST") {
     const geminiKey = Deno.env.get("GEMINI_API_KEY");
     if (!geminiKey) {
-      return new Response(JSON.stringify({ error: "Missing GEMINI_API_KEY" }), {
+      return new Response(JSON.stringify({ error: "Missing ffffGEMINI_API_KEY" }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
