@@ -270,7 +270,8 @@
     fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
     fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
 
-const PROXY_URL = 'https://vault-d9s2z.bunny.run';
+/**const PROXY_URL = 'https://vault-d9s2z.bunny.run';**/
+	const WORKER_URL = 'https://ancient-recipe-3cc1vault.freubel82.workers.dev/';
     let currentCase = null;
     let analyses = [];
 
@@ -461,15 +462,16 @@ const PROXY_URL = 'https://vault-d9s2z.bunny.run';
                     statusDiv.innerHTML = '📡 Fetching article via proxy...';
 
                     try {
-                        const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
-                        const articleRes = await fetch(fetchUrl);
+                       /** const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
+                        const articleRes = await fetch(fetchUrl);**/
+						const articleRes = await fetch(currentCase.url);
                         if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
                         let articleText = await articleRes.text();
                         if (articleText.length > 4000) articleText = articleText.slice(0, 4000) + '…';
                         statusDiv.innerHTML = '🤖 Calling Gemini AI...';
                         shoutField.value = '⏳ Analyzing with Gemini...';
 
-                        const geminiRes = await fetch(`${PROXY_URL}/gemini`, {
+                        const geminiRes = await fetch(`${WORKER_URL}/gemini`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
