@@ -265,13 +265,16 @@
 <div id="footer-placeholder"></div>
 <div id="banner-placeholder"></div>
 <script>
-	  // Load header, footer, banner
-    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data);
-    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data);
-    fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data);
+    // ===================== HEADER / FOOTER / BANNER =====================
+    fetch('../header.html').then(r => r.text()).then(data => document.getElementById('header-placeholder').innerHTML = data).catch(() => {});
+    fetch('../footer.html').then(r => r.text()).then(data => document.getElementById('footer-placeholder').innerHTML = data).catch(() => {});
+    fetch('../footer-banner.html').then(r => r.text()).then(data => document.getElementById('banner-placeholder').innerHTML = data).catch(() => {});
 
-/**const PROXY_URL = 'https://vault-d9s2z.bunny.run';**/
-	const WORKER_URL = 'https://ancient-recipe-3cc1vault.freubel82.workers.dev/';
+    // ===================== CONFIGURATION =====================
+    // 👇 REPLACE THIS URL WITH YOUR CLOUDFLARE WORKER URL
+    const WORKER_URL = 'https://ancient-recipe-3cc1vault.freubel82.workers.dev';
+
+    // ===================== GLOBALS =====================
     let currentCase = null;
     let analyses = [];
 
@@ -313,7 +316,7 @@
         });
     }
 
-    // Load existing analyses from localStorage
+    // ===================== LOCAL STORAGE HELPERS =====================
     function loadAnalysesFromStorage() {
         const stored = localStorage.getItem('ffv_analyses');
         analyses = stored ? JSON.parse(stored) : [];
@@ -386,6 +389,12 @@
         }
     }
 
+    // ===================== ESCAPE HTML (must be defined before use) =====================
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+
+    // ===================== WIKIPEDIA SEARCH =====================
     async function searchWikipedia(year, keyword) {
         let searchTerm = '';
         if (year && year.trim() !== '') {
@@ -417,6 +426,7 @@
         }
     }
 
+    // ===================== MAIN SEARCH =====================
     async function performSearch() {
         const year = yearInput.value.trim();
         const keyword = keywordInput.value.trim();
@@ -424,7 +434,7 @@
             statusDiv.innerHTML = '⚠️ Please enter a valid year (1900–2030) or leave empty.';
             return;
         }
-        statusDiv.innerHTML = `🔍 Searching Wikipedia...`;
+        statusDiv.innerHTML = '🔍 Searching Wikipedia...';
         resultsContainer.innerHTML = '<div style="padding:24px; text-align:center;">⏳ Loading...</div>';
         try {
             const results = await searchWikipedia(year, keyword);
@@ -459,23 +469,27 @@
                     confidenceField.value = '';
                     if (sourcesField) sourcesField.value = '';
                     modal.style.display = 'flex';
-                    statusDiv.innerHTML = '📡 Fetching article via proxy...';
+                    statusDiv.innerHTML = '📡 Fetching article via Wikipedia API...';
 
                     try {
-                       /** const fetchUrl = `${PROXY_URL}/fetch?url=${encodeURIComponent(currentCase.url)}`;
-                        const articleRes = await fetch(fetchUrl);**/
-						const articleRes = await fetch(currentCase.url);
-                        if (!articleRes.ok) throw new Error(`Fetch failed: ${articleRes.status}`);
-                        let articleText = await articleRes.text();
+                        // ---------- NEW: fetch article text via CORS-safe Wikipedia API ----------
+                        const pageTitle = currentCase.title;
+                        const apiUrl = `https://en.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=extracts&explaintext=1&format=json&origin=*`;
+                        const articleRes = await fetch(apiUrl);
+                        const jsonData = await articleRes.json();
+                        const pages = jsonData.query.pages;
+                        const pageId = Object.keys(pages)[0];
+                        let articleText = pages[pageId].extract || 'No content found.';
                         if (articleText.length > 4000) articleText = articleText.slice(0, 4000) + '…';
-                        statusDiv.innerHTML = '🤖 Calling Gemini AI...';
+
+                        statusDiv.innerHTML = '🤖 Calling Gemini AI via Cloudflare Worker...';
                         shoutField.value = '⏳ Analyzing with Gemini...';
 
+                        // ---------- Call your Cloudflare Worker (hides API key) ----------
                         const geminiRes = await fetch(`${WORKER_URL}/gemini`, {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
                             body: JSON.stringify({
-                                model: 'gpt-3.5-turbo',
                                 messages: [
                                     { role: 'system', content: `You are an expert in narrative control analysis. Extract the following fields from the Wikipedia article and your own knowledge. Return ONLY valid JSON (if not found, "Not mentioned"). Fields:
 - "shout": the official narrative or public statement of the institution
@@ -495,8 +509,8 @@ Example output:
                             })
                         });
                         const data = await geminiRes.json();
-                        if (!geminiRes.ok) throw new Error(`Gemini HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
-                        if (!data.choices || !data.choices[0]) throw new Error('No choices in Gemini response');
+                        if (!geminiRes.ok) throw new Error(`Worker HTTP ${geminiRes.status}: ${data.error?.message || 'Unknown'}`);
+                        if (!data.choices || !data.choices[0]) throw new Error('No choices in Worker response');
                         let rawContent = data.choices[0].message.content;
                         let parsed = null;
                         let cleanContent = rawContent.trim().replace(/```json\s*/g, '').replace(/```\s*/g, '');
@@ -517,6 +531,7 @@ Example output:
                         lensesField.value = parsed.lenses || '';
                         confidenceField.value = parsed.confidence || '';
 
+                        // Auto‑save and go to vault
                         if (saveCurrentAndClose()) {
                             modal.style.display = 'none';
                             window.location.href = 'vault.html';
@@ -535,11 +550,7 @@ Example output:
         }
     }
 
-    function escapeHtml(str) {
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
-    }
-
-    // Event listeners
+    // ===================== EVENT LISTENERS =====================
     if (vaultBtn) {
         vaultBtn.addEventListener('click', () => { window.location.href = 'vault.html'; });
     }
@@ -551,13 +562,12 @@ Example output:
         statusDiv.innerHTML = '';
     });
 
-    // Close modal with X button
     if (closeModalBtn) {
         closeModalBtn.addEventListener('click', () => {
             modal.style.display = 'none';
         });
     }
-    // Close modal when clicking outside the modal content
+    // Close modal when clicking outside
     window.addEventListener('click', (event) => {
         if (modal && modal.style.display === 'flex') {
             const modalContent = modal.querySelector('.modal-content');
