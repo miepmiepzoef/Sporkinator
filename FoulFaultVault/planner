@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>🌙 ADHD Lunar Home Reset</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* ===== ONLY ADD THIS IF YOUR CSS DOESN'T HAVE IT ===== */
+        .hidden { display: none !important; }
+        /* Safety: prevents textareas from overflowing your container */
+        textarea, input, select { box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div id="header-placeholder"></div>
+
+    <h1>🌙 ADHD Lunar Home Reset</h1>
+
+    <div class="container">
+        <!-- ===== STEP 1 ===== -->
+        <div id="step1">
+            <p>Paste your list (one item per line):</p>
+            <textarea id="rawList" style="width:100%; height:150px;">Vioolhaak ophangen
+plinten
+planten ompotten
+nieuwe bank
+keuken 'bouwen'
+toilet knikker
+afwas
+boodschappen
+badkamer
+stofzuigen
+muziek maken
+klei
+muurschildering</textarea>
+            <br>
+            <button onclick="parseList()">🔮 Analyze</button>
+            <div id="parseError" class="error-msg"></div>
+        </div>
+
+        <!-- ===== STEP 2 ===== -->
+        <div id="step2" class="hidden">
+            <h2>Confirm & Configure</h2>
+            <div id="itemList"></div>
+
+            <h3>Weekday overrides (0 = follow moon)</h3>
+            <div>
+                <label>Mon <input type="number" id="ovMon" value="0" style="width:50px;"></label>
+                <label>Tue <input type="number" id="ovTue" value="0" style="width:50px;"></label>
+                <label>Wed <input type="number" id="ovWed" value="0" style="width:50px;"></label>
+                <label>Thu <input type="number" id="ovThu" value="0" style="width:50px;"></label>
+                <label>Fri <input type="number" id="ovFri" value="0" style="width:50px;"></label>
+                <label>Sat <input type="number" id="ovSat" value="0" style="width:50px;"></label>
+                <label>Sun <input type="number" id="ovSun" value="0" style="width:50px;"></label>
+            </div>
+
+            <div>
+                <label><input type="checkbox" id="junkMode" checked> Week 1: Junk Blitz mode</label>
+            </div>
+
+            <button onclick="generateRoute()">🌱 Generate Route</button>
+            <button onclick="location.reload()">↺ Reset</button>
+        </div>
+
+        <!-- ===== STEP 3 ===== -->
+        <div id="step3" class="hidden">
+            <div id="moonDisplay"></div>
+            <div id="taskList"></div>
+            <div id="projectList"></div>
+            <br>
+            <button onclick="saveProgress()">💾 Save</button>
+            <button onclick="location.reload()">↺ Reset</button>
+        </div>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="banner-placeholder"></div>
+
+    <script>
+    // ===== STATE =====
+    let items = [];
+    const STORAGE_KEY = 'lunar_reset';
+
+    // ===== MOON =====
+    function getMoon() {
+        const ref = new Date(2024,0,11,11,57);
+        const diff = (new Date() - ref) / (1000*60*60*24);
+        const p = ((diff % 29.53) / 29.53 + 1) % 1;
+        if (p < 0.0625) return { emoji:'🌑', name:'New Moon', energy:15 };
+        if (p < 0.1875) return { emoji:'🌒', name:'Waxing Crescent', energy:30 };
+        if (p < 0.3125) return { emoji:'🌓', name:'First Quarter', energy:60 };
+        if (p < 0.4375) return { emoji:'🌔', name:'Waxing Gibbous', energy:75 };
+        if (p < 0.5625) return { emoji:'🌕', name:'Full Moon', energy:90 };
+        if (p < 0.6875) return { emoji:'🌖', name:'Waning Gibbous', energy:60 };
+        if (p < 0.8125) return { emoji:'🌗', name:'Last Quarter', energy:30 };
+        return { emoji:'🌘', name:'Waning Crescent', energy:15 };
+    }
+
+    function getOverride(day) {
+        const map = {0:'ovSun',1:'ovMon',2:'ovTue',3:'ovWed',4:'ovThu',5:'ovFri',6:'ovSat'};
+        const val = parseInt(document.getElementById(map[day])?.value || 0);
+        return val > 0 ? Math.min(val, 180) : 0;
+    }
+
+    function getTodayBudget() {
+        const moon = getMoon();
+        const override = getOverride(new Date().getDay());
+        return { ...moon, budget: override > 0 ? override : moon.energy };
+    }
+
+    // ===== STEP 1 =====
+    function parseList() {
+        const raw = document.getElementById('rawList').value;
+        const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+        if (!lines.length) {
+            document.getElementById('parseError').textContent = 'Paste a list first!';
+            return;
+        }
+        document.getElementById('parseError').textContent = '';
+
+        items = lines.map((name) => {
+            const lower = name.toLowerCase();
+            let cat = 'Weekly';
+            if (lower.includes('knikker') || lower.includes('afwas') || lower.includes('planten water') || lower.includes('bed')) cat = 'Daily';
+            else if (lower.includes('muziek') || lower.includes('klei') || lower.includes('epoxy') || lower.includes('programma') || lower.includes('boek') || lower.includes('spel')) cat = 'Hobby';
+            else if (lower.includes('bouwen') || lower.includes('schilderen') || lower.includes('hek') || lower.includes('kastje') || lower.includes('tuin') || lower.includes('muur')) cat = 'Project';
+            else if (lower.includes('boodschappen') || lower.includes('planner') || lower.includes('calender')) cat = 'Admin';
+            return {
+                id: Date.now() + '-' + Math.random().toString(36).substr(2,4),
+                name: name,
+                category: cat,
+                done: false,
+                active: false,
+                step: 0,
+                steps: cat === 'Project' ? ['Step 1: 25min work + 5min cleanup', 'Step 2: 25min work + 5min cleanup'] : []
+            };
+        });
+
+        const container = document.getElementById('itemList');
+        let html = '';
+        items.forEach((item) => {
+            html += `<div>
+                <span>${item.name}</span>
+                <select id="cat-${item.id}">
+                    <option ${item.category==='Daily'?'selected':''}>Daily</option>
+                    <option ${item.category==='Weekly'?'selected':''}>Weekly</option>
+                    <option ${item.category==='Project'?'selected':''}>Project</option>
+                    <option ${item.category==='Hobby'?'selected':''}>Hobby</option>
+                    <option ${item.category==='Admin'?'selected':''}>Admin</option>
+                </select>
+                <input type="number" id="time-${item.id}" value="15" min="5" max="120" style="width:60px;"> min
+            </div>`;
+        });
+        container.innerHTML = html;
+
+        document.getElementById('step1').classList.add('hidden');
+        document.getElementById('step2').classList.remove('hidden');
+    }
+
+    // ===== STEP 2 → 3 =====
+    function generateRoute() {
+        items.forEach(item => {
+            const sel = document.getElementById(`cat-${item.id}`);
+            if (sel) item.category = sel.value;
+            const time = parseInt(document.getElementById(`time-${item.id}`)?.value || 15);
+            if (item.category === 'Project' && item.steps.length === 0) {
+                const n = Math.ceil(time / 30);
+                for (let i=0; i<n; i++) item.steps.push(`Step ${i+1}/${n}: 25min work + 5min cleanup`);
+            }
+        });
+
+        const projects = items.filter(i => i.category === 'Project' && !i.done);
+        projects.forEach((p, i) => p.active = i < 3);
+
+        document.getElementById('step2').classList.add('hidden');
+        document.getElementById('step3').classList.remove('hidden');
+        renderDashboard();
+        saveProgress();
+    }
+
+    // ===== DASHBOARD =====
+    function renderDashboard() {
+        const today = getTodayBudget();
+        document.getElementById('moonDisplay').innerHTML = `
+            <div style="font-size:3rem;">${today.emoji}</div>
+            <h3>${today.name}</h3>
+            <p>Today's budget: <strong>${today.budget}</strong> minutes</p>
+            <div style="background:#e2e8f0; border-radius:20px; height:16px; overflow:hidden; margin:10px 0;">
+                <div style="background:#0a1c2f; height:100%; width:${(today.budget/90)*100}%; border-radius:20px;"></div>
+            </div>
+        `;
+
+        const junkMode = document.getElementById('junkMode').checked;
+        let remaining = today.budget;
+        let tasksHtml = '<h3>Today\'s tasks</h3>';
+
+        const daily = items.filter(i => i.category === 'Daily' && !i.done);
+        daily.slice(0, 3).forEach(task => {
+            if (remaining >= 5) {
+                tasksHtml += taskCheckbox(task);
+                remaining -= 5;
+            }
+        });
+
+        if (remaining >= 15) {
+            const weekly = items.filter(i => i.category === 'Weekly' && !i.done);
+            if (junkMode) {
+                tasksHtml += `<div>🗑️ Junk Blitz (15 min)</div>`;
+                remaining -= 15;
+            } else if (weekly.length > 0) {
+                tasksHtml += taskCheckbox(weekly[0]);
+                remaining -= 15;
+            }
+        }
+
+        const activeProject = items.find(i => i.active && !i.done && i.category === 'Project');
+        if (activeProject && remaining >= 30) {
+            const stepIdx = activeProject.step || 0;
+            if (stepIdx < activeProject.steps.length) {
+                tasksHtml += taskCheckbox(activeProject, ` — ${activeProject.steps[stepIdx]}`);
+                remaining -= 30;
+            }
+        }
+
+        const admin = items.find(i => i.category === 'Admin' && !i.done);
+        if (admin && remaining >= 10) {
+            tasksHtml += taskCheckbox(admin);
+            remaining -= 10;
+        }
+
+        tasksHtml += `<p>Remaining: ${remaining} mins</p>`;
+        document.getElementById('taskList').innerHTML = tasksHtml;
+
+        const allProjects = items.filter(i => i.category === 'Project');
+        let projHtml = '<h3>Projects</h3>';
+        allProjects.forEach(p => {
+            const status = p.done ? '✅ Done' : (p.active ? '🟢 Active' : '⏸️ Backlog');
+            const prog = p.steps.length > 0 ? `${p.step||0}/${p.steps.length}` : '0';
+            projHtml += `<div>
+                <span>${p.name}</span>
+                <span>${status}</span>
+                <span>${prog}</span>
+                ${!p.done && p.active ? `<button onclick="advanceProject('${p.id}')">+ Step</button>` : ''}
+                ${!p.done && !p.active && allProjects.filter(x=>x.active).length<3 ? `<button onclick="activateProject('${p.id}')">Activate</button>` : ''}
+            </div>`;
+        });
+        document.getElementById('projectList').innerHTML = projHtml;
+    }
+
+    function taskCheckbox(item, extra='') {
+        return `<div>
+            <input type="checkbox" onchange="completeTask('${item.id}')">
+            <span>${item.name} ${extra}</span>
+        </div>`;
+    }
+
+    function completeTask(id) {
+        const item = items.find(i => i.id === id);
+        if (!item) return;
+        if (item.category === 'Project') {
+            item.step = (item.step || 0) + 1;
+            if (item.step >= item.steps.length) item.done = true;
+        } else {
+            item.done = true;
+        }
+        renderDashboard();
+        saveProgress();
+    }
+
+    function advanceProject(id) {
+        const item = items.find(i => i.id === id);
+        if (!item) return;
+        item.step = (item.step || 0) + 1;
+        if (item.step >= item.steps.length) item.done = true;
+        renderDashboard();
+        saveProgress();
+    }
+
+    function activateProject(id) {
+        const active = items.filter(i => i.active && !i.done).length;
+        if (active >= 3) { alert('Max 3 active projects!'); return; }
+        const item = items.find(i => i.id === id);
+        if (item) { item.active = true; renderDashboard(); saveProgress(); }
+    }
+
+    // ===== SAVE =====
+    function saveProgress() {
+        try {
+            const data = {
+                items: items,
+                junkMode: document.getElementById('junkMode').checked,
+                overrides: {
+                    mon: document.getElementById('ovMon').value,
+                    tue: document.getElementById('ovTue').value,
+                    wed: document.getElementById('ovWed').value,
+                    thu: document.getElementById('ovThu').value,
+                    fri: document.getElementById('ovFri').value,
+                    sat: document.getElementById('ovSat').value,
+                    sun: document.getElementById('ovSun').value
+                }
+            };
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        } catch(e) {}
+    }
+
+    function loadProgress() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (!raw) return false;
+            const data = JSON.parse(raw);
+            if (data.items && data.items.length) {
+                items = data.items;
+                if (data.overrides) {
+                    document.getElementById('ovMon').value = data.overrides.mon || 0;
+                    document.getElementById('ovTue').value = data.overrides.tue || 0;
+                    document.getElementById('ovWed').value = data.overrides.wed || 0;
+                    document.getElementById('ovThu').value = data.overrides.thu || 0;
+                    document.getElementById('ovFri').value = data.overrides.fri || 0;
+                    document.getElementById('ovSat').value = data.overrides.sat || 0;
+                    document.getElementById('ovSun').value = data.overrides.sun || 0;
+                }
+                document.getElementById('junkMode').checked = data.junkMode !== undefined ? data.junkMode : true;
+                return true;
+            }
+            return false;
+        } catch(e) { return false; }
+    }
+
+    // ===== INIT =====
+    window.onload = function() {
+        fetch('../header.html').then(r=>r.text()).then(d=>document.getElementById('header-placeholder').innerHTML=d).catch(()=>{});
+        fetch('../footer.html').then(r=>r.text()).then(d=>document.getElementById('footer-placeholder').innerHTML=d).catch(()=>{});
+        fetch('../footer-banner.html').then(r=>r.text()).then(d=>document.getElementById('banner-placeholder').innerHTML=d).catch(()=>{});
+
+        if (loadProgress() && items.length > 0) {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.remove('hidden');
+            renderDashboard();
+        } else {
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step3').classList.add('hidden');
+        }
+    };
+    </script>
+</body>
+</html>
