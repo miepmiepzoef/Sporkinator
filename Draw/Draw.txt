@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Flow</title>
+<style>
+  html, body {
+    margin: 0; padding: 0; height: 100%; overflow: hidden;
+    background: #07070a; touch-action: none;
+    -webkit-user-select: none; user-select: none;
+  }
+  canvas { display: block; touch-action: none; }
+  #ui {
+    position: fixed; left: 10px; right: 10px; bottom: 10px;
+    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
+    font: 12px -apple-system, system-ui, sans-serif; color: #fff;
+    z-index: 10;
+  }
+  select, button {
+    -webkit-appearance: none; appearance: none;
+    background: rgba(255,255,255,0.10);
+    color: #fff; border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 999px; padding: 7px 12px; font-size: 12px;
+    font-family: inherit;
+  }
+  button:active { background: rgba(255,255,255,0.25); }
+  #hint {
+    position: fixed; top: 16px; left: 0; right: 0; text-align: center;
+    color: rgba(255,255,255,0.4); font: 12px -apple-system, sans-serif;
+    pointer-events: none; transition: opacity 0.6s;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hint">draw with your finger or pencil</div>
+<div id="ui">
+  <select id="mode">
+    <option value="fade">fade</option>
+    <option value="rotate" selected>rotate</option>
+    <option value="spiral">spiral</option>
+    <option value="drift">drift</option>
+    <option value="pulse">pulse</option>
+    <option value="wobble">wobble</option>
+  </select>
+  <select id="sym">
+    <option value="1">1x</option>
+    <option value="4">4x</option>
+    <option value="6">6x</option>
+    <option value="8" selected>8x</option>
+    <option value="12">12x</option>
+    <option value="16">16x</option>
+  </select>
+  <select id="life">
+    <option value="2000">2s</option>
+    <option value="4000" selected>4s</option>
+    <option value="6000">6s</option>
+    <option value="8000">8s</option>
+  </select>
+  <button id="clear">clear</button>
+</div>
+<script>
+(function(){
+  const canvas = document.getElementById('c');
+  const ctx = canvas.getContext('2d');
+  const hint = document.getElementById('hint');
+
+  let W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = Math.floor(window.innerWidth * dpr);
+    H = Math.floor(window.innerHeight * dpr);
+    canvas.width = W; canvas.height = H;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    cx = W / 2; cy = H / 2;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+
+  const MAX_STROKES = 120;
+  const MAX_POINTS = 500;
+  const strokes = [];
+  let current = null;
+
+  const modeEl = document.getElementById('mode');
+  const symEl = document.getElementById('sym');
+  const lifeEl = document.getElementById('life');
+
+  function pos(e) {
+    const r = canvas.getBoundingClientRect();
+    const t = e.touches ? e.touches[0] : e;
+    return {
+      x: (t.clientX - r.left) * dpr,
+      y: (t.clientY - r.top) * dpr
+    };
+  }
+
+  function start(e) {
+    e.preventDefault();
+    hint.style.opacity = '0';
+    const p = pos(e);
+    current = {
+      pts: [p],
+      t0: performance.now(),
+      hue: (strokes.length * 137.508) % 360
+    };
+    strokes.push(current);
+    while (strokes.length > MAX_STROKES) strokes.shift();
+  }
+
+  function move(e) {
+    if (!current) return;
+    e.preventDefault();
+    if (current.pts.length >= MAX_POINTS) return;
+    const p = pos(e);
+    const last = current.pts[current.pts.length - 1];
+    const dx = p.x - last.x, dy = p.y - last.y;
+    if (dx*dx + dy*dy > 4) current.pts.push(p);
+  }
+
+  function end() { current = null; }
+
+  canvas.addEventListener('touchstart', start, {passive:false});
+  canvas.addEventListener('touchmove', move, {passive:false});
+  canvas.addEventListener('touchend', end);
+  canvas.addEventListener('touchcancel',end);
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  canvas.addEventListener('mouseup', end);
+  canvas.addEventListener('mouseleave', end);
+
+  document.getElementById('clear').addEventListener('click', () => {
+    strokes.length = 0;
+  });
+
+  function applyMotion(mode, u) {
+    const tau = Math.PI * 2;
+    switch (mode) {
+      case 'rotate': return { angle: u * tau, dx: 0, dy: 0, scale: 1 };
+      case 'spiral': {
+        const r = Math.sin(u * tau) * 0.18 * Math.min(W, H);
+        const a = u * tau;
+        return { angle: a, dx: Math.cos(a) * r, dy: Math.sin(a) * r, scale: 1 };
+      }
+      case 'drift':
+        return { angle: 0, dx: Math.sin(u*tau) * 0.15 * W, dy: 0, scale: 1 };
+      case 'pulse':
+        return { angle: 0, dx: 0, dy: 0, scale: 1 + Math.sin(u*tau) * 0.35 };
+      case 'wobble':
+        return { angle: Math.sin(u*tau) * 0.35, dx: 0, dy: 0, scale: 1 };
+      default:
+        return { angle: 0, dx: 0, dy: 0, scale: 1 };
+    }
+  }
+
+  function opacityFor(u) {
+    const fadeIn = 0.12, fadeOut = 0.35;
+    if (u < fadeIn) return u / fadeIn;
+    if (u > 1 - fadeOut) return (1 - u) / fadeOut;
+    return 1;
+  }
+
+  function frame(now) {
+    const L = parseInt(lifeEl.value, 10);
+    const mode = modeEl.value;
+    const N = parseInt(symEl.value, 10);
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, W, H);
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 2.2 * dpr;
+
+    for (let s = 0; s < strokes.length; s++) {
+      const st = strokes[s];
+      if (st.pts.length < 2) continue;
+
+      let age = (now - st.t0) % L;
+      if (age < 0) age += L;
+      const u = age / L;
+
+      const alpha = opacityFor(u) * 0.85;
+      if (alpha <= 0.01) continue;
+
+      const m = applyMotion(mode, u);
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = 'hsl(' + st.hue + ', 65%, 72%)';
+
+      for (let i = 0; i < N; i++) {
+        const base = (i / N) * Math.PI * 2;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.translate(cx + m.dx, cy + m.dy);
+        ctx.rotate(base + m.angle);
+        ctx.scale(m.scale, m.scale);
+        ctx.translate(-cx, -cy);
+
+        ctx.beginPath();
+        ctx.moveTo(st.pts[0].x, st.pts[0].y);
+        for (let j = 1; j < st.pts.length; j++) {
+          ctx.lineTo(st.pts[j].x, st.pts[j].y);
+        }
+        ctx.stroke();
+      }
+    }
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
