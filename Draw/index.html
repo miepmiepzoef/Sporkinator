@@ -1,218 +1,1603 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>Flow</title>
+<title>Flow v2</title>
 <style>
+  /* ============ STYLES ============ */
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body {
     margin: 0; padding: 0; height: 100%; overflow: hidden;
     background: #07070a; touch-action: none;
+    font: 13px -apple-system, system-ui, sans-serif; color: #fff;
     -webkit-user-select: none; user-select: none;
   }
-  canvas { display: block; touch-action: none; }
-  #ui {
-    position: fixed; left: 10px; right: 10px; bottom: 10px;
-    display: flex; gap: 6px; flex-wrap: wrap; align-items: center;
-    font: 12px -apple-system, system-ui, sans-serif; color: #fff;
-    z-index: 10;
+  canvas#c { display: block; touch-action: none; }
+
+  /* Paused tint */
+  #pausedTint {
+    position: fixed; inset: 0; background: rgba(80, 120, 255, 0.08);
+    pointer-events: none; opacity: 0; transition: opacity 0.25s; z-index: 5;
   }
-  select, button {
-    -webkit-appearance: none; appearance: none;
-    background: rgba(255,255,255,0.10);
-    color: #fff; border: 1px solid rgba(255,255,255,0.22);
-    border-radius: 999px; padding: 7px 12px; font-size: 12px;
-    font-family: inherit;
+  #pausedTint.on { opacity: 1; }
+
+  /* Bottom bar */
+  #bar {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+    display: flex; gap: 6px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+    background: rgba(15, 15, 22, 0.85);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    overflow-x: auto; overflow-y: hidden;
+    scrollbar-width: none;
   }
-  button:active { background: rgba(255,255,255,0.25); }
-  #hint {
-    position: fixed; top: 16px; left: 0; right: 0; text-align: center;
-    color: rgba(255,255,255,0.4); font: 12px -apple-system, sans-serif;
-    pointer-events: none; transition: opacity 0.6s;
+  #bar::-webkit-scrollbar { display: none; }
+  .btn {
+    flex: 0 0 auto; display: flex; flex-direction: column; align-items: center;
+    gap: 2px; padding: 6px 10px; min-width: 48px;
+    background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px; color: #fff; font-size: 10px; font-weight: 500;
+    cursor: pointer; transition: background 0.15s;
   }
+  .btn:active { background: rgba(255, 255, 255, 0.2); }
+  .btn .icon { font-size: 16px; line-height: 1; }
+  .btn.danger { color: #ff9090; }
+  .btn.active { background: rgba(120, 100, 255, 0.35); border-color: rgba(150, 130, 255, 0.5); }
+
+  /* Color swatch button */
+  #colorBtn { padding: 4px 6px; }
+  #colorSwatch {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.5);
+  }
+
+  /* Path count badge */
+  #pathBadge {
+    font-size: 9px; color: #ffb060; margin-top: 1px;
+    display: none;
+  }
+  #pathBadge.show { display: block; }
+
+  /* Sheet (settings, export, info) */
+  .sheet {
+    position: fixed; left: 0; right: 0; bottom: 0; top: 10%;
+    background: #12121a; z-index: 30; border-radius: 20px 20px 0 0;
+    transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    display: flex; flex-direction: column;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .sheet.open { transform: translateY(0); }
+  .sheetHeader {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px 10px; border-bottom: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+  }
+  .sheetHeader h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  .sheetClose {
+    background: rgba(255,255,255,0.1); border: none; color: #fff;
+    width: 30px; height: 30px; border-radius: 50%; font-size: 18px;
+    cursor: pointer;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex; padding: 8px 12px; gap: 4px;
+    overflow-x: auto; flex-shrink: 0;
+    scrollbar-width: none;
+  }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500;
+    background: rgba(255,255,255,0.05); border: none; color: rgba(255,255,255,0.6);
+    white-space: nowrap; cursor: pointer;
+  }
+  .tab.active { background: rgba(120,100,255,0.3); color: #fff; }
+
+  /* Tab content */
+  .sheetBody { flex: 1; overflow-y: auto; padding: 12px 18px 30px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    min-height: 44px; gap: 12px;
+  }
+  .row label { flex-shrink: 0; font-size: 13px; color: rgba(255,255,255,0.85); }
+  .row .ctrl { flex: 1; max-width: 200px; display: flex; justify-content: flex-end; }
+  .row select, .row input[type="range"] {
+    background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 8px; padding: 6px 10px; font-size: 13px; font-family: inherit;
+    width: 100%;
+  }
+  .row input[type="range"] { padding: 0; height: 30px; }
+  .row input[type="color"] {
+    width: 40px; height: 30px; border: none; border-radius: 8px; padding: 0;
+    background: transparent; cursor: pointer;
+  }
+  .row .value { font-size: 12px; color: rgba(255,255,255,0.6); min-width: 40px; text-align: right; }
+
+  /* Palette grid */
+  .palette {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;
+    padding: 10px 0;
+  }
+  .swatch {
+    aspect-ratio: 1; border-radius: 10px; border: 2px solid transparent;
+    cursor: pointer; position: relative;
+  }
+  .swatch.active { border-color: #fff; }
+  .swatch.custom {
+    background: rgba(255,255,255,0.1); display: flex; align-items: center;
+    justify-content: center; font-size: 18px;
+  }
+
+  /* Toggle */
+  .toggle {
+    width: 46px; height: 26px; border-radius: 13px;
+    background: rgba(255,255,255,0.15); position: relative;
+    cursor: pointer; transition: background 0.2s; flex-shrink: 0;
+  }
+  .toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 20px; height: 20px; border-radius: 50%; background: #fff;
+    transition: transform 0.2s;
+  }
+  .toggle.on { background: #6a5aff; }
+  .toggle.on::after { transform: translateX(20px); }
+
+  /* Export */
+  .presetList { padding: 8px 0; }
+  .preset {
+    padding: 14px; margin: 6px 0; border-radius: 12px;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  }
+  .preset.active { background: rgba(120,100,255,0.25); border-color: rgba(150,130,255,0.5); }
+  .preset .meta { font-size: 11px; color: rgba(255,255,255,0.5); }
+
+  .exportBtn {
+    width: 100%; padding: 16px; border-radius: 12px;
+    background: linear-gradient(135deg, #6a5aff, #b05aff);
+    color: #fff; border: none; font-size: 15px; font-weight: 600;
+    margin-top: 14px; cursor: pointer;
+  }
+  .exportBtn:disabled { opacity: 0.5; }
+
+  #progressWrap {
+    display: none; margin-top: 14px;
+  }
+  #progressWrap.show { display: block; }
+  #progressBar {
+    height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px;
+    overflow: hidden;
+  }
+  #progressFill {
+    height: 100%; background: linear-gradient(90deg, #6a5aff, #b05aff);
+    width: 0%; transition: width 0.1s;
+  }
+  #progressText {
+    font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 6px;
+    text-align: center;
+  }
+
+  /* Info */
+  .infoSection { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .infoSection h3 { margin: 0 0 6px; font-size: 14px; color: #b09aff; }
+  .infoSection p { margin: 0 0 6px; font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .infoSection ul { margin: 4px 0; padding-left: 18px; font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.5; }
 </style>
 </head>
 <body>
 <canvas id="c"></canvas>
-<div id="hint">draw with your finger or pencil</div>
-<div id="ui">
-  <select id="mode">
-    <option value="fade">fade</option>
-    <option value="rotate" selected>rotate</option>
-    <option value="spiral">spiral</option>
-    <option value="drift">drift</option>
-    <option value="pulse">pulse</option>
-    <option value="wobble">wobble</option>
-  </select>
-  <select id="sym">
-    <option value="1">1x</option>
-    <option value="4">4x</option>
-    <option value="6">6x</option>
-    <option value="8" selected>8x</option>
-    <option value="12">12x</option>
-    <option value="16">16x</option>
-  </select>
-  <select id="life">
-    <option value="2000">2s</option>
-    <option value="4000" selected>4s</option>
-    <option value="6000">6s</option>
-    <option value="8000">8s</option>
-  </select>
-  <button id="clear">clear</button>
+<div id="pausedTint"></div>
+
+<!-- Bottom bar -->
+<div id="bar">
+  <div class="btn" id="colorBtn">
+    <div id="colorSwatch"></div>
+    <span>Color</span>
+  </div>
+  <div class="btn" id="brushBtn">
+    <span class="icon">✏️</span>
+    <span id="brushLabel">solid 1</span>
+  </div>
+  <div class="btn" id="undoBtn">
+    <span class="icon">↶</span>
+    <span>Undo</span>
+  </div>
+  <div class="btn" id="redoBtn">
+    <span class="icon">↷</span>
+    <span>Redo</span>
+  </div>
+  <div class="btn" id="qualityBtn">
+    <span class="icon">▣</span>
+    <span id="qualityLabel">Full</span>
+    <span id="pathBadge">0</span>
+  </div>
+  <div class="btn" id="pauseBtn">
+    <span class="icon">⏸</span>
+    <span id="pauseLabel">Pause</span>
+  </div>
+  <div class="btn" id="settingsBtn">
+    <span class="icon">⚙️</span>
+    <span>Settings</span>
+  </div>
+  <div class="btn" id="exportBtn">
+    <span class="icon">⬇️</span>
+    <span>Export</span>
+  </div>
+  <div class="btn" id="infoBtn">
+    <span class="icon">ℹ️</span>
+    <span>Info</span>
+  </div>
 </div>
+
+<!-- Settings sheet -->
+<div class="sheet" id="settingsSheet">
+  <div class="sheetHeader">
+    <h2>Settings</h2>
+    <button class="sheetClose" data-close="settingsSheet">×</button>
+  </div>
+  <div class="tabs" id="settingsTabs">
+    <button class="tab active" data-panel="brush">Brush</button>
+    <button class="tab" data-panel="motion">Motion</button>
+    <button class="tab" data-panel="life">Life</button>
+    <button class="tab" data-panel="symmetry">Symmetry</button>
+    <button class="tab" data-panel="scene">Scene</button>
+  </div>
+  <div class="sheetBody">
+
+    <!-- BRUSH TAB -->
+    <div class="panel active" id="panel-brush">
+      <div class="row">
+        <label>Style</label>
+        <div class="ctrl">
+          <select id="setBrushStyle">
+            <option value="solid">Solid line</option>
+            <option value="dotted">Dotted</option>
+            <option value="dashed">Dashed</option>
+            <option value="tapered">Tapered</option>
+            <option value="glow">Glow</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <label>Strand count</label>
+        <div class="ctrl">
+          <select id="setStrandCount">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <label>Size</label>
+        <div class="ctrl">
+          <input type="range" id="setSize" min="0.8" max="10" step="0.2" value="2.2">
+        </div>
+        <span class="value" id="setSizeVal">2.2</span>
+      </div>
+      <div class="row">
+        <label>Opacity</label>
+        <div class="ctrl">
+          <input type="range" id="setOpacity" min="0.1" max="1" step="0.05" value="0.85">
+        </div>
+        <span class="value" id="setOpacityVal">0.85</span>
+      </div>
+      <div class="row">
+        <label>Palette</label>
+      </div>
+      <div class="palette" id="paletteGrid"></div>
+      <div class="row">
+        <label>Neon</label>
+        <div class="toggle" id="setNeon"></div>
+      </div>
+      <div class="row">
+        <label>Per-strand hue</label>
+        <div class="toggle" id="setStrandHue"></div>
+      </div>
+    </div>
+
+    <!-- MOTION TAB -->
+    <div class="panel" id="panel-motion">
+      <div class="row">
+        <label>Motion</label>
+        <div class="ctrl">
+          <select id="setMotion">
+            <option value="none">None</option>
+            <option value="rotate">Rotate</option>
+            <option value="spiral">Spiral</option>
+            <option value="drift">Drift</option>
+            <option value="pulse">Pulse</option>
+            <option value="wobble">Wobble</option>
+          </select>
+        </div>
+      </div>
+      <div class="infoSection">
+        <p>Motion is a global setting applied to every stroke based on its age — it changes as the stroke lives and dies. You can change it after drawing and the whole loop responds.</p>
+      </div>
+    </div>
+
+    <!-- LIFE TAB -->
+    <div class="panel" id="panel-life">
+      <div class="row">
+        <label>Life mode</label>
+        <div class="ctrl">
+          <select id="setLife">
+            <option value="fade">Fade</option>
+            <option value="bloom">Bloom</option>
+            <option value="grow">Grow</option>
+            <option value="shrink">Shrink</option>
+            <option value="scatter">Scatter</option>
+            <option value="blink">Blink</option>
+            <option value="comet">Comet</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <label>Loop length</label>
+        <div class="ctrl">
+          <select id="setLoop">
+            <option value="2000">2s</option>
+            <option value="4000" selected>4s</option>
+            <option value="6000">6s</option>
+            <option value="8000">8s</option>
+            <option value="12000">12s</option>
+          </select>
+        </div>
+      </div>
+      <div class="infoSection">
+        <p>Life controls how a stroke appears and disappears over its lifetime. Scatter affects dotted and dashed strokes most; try it with 3 strands for the Inspirit dot-drift feel.</p>
+      </div>
+    </div>
+
+    <!-- SYMMETRY TAB -->
+    <div class="panel" id="panel-symmetry">
+      <div class="row">
+        <label>Drawing symmetry</label>
+        <div class="ctrl">
+          <select id="setSymmetry">
+            <option value="none">None</option>
+            <option value="radial">Radial</option>
+            <option value="kaleidoscope">Kaleidoscope</option>
+            <option value="mirrorX">Mirror X</option>
+            <option value="mirrorY">Mirror Y</option>
+            <option value="spiral">Spiral</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <label>Fold count</label>
+        <div class="ctrl">
+          <select id="setSymN">
+            <option value="2">2</option>
+            <option value="4">4</option>
+            <option value="6">6</option>
+            <option value="8" selected>8</option>
+            <option value="12">12</option>
+            <option value="16">16</option>
+          </select>
+        </div>
+      </div>
+      <div class="row">
+        <label>Multiplication</label>
+        <div class="ctrl">
+          <select id="setMult">
+            <option value="none">None</option>
+            <option value="grid2">Grid 2×2</option>
+            <option value="grid3">Grid 3×3</option>
+            <option value="ring">Ring</option>
+            <option value="spiralNest">Spiral nest</option>
+            <option value="brick">Brick</option>
+          </select>
+        </div>
+      </div>
+      <div class="infoSection">
+        <p><strong>Drawing symmetry</strong> is how your pen maps while you draw — one line becomes N copies. <strong>Multiplication</strong> is how the whole finished pattern repeats across the screen. They're independent.</p>
+      </div>
+    </div>
+
+    <!-- SCENE TAB -->
+    <div class="panel" id="panel-scene">
+      <div class="row">
+        <label>Background</label>
+        <div class="ctrl">
+          <input type="color" id="setBg" value="#07070a">
+        </div>
+      </div>
+      <div class="row">
+        <label>Transparent bg</label>
+        <div class="toggle" id="setTransparent"></div>
+      </div>
+      <div class="row">
+        <label>Max strokes</label>
+        <div class="ctrl">
+          <input type="range" id="setMaxStrokes" min="20" max="200" step="10" value="60">
+        </div>
+        <span class="value" id="setMaxStrokesVal">60</span>
+      </div>
+      <div class="row">
+        <label>Clear all</label>
+        <div class="ctrl">
+          <button class="btn danger" id="clearAllBtn" style="padding:8px 14px; min-width:auto;">Clear</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Export sheet -->
+<div class="sheet" id="exportSheet">
+  <div class="sheetHeader">
+    <h2>Export</h2>
+    <button class="sheetClose" data-close="exportSheet">×</button>
+  </div>
+  <div class="sheetBody">
+    <div class="presetList" id="presetList">
+      <div class="preset active" data-w="3840" data-h="2160">
+        <div><div>4K 16:9</div><div class="meta">3840 × 2160 — projection</div></div>
+      </div>
+      <div class="preset" data-w="4096" data-h="4096">
+        <div><div>4K Square</div><div class="meta">4096 × 4096 — square LED</div></div>
+      </div>
+      <div class="preset" data-w="1080" data-h="1920">
+        <div><div>Reels</div><div class="meta">1080 × 1920 — stories / TikTok</div></div>
+      </div>
+      <div class="preset" data-w="1080" data-h="1080">
+        <div><div>Square</div><div class="meta">1080 × 1080 — feed</div></div>
+      </div>
+    </div>
+    <div class="row">
+      <label>Loops</label>
+      <div class="ctrl">
+        <select id="exportLoops">
+          <option value="1" selected>1 loop</option>
+          <option value="2">2 loops</option>
+          <option value="4">4 loops</option>
+        </select>
+      </div>
+    </div>
+    <button class="exportBtn" id="doExport">Render video</button>
+    <button class="exportBtn" id="doExportPNG" style="background:rgba(255,255,255,0.1); margin-top:8px;">Download single PNG frame</button>
+    <div id="progressWrap">
+      <div id="progressBar"><div id="progressFill"></div></div>
+      <div id="progressText">Preparing…</div>
+    </div>
+  </div>
+</div>
+
+<!-- Info sheet -->
+<div class="sheet" id="infoSheet">
+  <div class="sheetHeader">
+    <h2>How Flow works</h2>
+    <button class="sheetClose" data-close="infoSheet">×</button>
+  </div>
+  <div class="sheetBody" id="infoBody">
+    <div class="infoSection">
+      <h3>The three layers</h3>
+      <p>Every stroke is drawn through three independent filters:</p>
+      <ul>
+        <li><strong>Brush</strong> — what it looks like: solid, dotted, dashed, tapered, glow, strand count.</li>
+        <li><strong>Motion</strong> — how it moves over its life. Global setting.</li>
+        <li><strong>Life</strong> — how it fades, grows, scatters, or blinks over its life. Global setting.</li>
+      </ul>
+      <p>Brush settings are snapshotted per stroke when you draw. Motion, life, symmetry, multiplication, loop length and background are global and change the whole scene at once.</p>
+    </div>
+    <div class="infoSection">
+      <h3>Why it loops perfectly</h3>
+      <p>Every frame is calculated from the clock, not from the previous frame. A stroke's age is <code>(now − birth) mod loopLength</code>. At time t and time t + loopLength, every stroke has the same age, so the picture is identical. No drifting, no one-shot recordings.</p>
+    </div>
+    <div class="infoSection">
+      <h3>Quality: Full / Draft / Solo</h3>
+      <p>These only affect what's drawn on screen — never the stored strokes, never the export.</p>
+      <ul>
+        <li><strong>Full</strong> — everything.</li>
+        <li><strong>Draft</strong> — 1 strand, no gradient, no neon. Symmetry and multiplication still show.</li>
+        <li><strong>Solo</strong> — just your raw drawing: 1 strand, 1 symmetry copy, plain color.</li>
+      </ul>
+      <p>Draw heavy scenes in Solo at full speed, then tap to Full to reveal the whole pattern instantly. The amber number on the button shows how many paths are being drawn per frame.</p>
+    </div>
+    <div class="infoSection">
+      <h3>Pause</h3>
+      <p>Pause freezes the clock. You can still draw while paused — the strokes are stored but invisible until you resume, at which point they all bloom in together. Handy for building a scene deliberately.</p>
+    </div>
+    <div class="infoSection">
+      <h3>Export</h3>
+      <p>The video is rendered offline, frame by frame, at full quality — independent of your current quality setting. Expect 1–3 minutes for 4K. Keep the tab open during rendering.</p>
+      <p>Frames are rendered from the stored points, so edges stay sharp at any resolution.</p>
+    </div>
+  </div>
+</div>
+
 <script>
-(function(){
-  const canvas = document.getElementById('c');
-  const ctx = canvas.getContext('2d');
-  const hint = document.getElementById('hint');
+/* ============================================================
+   FLOW v2
+   Sections:
+     1. SETTINGS & STATE
+     2. UTILITIES
+     3. LIFE MODES
+     4. MOTION MODES
+     5. SYMMETRY & MULTIPLICATION
+     6. BRUSH RENDERING
+     7. FRAME RENDER
+     8. STROKE INPUT
+     9. EXPORT
+    10. UI WIRING
+    11. MAIN LOOP
+   ============================================================ */
 
-  let W = 0, H = 0, cx = 0, cy = 0, dpr = 1;
+/* ============================================================
+   1. SETTINGS & STATE
+   ============================================================ */
 
-  function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
-    W = Math.floor(window.innerWidth * dpr);
-    H = Math.floor(window.innerHeight * dpr);
-    canvas.width = W; canvas.height = H;
-    canvas.style.width = window.innerWidth + 'px';
-    canvas.style.height = window.innerHeight + 'px';
-    cx = W / 2; cy = H / 2;
+const PALETTE = [
+  { from: '#ff7f9f', to: '#ff4f7f' },
+  { from: '#7f9fff', to: '#5f5fff' },
+  { from: '#7fffbf', to: '#4fffa0' },
+  { from: '#ffdf7f', to: '#ff8f4f' },
+  { from: '#bf7fff', to: '#7f4fff' },
+  { from: '#7fffff', to: '#4f9fff' },
+  { from: '#ffbf7f', to: '#ff5f5f' },
+  { from: '#7fff7f', to: '#4fff7f' },
+  { from: '#ff7fff', to: '#bf4fff' },
+  { from: '#ffffff', to: '#7f7f7f' },
+  { from: '#5fffdf', to: '#5f7fff' },
+  { from: '#ffff7f', to: '#ff7f7f' },
+];
+
+const DEFAULTS = {
+  // Per-stroke brush (snapshot at draw time)
+  brushStyle: 'solid',
+  strandCount: 1,
+  size: 2.2,
+  opacity: 0.85,
+  color: '#ff7f9f',
+  gradient: { from: '#ff7f9f', to: '#ff4f7f' }, // default to first palette entry
+  neon: false,
+  perStrandHue: true,
+
+  // Global
+  motion: 'rotate',
+  life: 'fade',
+  loopLength: 4000,
+  symmetry: 'kaleidoscope',
+  symmetryN: 8,
+  multiplication: 'none',
+  background: '#07070a',
+  transparentBg: false,
+  maxStrokes: 60,
+  quality: 'full', // full | draft | solo
+};
+
+const state = {
+  settings: JSON.parse(JSON.stringify(DEFAULTS)),
+  strokes: [],
+  history: [],
+  redoStack: [],
+  currentStroke: null,
+  clock: 0,
+  lastFrameTime: performance.now(),
+  paused: false,
+};
+
+/* ============================================================
+   2. UTILITIES
+   ============================================================ */
+
+function hexToRgb(hex) {
+  return {
+    r: parseInt(hex.slice(1,3), 16) / 255,
+    g: parseInt(hex.slice(3,5), 16) / 255,
+    b: parseInt(hex.slice(5,7), 16) / 255,
+  };
+}
+function rgbToHex(r, g, b) {
+  const h = (v) => Math.round(Math.max(0, Math.min(1, v)) * 255).toString(16).padStart(2, '0');
+  return '#' + h(r) + h(g) + h(b);
+}
+function shiftHue(hex, degrees) {
+  let { r, g, b } = hexToRgb(hex);
+  const max = Math.max(r,g,b), min = Math.min(r,g,b);
+  let h, s, l = (max + min) / 2;
+  if (max === min) { h = s = 0; }
+  else {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) h = ((b - r) / d + 2) / 6;
+    else h = ((r - g) / d + 4) / 6;
   }
-  resize();
-  window.addEventListener('resize', resize);
-  window.addEventListener('orientationchange', () => setTimeout(resize, 200));
-
-  const MAX_STROKES = 120;
-  const MAX_POINTS = 500;
-  const strokes = [];
-  let current = null;
-
-  const modeEl = document.getElementById('mode');
-  const symEl = document.getElementById('sym');
-  const lifeEl = document.getElementById('life');
-
-  function pos(e) {
-    const r = canvas.getBoundingClientRect();
-    const t = e.touches ? e.touches[0] : e;
-    return {
-      x: (t.clientX - r.left) * dpr,
-      y: (t.clientY - r.top) * dpr
-    };
+  h = (h + degrees / 360 + 1) % 1;
+  // HSL -> RGB
+  const hue2rgb = (p, q, t) => {
+    if (t < 0) t += 1; if (t > 1) t -= 1;
+    if (t < 1/6) return p + (q - p) * 6 * t;
+    if (t < 1/2) return q;
+    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+    return p;
+  };
+  let nr, ng, nb;
+  if (s === 0) { nr = ng = nb = l; }
+  else {
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    nr = hue2rgb(p, q, h + 1/3);
+    ng = hue2rgb(p, q, h);
+    nb = hue2rgb(p, q, h - 1/3);
   }
+  return rgbToHex(nr, ng, nb);
+}
+function lerpColor(c1, c2, t) {
+  const a = hexToRgb(c1), b = hexToRgb(c2);
+  return rgbToHex(
+    a.r + (b.r - a.r) * t,
+    a.g + (b.g - a.g) * t,
+    a.b + (b.b - a.b) * t
+  );
+}
 
-  function start(e) {
-    e.preventDefault();
-    hint.style.opacity = '0';
-    const p = pos(e);
-    current = {
-      pts: [p],
-      t0: performance.now(),
-      hue: (strokes.length * 137.508) % 360
-    };
-    strokes.push(current);
-    while (strokes.length > MAX_STROKES) strokes.shift();
+/* ============================================================
+   3. LIFE MODES
+   Returns { opacity, sizeMul, spacingMul }
+   u ∈ [0, 1] — 0 = birth, 1 = death
+   ============================================================ */
+
+function getLife(u, type) {
+  switch (type) {
+    case 'fade': {
+      const fi = 0.12, fo = 0.35;
+      let op;
+      if (u < fi) op = u / fi;
+      else if (u > 1 - fo) op = (1 - u) / fo;
+      else op = 1;
+      return { opacity: op, sizeMul: 1, spacingMul: 1 };
+    }
+    case 'bloom': {
+      let op;
+      if (u < 0.05) op = u / 0.05;
+      else if (u > 0.5) op = (1 - u) / 0.5;
+      else op = 1;
+      return { opacity: op, sizeMul: 1, spacingMul: 1 };
+    }
+    case 'grow': {
+      const op = u < 0.1 ? u / 0.1 : (u > 0.7 ? (1 - u) / 0.3 : 1);
+      const size = 0.5 + u * 1.5;
+      return { opacity: op, sizeMul: size, spacingMul: 1 };
+    }
+    case 'shrink': {
+      const op = u < 0.1 ? u / 0.1 : (1 - u) / 0.9;
+      const size = 1 - u * 0.9;
+      return { opacity: op, sizeMul: size, spacingMul: 1 };
+    }
+    case 'scatter': {
+      const op = u < 0.1 ? u / 0.1 : (u > 0.3 ? (1 - u) / 0.7 : 1);
+      const spacing = 1 + u * 3;
+      const size = 1 - u * 0.6;
+      return { opacity: op, sizeMul: size, spacingMul: spacing };
+    }
+    case 'blink': {
+      const on = Math.floor(u * 8) % 2 === 0;
+      return { opacity: on ? 1 : 0, sizeMul: 1, spacingMul: 1 };
+    }
+    case 'comet': {
+      const op = Math.max(0, 1 - u);
+      const size = 1 - u * 0.3;
+      return { opacity: op, sizeMul: size, spacingMul: 1 };
+    }
+    default:
+      return { opacity: 1, sizeMul: 1, spacingMul: 1 };
   }
+}
 
-  function move(e) {
-    if (!current) return;
-    e.preventDefault();
-    if (current.pts.length >= MAX_POINTS) return;
-    const p = pos(e);
-    const last = current.pts[current.pts.length - 1];
-    const dx = p.x - last.x, dy = p.y - last.y;
-    if (dx*dx + dy*dy > 4) current.pts.push(p);
+/* ============================================================
+
+4. MOTION MODES
+   Returns { angle, dx, dy, scale }
+   Applied per symmetry copy in local frame.
+   ============================================================ */
+
+function getMotion(u, type) {
+  const tau = Math.PI * 2;
+  switch (type) {
+    case 'rotate': return { angle: u * tau, dx: 0, dy: 0, scale: 1 };
+    case 'spiral': {
+      const a = u * tau;
+      const r = Math.sin(u * tau) * 0.15;
+      return { angle: a, dx: Math.cos(a) * r, dy: Math.sin(a) * r, scale: 1 };
+    }
+    case 'drift':
+      return { angle: 0, dx: Math.sin(u * tau) * 0.18, dy: 0, scale: 1 };
+    case 'pulse':
+      return { angle: 0, dx: 0, dy: 0, scale: 1 + Math.sin(u * tau) * 0.3 };
+    case 'wobble':
+      return { angle: Math.sin(u * tau) * 0.3, dx: 0, dy: 0, scale: 1 };
+    default:
+      return { angle: 0, dx: 0, dy: 0, scale: 1 };
   }
+}
 
-  function end() { current = null; }
+/* ============================================================
+   5. SYMMETRY & MULTIPLICATION
+   ============================================================ */
 
-  canvas.addEventListener('touchstart', start, {passive:false});
-  canvas.addEventListener('touchmove', move, {passive:false});
-  canvas.addEventListener('touchend', end);
-  canvas.addEventListener('touchcancel',end);
-  canvas.addEventListener('mousedown', start);
-  canvas.addEventListener('mousemove', move);
-  canvas.addEventListener('mouseup', end);
-  canvas.addEventListener('mouseleave', end);
-
-  document.getElementById('clear').addEventListener('click', () => {
-    strokes.length = 0;
-  });
-
-  function applyMotion(mode, u) {
-    const tau = Math.PI * 2;
-    switch (mode) {
-      case 'rotate': return { angle: u * tau, dx: 0, dy: 0, scale: 1 };
-      case 'spiral': {
-        const r = Math.sin(u * tau) * 0.18 * Math.min(W, H);
-        const a = u * tau;
-        return { angle: a, dx: Math.cos(a) * r, dy: Math.sin(a) * r, scale: 1 };
+function getSymmetryTransforms(type, N) {
+  const t = [];
+  const tau = Math.PI * 2;
+  switch (type) {
+    case 'none':
+      t.push({ angle: 0, mirror: false });
+      break;
+    case 'radial':
+      for (let i = 0; i < N; i++) t.push({ angle: i / N * tau, mirror: false });
+      break;
+    case 'kaleidoscope':
+      for (let i = 0; i < N; i++) {
+        t.push({ angle: i / N * tau, mirror: false });
+        t.push({ angle: i / N * tau, mirror: true });
       }
-      case 'drift':
-        return { angle: 0, dx: Math.sin(u*tau) * 0.15 * W, dy: 0, scale: 1 };
-      case 'pulse':
-        return { angle: 0, dx: 0, dy: 0, scale: 1 + Math.sin(u*tau) * 0.35 };
-      case 'wobble':
-        return { angle: Math.sin(u*tau) * 0.35, dx: 0, dy: 0, scale: 1 };
-      default:
-        return { angle: 0, dx: 0, dy: 0, scale: 1 };
+      break;
+    case 'mirrorX':
+      t.push({ angle: 0, mirror: false });
+      t.push({ angle: 0, mirror: true, axis: 'x' });
+      break;
+    case 'mirrorY':
+      t.push({ angle: 0, mirror: false });
+      t.push({ angle: 0, mirror: true, axis: 'y' });
+      break;
+    case 'spiral':
+      for (let i = 0; i < N; i++) {
+        t.push({ angle: i / N * tau, mirror: false, scale: 0.6 + 0.4 * (i / N) });
+      }
+      break;
+  }
+  return t;
+}
+
+function getMultiplicationTransforms(type, W, H) {
+  const t = [];
+  switch (type) {
+    case 'none':
+      t.push({ cx: W/2, cy: H/2, scale: 1, angle: 0 });
+      break;
+    case 'grid2':
+      for (let y = 0; y < 2; y++) for (let x = 0; x < 2; x++)
+        t.push({ cx: W * (x + 0.5) / 2, cy: H * (y + 0.5) / 2, scale: 0.5, angle: 0 });
+      break;
+    case 'grid3':
+      for (let y = 0; y < 3; y++) for (let x = 0; x < 3; x++)
+        t.push({ cx: W * (x + 0.5) / 3, cy: H * (y + 0.5) / 3, scale: 1/3, angle: 0 });
+      break;
+    case 'ring': {
+      const M = 6;
+      for (let i = 0; i < M; i++) {
+        const a = i / M * Math.PI * 2;
+        t.push({
+          cx: W/2 + Math.cos(a) * W * 0.28,
+          cy: H/2 + Math.sin(a) * H * 0.28,
+          scale: 0.4,
+          angle: a,
+        });
+      }
+      break;
+    }
+    case 'spiralNest': {
+      const M = 5;
+      for (let i = 0; i < M; i++) {
+        const a = i / M * Math.PI * 2;
+        const r = i * Math.min(W, H) * 0.06;
+        t.push({
+          cx: W/2 + Math.cos(a) * r,
+          cy: H/2 + Math.sin(a) * r,
+          scale: 1 - i * 0.15,
+          angle: a,
+        });
+      }
+      break;
+    }
+    case 'brick':
+      for (let y = 0; y < 2; y++) {
+        const offset = y % 2 === 0 ? 0 : W / 6;
+        for (let x = 0; x < 3; x++) {
+          t.push({
+            cx: W * x / 3 + W / 6 + offset,
+            cy: H * (y + 0.5) / 2,
+            scale: 1/3,
+            angle: 0,
+          });
+        }
+      }
+      break;
+  }
+  return t;
+}
+
+/* ============================================================
+   6. BRUSH RENDERING
+   ============================================================ */
+
+function applyPerpendicularOffset(points, offset) {
+  if (offset === 0) return points;
+  const n = points.length;
+  const result = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const a = points[Math.max(0, i - 1)];
+    const b = points[Math.min(n - 1, i + 1)];
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy) || 1;
+    result[i] = {
+      x: points[i].x - dy / len * offset,
+      y: points[i].y + dx / len * offset,
+    };
+  }
+  return result;
+}
+
+function sampleDots(points, spacing) {
+  const result = [{ x: points[0].x, y: points[0].y }];
+  let carry = 0;
+  for (let i = 1; i < points.length; i++) {
+    const ax = points[i-1].x, ay = points[i-1].y;
+    const bx = points[i].x, by = points[i].y;
+    const dx = bx - ax, dy = by - ay;
+    const segLen = Math.hypot(dx, dy);
+    if (segLen === 0) continue;
+    const ux = dx / segLen, uy = dy / segLen;
+    let pos = 0;
+    while (pos + (spacing - carry) <= segLen) {
+      pos += spacing - carry;
+      carry = 0;
+      result.push({ x: ax + ux * pos, y: ay + uy * pos });
+    }
+    carry += segLen - pos;
+  }
+  return result;
+}
+
+function strokePath(ctx, points, style, size, spacingMul, gradient, solidColor) {
+  if (points.length < 2) return;
+
+  switch (style) {
+    case 'solid': {
+      if (gradient) {
+        // chunked gradient along the stroke
+        const CHUNK = 6;
+        const n = points.length;
+        for (let i = 0; i < n - 1; i += CHUNK) {
+          const end = Math.min(i + CHUNK + 1, n);
+          const t = i / (n - 1);
+          ctx.strokeStyle = lerpColor(gradient.from, gradient.to, t);
+          ctx.beginPath();
+          ctx.moveTo(points[i].x, points[i].y);
+          for (let j = i + 1; j < end; j++) ctx.lineTo(points[j].x, points[j].y);
+          ctx.stroke();
+        }
+      } else {
+        ctx.strokeStyle = solidColor;
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+        ctx.stroke();
+      }
+      break;
+    }
+    case 'dotted': {
+      const spacing = Math.max(4, size * 3 * spacingMul);
+      const dots = sampleDots(points, spacing);
+      const radius = Math.max(0.8, size * 0.5);
+      for (const d of dots) {
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, radius, 0, Math.PI * 2);
+        if (gradient) {
+          const approxT = 0; // dots use solid for simplicity
+          ctx.fillStyle = gradient.from;
+        } else {
+          ctx.fillStyle = solidColor;
+        }
+        ctx.fill();
+      }
+      break;
+    }
+    case 'dashed': {
+      const dashLen = Math.max(4, size * 2.5 * spacingMul);
+      ctx.setLineDash([dashLen, dashLen]);
+      ctx.strokeStyle = gradient ? lerpColor(gradient.from, gradient.to, 0.5) : solidColor;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      break;
+    }
+    case 'tapered': {
+      const n = points.length;
+      ctx.strokeStyle = gradient ? lerpColor(gradient.from, gradient.to, 0.5) : solidColor;
+      for (let i = 1; i < n; i++) {
+        const t = i / (n - 1);
+        const taper = 1 - Math.abs(t - 0.5) * 2;
+        ctx.lineWidth = size * (0.3 + taper * 0.7);
+        ctx.beginPath();
+        ctx.moveTo(points[i-1].x, points[i-1].y);
+        ctx.lineTo(points[i].x, points[i].y);
+        ctx.stroke();
+      }
+      break;
+    }
+    case 'glow': {
+      const col = gradient ? gradient.from : solidColor;
+      // wide soft underlay
+      ctx.globalAlpha *= 0.35;
+      ctx.strokeStyle = col;
+      ctx.lineWidth = size * 3.5;
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+      ctx.stroke();
+      // restore
+      ctx.globalAlpha /= 0.35;
+      ctx.lineWidth = size;
+      // sharp core
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for (let i = 1; i < points.length; i++) ctx.lineTo(points[i].x, points[i].y);
+      ctx.stroke();
+      break;
     }
   }
+}
 
-  function opacityFor(u) {
-    const fadeIn = 0.12, fadeOut = 0.35;
-    if (u < fadeIn) return u / fadeIn;
-    if (u > 1 - fadeOut) return (1 - u) / fadeOut;
-    return 1;
-  }
+/* ============================================================
+   7. FRAME RENDER
+   ============================================================ */
 
-  function frame(now) {
-    const L = parseInt(lifeEl.value, 10);
-    const mode = modeEl.value;
-    const N = parseInt(symEl.value, 10);
+function drawStroke(ctx, stroke, now, W, H, quality) {
+  const L = state.settings.loopLength;
+  let age = (now - stroke.t0) % L;
+  if (age < 0) age += L;
+  const u = age / L;
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, W, H);
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = 2.2 * dpr;
+  const life = getLife(u, state.settings.life);
+  if (life.opacity <= 0.01) return;
+  if (life.sizeMul <= 0.02) return;
 
-    for (let s = 0; s < strokes.length; s++) {
-      const st = strokes[s];
-      if (st.pts.length < 2) continue;
+  const motion = getMotion(u, state.settings.motion);
+  const syms = getSymmetryTransforms(state.settings.symmetry, state.settings.symmetryN);
+  const mults = getMultiplicationTransforms(state.settings.multiplication, W, H);
 
-      let age = (now - st.t0) % L;
-      if (age < 0) age += L;
-      const u = age / L;
+  // Convert stored normalized points to pixel coords (square mapping)
+  const S = Math.min(W, H);
+  const cx = W / 2, cy = H / 2;
+  const pxPoints = stroke.points.map(p => ({
+    x: cx + (p.x - 0.5) * S,
+    y: cy + (p.y - 0.5) * S,
+  }));
+  // Quality caps
+  let strands = stroke.strandCount;
+  let gradient = stroke.gradient;
+  let neon = stroke.neon;
+  if (quality === 'draft') { strands = 1; gradient = null; neon = false; }
+  if (quality === 'solo') { strands = 1; gradient = null; neon = false; }
 
-      const alpha = opacityFor(u) * 0.85;
-      if (alpha <= 0.01) continue;
+  const symsToUse = quality === 'solo' ? [syms[0]] : syms;
 
-      const m = applyMotion(mode, u);
-      ctx.globalAlpha = alpha;
-      ctx.strokeStyle = 'hsl(' + st.hue + ', 65%, 72%)';
+  const baseSize = stroke.size * life.sizeMul;
+  const baseOpacity = stroke.opacity * life.opacity;
+  const spacing = life.spacingMul;
 
-      for (let i = 0; i < N; i++) {
-        const base = (i / N) * Math.PI * 2;
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.translate(cx + m.dx, cy + m.dy);
-        ctx.rotate(base + m.angle);
+  for (const m of mults) {
+    for (const sym of symsToUse) {
+      for (let s = 0; s < strands; s++) {
+        // Per-strand hue
+        let color = stroke.color;
+        if (stroke.perStrandHue && strands > 1) {
+          color = shiftHue(stroke.color, s * (360 / strands));
+        }
+
+        // Perpendicular strand offset in pixels
+        const strandOffset = (s - (strands - 1) / 2) * (baseSize * 2.2);
+        const offsetPoints = applyPerpendicularOffset(pxPoints, strandOffset);
+
+        ctx.save();
+
+        // Multiplication
+        ctx.translate(m.cx, m.cy);
+        ctx.rotate(m.angle);
         ctx.scale(m.scale, m.scale);
         ctx.translate(-cx, -cy);
 
-        ctx.beginPath();
-        ctx.moveTo(st.pts[0].x, st.pts[0].y);
-        for (let j = 1; j < st.pts.length; j++) {
-          ctx.lineTo(st.pts[j].x, st.pts[j].y);
+        // Symmetry (around canvas center)
+        ctx.translate(cx, cy);
+        ctx.rotate(sym.angle);
+        if (sym.mirror) {
+          if (sym.axis === 'y') ctx.scale(-1, 1);
+          else ctx.scale(1, -1);
         }
-        ctx.stroke();
+        if (sym.scale) ctx.scale(sym.scale, sym.scale);
+        ctx.translate(-cx, -cy);
+
+        // Motion (per symmetry copy, local frame)
+        ctx.translate(cx, cy);
+        ctx.rotate(motion.angle);
+        ctx.translate(motion.dx * S, motion.dy * S);
+        ctx.scale(motion.scale, motion.scale);
+        ctx.translate(-cx, -cy);
+
+        // Setup draw state
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = baseSize;
+        ctx.globalAlpha = baseOpacity;
+
+        // Neon underlay
+        if (neon) {
+          const neonColor = gradient ? gradient.from : color;
+          ctx.globalAlpha = baseOpacity * 0.25;
+          ctx.strokeStyle = neonColor;
+          ctx.lineWidth = baseSize * 4;
+          ctx.beginPath();
+          ctx.moveTo(offsetPoints[0].x, offsetPoints[0].y);
+          for (let i = 1; i < offsetPoints.length; i++) ctx.lineTo(offsetPoints[i].x, offsetPoints[i].y);
+          ctx.stroke();
+
+          ctx.globalAlpha = baseOpacity * 0.6;
+          ctx.lineWidth = baseSize * 2;
+          ctx.beginPath();
+          ctx.moveTo(offsetPoints[0].x, offsetPoints[0].y);
+          for (let i = 1; i < offsetPoints.length; i++) ctx.lineTo(offsetPoints[i].x, offsetPoints[i].y);
+          ctx.stroke();
+        }
+
+        ctx.globalAlpha = baseOpacity;
+        ctx.lineWidth = baseSize;
+
+        strokePath(ctx, offsetPoints, stroke.brushStyle, baseSize, spacing, gradient, color);
+
+        ctx.restore();
       }
     }
-
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.globalAlpha = 1;
-    requestAnimationFrame(frame);
   }
+}
+
+function renderFrame(ctx, W, H, now) {
+  // Background
+  if (state.settings.transparentBg) {
+    ctx.clearRect(0, 0, W, H);
+  } else {
+    ctx.fillStyle = state.settings.background;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  // Strokes
+  for (const stroke of state.strokes) {
+    drawStroke(ctx, stroke, now, W, H, state.settings.quality);
+  }
+
+  // Reset
+  ctx.globalAlpha = 1;
+  ctx.setLineDash([]);
+}
+
+/* ============================================================
+   8. STROKE INPUT
+   ============================================================ */
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, dpr;
+
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = Math.floor(window.innerWidth * dpr);
+  H = Math.floor(window.innerHeight * dpr);
+  canvas.width = W;
+  canvas.height = H;
+  canvas.style.width = window.innerWidth + 'px';
+  canvas.style.height = window.innerHeight + 'px';
+}
+resize();
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 200));
+
+function getPointer(e) {
+  const r = canvas.getBoundingClientRect();
+  const t = e.touches ? e.touches[0] : e;
+  return {
+    x: (t.clientX - r.left) * dpr,
+    y: (t.clientY - r.top) * dpr,
+  };
+}
+
+function beginStroke(e) {
+  if (e.button !== undefined && e.button !== 0 && !e.touches) return;
+  e.preventDefault();
+
+  const s = state.settings;
+  if (state.strokes.length >= s.maxStrokes) {
+    // refuse
+    flashBarWarning();
+    return;
+  }
+
+  const p = getPointer(e);
+  const S = Math.min(W, H);
+  const cx = W / 2, cy = H / 2;
+  const nx = (p.x - cx) / S + 0.5;
+  const ny = (p.y - cy) / S + 0.5;
+
+  state.currentStroke = {
+    points: [{ x: nx, y: ny }],
+    t0: state.clock,
+    brushStyle: s.brushStyle,
+    strandCount: parseInt(s.strandCount, 10) || 1,
+    size: s.size,
+    opacity: s.opacity,
+    color: s.gradient ? s.gradient.from : s.color,
+    gradient: s.gradient ? { ...s.gradient } : null,
+    neon: s.neon,
+    perStrandHue: s.perStrandHue,
+  };
+}
+
+function moveStroke(e) {
+  if (!state.currentStroke) return;
+  e.preventDefault();
+  const p = getPointer(e);
+  const S = Math.min(W, H);
+  const cx = W / 2, cy = H / 2;
+  const nx = (p.x - cx) / S + 0.5;
+  const ny = (p.y - cy) / S + 0.5;
+
+  const last = state.currentStroke.points[state.currentStroke.points.length - 1];
+  const dx = (nx - last.x) * S;
+  const dy = (ny - last.y) * S;
+  if (dx * dx + dy * dy < 4) return; // ~2px threshold
+  if (state.currentStroke.points.length > 800) return;
+
+  state.currentStroke.points.push({ x: nx, y: ny });
+}
+
+function endStroke() {
+  if (!state.currentStroke) return;
+  if (state.currentStroke.points.length >= 2) {
+    state.strokes.push(state.currentStroke);
+    state.history.push({ type: 'draw', stroke: state.currentStroke });
+    state.redoStack = [];
+  }
+  state.currentStroke = null;
+}
+
+canvas.addEventListener('touchstart', beginStroke, { passive: false });
+canvas.addEventListener('touchmove', moveStroke, { passive: false });
+canvas.addEventListener('touchend', endStroke);
+canvas.addEventListener('touchcancel', endStroke);
+canvas.addEventListener('mousedown', beginStroke);
+canvas.addEventListener('mousemove', moveStroke);
+canvas.addEventListener('mouseup', endStroke);
+canvas.addEventListener('mouseleave', endStroke);
+
+/* ============================================================
+   9. EXPORT
+   ============================================================ */
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+async function exportVideo() {
+  const presetEl = document.querySelector('.preset.active');
+  const presetW = parseInt(presetEl.dataset.w, 10);
+  const presetH = parseInt(presetEl.dataset.h, 10);
+  const loops = parseInt(document.getElementById('exportLoops').value, 10);
+
+  const fps = 30;
+  const totalMs = state.settings.loopLength * loops;
+  const totalFrames = Math.ceil(totalMs / 1000 * fps);
+
+  const off = document.createElement('canvas');
+  off.width = presetW;
+  off.height = presetH;
+  const octx = off.getContext('2d');
+
+  // Choose supported mime type
+  const mimes = [
+    'video/webm;codecs=vp9',
+    'video/webm;codecs=vp8',
+    'video/webm',
+    'video/mp4',
+  ];
+  let mime = null;
+  for (const m of mimes) {
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) { mime = m; break; }
+  }
+
+  const progressWrap = document.getElementById('progressWrap');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  progressWrap.classList.add('show');
+  progressFill.style.width = '0%';
+  progressText.textContent = 'Starting…';
+
+  if (!mime) {
+    // Fallback: PNG export of first frame
+    progressText.textContent = 'Video export not supported on this browser. Downloading PNG…';
+    renderFrame(octx, presetW, presetH, 0);
+    off.toBlob(b => downloadBlob(b, 'flow.png'));
+    return;
+  }
+
+  const stream = off.captureStream(0);
+  const track = stream.getVideoTracks()[0];
+  const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 16_000_000 });
+  const chunks = [];
+  recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+
+  recorder.start();
+
+  const startClock = 0;
+  for (let f = 0; f < totalFrames; f++) {
+    const t = startClock + (f / fps) * 1000;
+    renderFrame(octx, presetW, presetH, t);
+
+    if (track.requestFrame) track.requestFrame();
+
+    // Give encoder time
+    await new Promise(r => setTimeout(r, 1000 / fps));
+
+    const pct = (f + 1) / totalFrames * 100;
+    progressFill.style.width = pct + '%';
+    progressText.textContent = `Rendering frame ${f + 1} / ${totalFrames}`;
+  }
+
+  await new Promise(r => setTimeout(r, 300));
+  recorder.stop();
+  await new Promise(r => { recorder.onstop = r; });
+
+  const blob = new Blob(chunks, { type: mime });
+  const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+  downloadBlob(blob, `flow-${presetW}x${presetH}.${ext}`);
+
+  progressText.textContent = 'Done — check your downloads.';
+  progressFill.style.width = '100%';
+}
+
+function exportPNG() {
+  const presetEl = document.querySelector('.preset.active');
+  const presetW = parseInt(presetEl.dataset.w, 10);
+  const presetH = parseInt(presetEl.dataset.h, 10);
+
+  const off = document.createElement('canvas');
+  off.width = presetW;
+  off.height = presetH;
+  const octx = off.getContext('2d');
+  renderFrame(octx, presetW, presetH, state.clock);
+  off.toBlob(b => downloadBlob(b, `flow-${presetW}x${presetH}.png`));
+}
+
+/* ============================================================
+   10. UI WIRING
+   ============================================================ */
+
+// ---- Color swatch update ----
+function updateColorSwatch() {
+  const el = document.getElementById('colorSwatch');
+  const g = state.settings.gradient;
+  if (g) {
+    el.style.background = `linear-gradient(135deg, ${g.from}, ${g.to})`;
+  } else {
+    el.style.background = state.settings.color;
+  }
+}
+
+// ---- Brush label ----
+function updateBrushLabel() {
+  const s = state.settings;
+  const label = document.getElementById('brushLabel');
+  const short = { solid: 'solid', dotted: 'dots', dashed: 'dash', tapered: 'taper', glow: 'glow' };
+  label.textContent = `${short[s.brushStyle] || s.brushStyle} ${s.strandCount}`;
+}
+
+// ---- Quality ----
+const QUALITY_CYCLE = ['full', 'draft', 'solo'];
+function updateQualityUI() {
+  const q = state.settings.quality;
+  document.getElementById('qualityLabel').textContent = q.charAt(0).toUpperCase() + q.slice(1);
+  document.getElementById('qualityBtn').classList.toggle('active', q !== 'full');
+}
+function cycleQuality() {
+  const idx = QUALITY_CYCLE.indexOf(state.settings.quality);
+  state.settings.quality = QUALITY_CYCLE[(idx + 1) % QUALITY_CYCLE.length];
+  updateQualityUI();
+}
+// ---- Pause ----
+function updatePauseUI() {
+  const p = state.paused;
+  document.getElementById('pauseLabel').textContent = p ? 'Play' : 'Pause';
+  document.getElementById('pauseBtn').querySelector('.icon').textContent = p ? '▶️' : '⏸';
+  document.getElementById('pausedTint').classList.toggle('on', p);
+}
+function togglePause() {
+  state.paused = !state.paused;
+  state.lastFrameTime = performance.now();
+  updatePauseUI();
+}
+
+// ---- Sheet open/close ----
+function openSheet(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeSheet(id) {
+  document.getElementById(id).classList.remove('open');
+}
+document.querySelectorAll('.sheetClose').forEach(btn => {
+  btn.addEventListener('click', () => closeSheet(btn.dataset.close));
+});
+document.querySelectorAll('.sheet').forEach(sheet => {
+  sheet.addEventListener('click', (e) => {
+    if (e.target === sheet) closeSheet(sheet.id);
+  });
+});
+
+// ---- Tabs ----
+document.querySelectorAll('#settingsTabs .tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#settingsTabs .tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+  });
+});
+
+// ---- Palette ----
+function buildPalette() {
+  const grid = document.getElementById('paletteGrid');
+  grid.innerHTML = '';
+  PALETTE.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'swatch';
+    d.style.background = `linear-gradient(135deg, ${p.from}, ${p.to})`;
+    if (state.settings.gradient && state.settings.gradient.from === p.from && state.settings.gradient.to === p.to) {
+      d.classList.add('active');
+    }
+    d.addEventListener('click', () => {
+      state.settings.gradient = { from: p.from, to: p.to };
+      state.settings.color = p.from;
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+      d.classList.add('active');
+      updateColorSwatch();
+    });
+    grid.appendChild(d);
+  });
+  // Custom color
+  const custom = document.createElement('div');
+  custom.className = 'swatch custom';
+  custom.textContent = '🎨';
+  custom.style.position = 'relative';
+  const inp = document.createElement('input');
+  inp.type = 'color';
+  inp.value = state.settings.color;
+  inp.style.position = 'absolute';
+  inp.style.inset = '0';
+  inp.style.opacity = '0';
+  inp.style.width = '100%';
+  inp.style.height = '100%';
+  inp.addEventListener('input', () => {
+    state.settings.gradient = null;
+    state.settings.color = inp.value;
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    custom.classList.add('active');
+    updateColorSwatch();
+  });
+  custom.appendChild(inp);
+  grid.appendChild(custom);
+}
+buildPalette();
+
+// ---- Settings binding helpers ----
+function bindSelect(id, key, cast) {
+  const el = document.getElementById(id);
+  el.value = state.settings[key];
+  el.addEventListener('change', () => {
+    state.settings[key] = cast ? cast(el.value) : el.value;
+  });
+}
+function bindRange(id, key, valueId, cast) {
+  const el = document.getElementById(id);
+  const val = document.getElementById(valueId);
+  el.value = state.settings[key];
+  val.textContent = state.settings[key];
+  el.addEventListener('input', () => {
+    const v = cast ? cast(el.value) : el.value;
+    state.settings[key] = v;
+    val.textContent = v;
+  });
+}
+function bindToggle(id, key) {
+  const el = document.getElementById(id);
+  el.classList.toggle('on', !!state.settings[key]);
+  el.addEventListener('click', () => {
+    state.settings[key] = !state.settings[key];
+    el.classList.toggle('on', state.settings[key]);
+  });
+}
+
+bindSelect('setBrushStyle', 'brushStyle');
+bindSelect('setStrandCount', 'strandCount', parseInt);
+bindRange('setSize', 'size', 'setSizeVal', parseFloat);
+bindRange('setOpacity', 'opacity', 'setOpacityVal', parseFloat);
+bindSelect('setMotion', 'motion');
+bindSelect('setLife', 'life');
+bindSelect('setLoop', 'loopLength', parseInt);
+bindSelect('setSymmetry', 'symmetry');
+bindSelect('setSymN', 'symmetryN', parseInt);
+bindSelect('setMult', 'multiplication');
+bindRange('setMaxStrokes', 'maxStrokes', 'setMaxStrokesVal', parseInt);
+bindToggle('setNeon', 'neon');
+bindToggle('setStrandHue', 'perStrandHue');
+bindToggle('setTransparent', 'transparentBg');
+
+document.getElementById('setBg').addEventListener('input', (e) => {
+  state.settings.background = e.target.value;
+});
+
+// Clear all (undoable)
+document.getElementById('clearAllBtn').addEventListener('click', () => {
+  if (state.strokes.length === 0) return;
+  state.history.push({ type: 'clear', strokes: [...state.strokes] });
+  state.strokes = [];
+  state.redoStack = [];
+});
+
+// ---- Undo / Redo ----
+function undo() {
+  const action = state.history.pop();
+  if (!action) return;
+  state.redoStack.push(action);
+  if (action.type === 'draw') {
+    const i = state.strokes.indexOf(action.stroke);
+    if (i >= 0) state.strokes.splice(i, 1);
+  } else if (action.type === 'clear') {
+    state.strokes = [...action.strokes];
+  }
+}
+function redo() {
+  const action = state.redoStack.pop();
+  if (!action) return;
+  state.history.push(action);
+  if (action.type === 'draw') {
+    state.strokes.push(action.stroke);
+  } else if (action.type === 'clear') {
+    state.strokes = [];
+  }
+}
+
+document.getElementById('undoBtn').addEventListener('click', undo);
+document.getElementById('redoBtn').addEventListener('click', redo);
+document.getElementById('pauseBtn').addEventListener('click', togglePause);
+document.getElementById('qualityBtn').addEventListener('click', cycleQuality);
+document.getElementById('settingsBtn').addEventListener('click', () => openSheet('settingsSheet'));
+document.getElementById('exportBtn').addEventListener('click', () => openSheet('exportSheet'));
+document.getElementById('infoBtn').addEventListener('click', () => openSheet('infoSheet'));
+document.getElementById('colorBtn').addEventListener('click', () => {
+  openSheet('settingsSheet');
+  // switch to brush tab
+  document.querySelectorAll('#settingsTabs .tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('#settingsTabs .tab[data-panel="brush"]').classList.add('active');
+  document.getElementById('panel-brush').classList.add('active');
+});
+document.getElementById('brushBtn').addEventListener('click', () => {
+  // cycle through brush styles + strand counts on the fly
+  const styles = ['solid', 'dotted', 'dashed', 'tapered', 'glow'];
+  const counts = [1, 2, 3, 5];
+  const s = state.settings;
+  let si = styles.indexOf(s.brushStyle);
+  let ci = counts.indexOf(s.strandCount);
+  // first cycle through counts, then styles
+  ci = (ci + 1) % counts.length;
+  if (ci === 0) si = (si + 1) % styles.length;
+  s.brushStyle = styles[si];
+  s.strandCount = counts[ci];
+  updateBrushLabel();
+  // reflect in settings UI
+  document.getElementById('setBrushStyle').value = s.brushStyle;
+  document.getElementById('setStrandCount').value = s.strandCount;
+});
+
+// ---- Export ----
+document.querySelectorAll('.preset').forEach(p => {
+  p.addEventListener('click', () => {
+    document.querySelectorAll('.preset').forEach(x => x.classList.remove('active'));
+    p.classList.add('active');
+  });
+});
+document.getElementById('doExport').addEventListener('click', exportVideo);
+document.getElementById('doExportPNG').addEventListener('click', exportPNG);
+
+// ---- Path count badge ----
+function updatePathBadge(count) {
+  const b = document.getElementById('pathBadge');
+  if (count > 1000) {
+    b.textContent = count.toLocaleString();
+    b.classList.add('show');
+  } else {
+    b.classList.remove('show');
+  }
+}
+
+// ---- Keyboard shortcuts (Mac / hardware keyboard) ----
+window.addEventListener('keydown', (e) => {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+  if ((e.metaKey || e.ctrlKey) && e.key === 'z' && !e.shiftKey) {
+    e.preventDefault(); undo();
+  } else if ((e.metaKey || e.ctrlKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+    e.preventDefault(); redo();
+  } else if (e.key === ' ') {
+    e.preventDefault(); togglePause();
+  }
+});
+
+// ---- Warning flash for full strokes ----
+function flashBarWarning() {
+  const bar = document.getElementById('bar');
+  bar.style.background = 'rgba(255, 80, 80, 0.35)';
+  setTimeout(() => { bar.style.background = ''; }, 300);
+}
+
+// Init UI
+updateColorSwatch();
+updateBrushLabel();
+updateQualityUI();
+updatePauseUI();
+
+/* ============================================================
+   11. MAIN LOOP
+   ============================================================ */
+
+function frame(now) {
+  const dt = now - state.lastFrameTime;
+  state.lastFrameTime = now;
+  if (!state.paused) {
+    state.clock += Math.min(dt, 100); // clamp to avoid huge jumps after tab-switch
+  }
+
+  // Render
+  renderFrame(ctx, W, H, state.clock);
+
+  // Path count
+  const symCount = state.settings.symmetry === 'kaleidoscope'
+    ? state.settings.symmetryN * 2
+    : state.settings.symmetry === 'radial' || state.settings.symmetry === 'spiral'
+      ? state.settings.symmetryN
+      : state.settings.symmetry === 'none' ? 1 : 2;
+  const multCount = state.settings.multiplication === 'grid2' ? 4
+    : state.settings.multiplication === 'grid3' ? 9
+    : state.settings.multiplication === 'ring' ? 6
+    : state.settings.multiplication === 'spiralNest' ? 5
+    : state.settings.multiplication === 'brick' ? 6 : 1;
+  const L = state.settings.loopLength;
+  let visible = 0;
+  for (const s of state.strokes) {
+    const age = (state.clock - s.t0) % L;
+    if (age > 0 && age < L) visible++;
+  }
+  const strands = state.settings.quality === 'draft' || state.settings.quality === 'solo' ? 1 : 3; // estimate
+  const pathCount = visible * strands * symCount * multCount;
+  updatePathBadge(pathCount);
+
   requestAnimationFrame(frame);
-})();
+}
+requestAnimationFrame(frame);
 </script>
 </body>
 </html>
