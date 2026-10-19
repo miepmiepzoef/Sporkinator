@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>Flow v4</title>
+<style>
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #07070a; touch-action: none; font: 13px -apple-system, system-ui, sans-serif; color: #fff; -webkit-user-select: none; user-select: none; }
+  canvas#c { display: block; touch-action: none; }
+  #pausedTint { position: fixed; inset: 0; background: rgba(80,120,255,0.08); pointer-events: none; opacity: 0; transition: opacity 0.25s; z-index: 5; }
+  #pausedTint.on { opacity: 1; }
+  #bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; gap: 6px; padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); background: rgba(15,15,22,0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.08); overflow-x: auto; scrollbar-width: none; }
+  #bar::-webkit-scrollbar { display: none; }
+  .btn { flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 6px 10px; min-width: 48px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 10px; font-weight: 500; cursor: pointer; transition: background 0.15s; }
+  .btn:active { background: rgba(255,255,255,0.2); }
+  .btn .icon { font-size: 16px; line-height: 1; }
+  .btn.danger { color: #ff9090; }
+  .btn.active { background: rgba(120,100,255,0.35); border-color: rgba(150,130,255,0.5); }
+  #brushBtn { padding: 4px 10px; }
+  #colorSwatch { width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.5); margin-bottom: 1px; }
+  #pathBadge { font-size: 9px; color: #ffb060; margin-top: 1px; display: none; }
+  #pathBadge.show { display: block; }
+  .sheet { position: fixed; left: 0; right: 0; bottom: 0; top: 10%; background: #12121a; z-index: 30; border-radius: 20px 20px 0 0; transform: translateY(110%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); display: flex; flex-direction: column; border-top: 1px solid rgba(255,255,255,0.1); padding-bottom: env(safe-area-inset-bottom); }
+  .sheet.open { transform: translateY(0); }
+  .sheetHeader { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px 10px; border-bottom: 1px solid rgba(255,255,255,0.08); flex-shrink: 0; }
+  .sheetHeader h2 { margin: 0; font-size: 16px; font-weight: 600; }
+  .sheetClose { background: rgba(255,255,255,0.1); border: none; color: #fff; width: 30px; height: 30px; border-radius: 50%; font-size: 18px; cursor: pointer; }
+  .tabs { display: flex; padding: 8px 12px; gap: 4px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab { padding: 7px 14px; border-radius: 8px; font-size: 12px; font-weight: 500; background: rgba(255,255,255,0.05); border: none; color: rgba(255,255,255,0.6); white-space: nowrap; cursor: pointer; }
+  .tab.active { background: rgba(120,100,255,0.3); color: #fff; }
+  .sheetBody { flex: 1; overflow-y: auto; padding: 12px 18px 30px; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); min-height: 44px; gap: 12px; }
+  .row label { flex-shrink: 0; font-size: 13px; color: rgba(255,255,255,0.85); }
+  .row .ctrl { flex: 1; max-width: 200px; display: flex; justify-content: flex-end; }
+  .row select, .row input[type="range"] { background: rgba(255,255,255,0.08); color: #fff; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 6px 10px; font-size: 13px; font-family: inherit; width: 100%; }
+  .row input[type="range"] { padding: 0; height: 30px; }
+  .row input[type="color"] { width: 40px; height: 30px; border: none; border-radius: 8px; padding: 0; background: transparent; cursor: pointer; }
+  .row .value { font-size: 12px; color: rgba(255,255,255,0.6); min-width: 44px; text-align: right; }
+  .palette { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; padding: 10px 0; }
+  .swatch { aspect-ratio: 1; border-radius: 10px; border: 2px solid transparent; cursor: pointer; position: relative; }
+  .swatch.active { border-color: #fff; }
+  .swatch.custom { background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .toggle { width: 46px; height: 26px; border-radius: 13px; background: rgba(255,255,255,0.15); position: relative; cursor: pointer; transition: background 0.2s; flex-shrink: 0; }
+  .toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: transform 0.2s; }
+  .toggle.on { background: #6a5aff; }
+  .toggle.on::after { transform: translateX(20px); }
+  .sectionDivider { font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: rgba(255,255,255,0.4); margin: 16px 0 4px; padding-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .presetList { padding: 8px 0; }
+  .preset { padding: 14px; margin: 6px 0; border-radius: 12px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+  .preset.active { background: rgba(120,100,255,0.25); border-color: rgba(150,130,255,0.5); }
+  .preset .meta { font-size: 11px; color: rgba(255,255,255,0.5); }
+  .exportBtn { width: 100%; padding: 16px; border-radius: 12px; background: linear-gradient(135deg,#6a5aff,#b05aff); color: #fff; border: none; font-size: 15px; font-weight: 600; margin-top: 14px; cursor: pointer; }
+  #progressWrap { display: none; margin-top: 14px; }
+  #progressWrap.show { display: block; }
+  #progressBar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+  #progressFill { height: 100%; background: linear-gradient(90deg,#6a5aff,#b05aff); width: 0%; transition: width 0.1s; }
+  #progressText { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 6px; text-align: center; }
+  .infoSection { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .infoSection h3 { margin: 0 0 6px; font-size: 14px; color: #b09aff; }
+  .infoSection p { margin: 0 0 6px; font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+  .infoSection ul { margin: 4px 0; padding-left: 18px; font-size: 12px; color: rgba(255,255,255,0.75); line-height: 1.5; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="pausedTint"></div>
+
+<div id="bar">
+  <div class="btn" id="brushBtn"><div id="colorSwatch"></div><span>Brush</span></div>
+  <div class="btn" id="loopBtn"><span class="icon">🔁</span><span>Loop</span></div>
+  <div class="btn" id="undoBtn"><span class="icon">↶</span><span>Undo</span></div>
+  <div class="btn" id="redoBtn"><span class="icon">↷</span><span>Redo</span></div>
+  <div class="btn danger" id="clearBtn"><span class="icon">🗑</span><span>Clear</span></div>
+  <div class="btn" id="qualityBtn"><span class="icon" id="qualityIcon">▦</span><span id="qualityLabel">Full</span><span id="pathBadge">0</span></div>
+  <div class="btn" id="pauseBtn"><span class="icon">⏸</span><span id="pauseLabel">Pause</span></div>
+  <div class="btn" id="exportBtn"><span class="icon">⬇️</span><span>Export</span></div>
+  <div class="btn" id="infoBtn"><span class="icon">ℹ️</span><span>Info</span></div>
+</div>
+
+<div class="sheet" id="brushSheet">
+  <div class="sheetHeader"><h2>Brush</h2><button class="sheetClose" data-close="brushSheet">×</button></div>
+  <div class="tabs" id="brushTabs">
+    <button class="tab active" data-panel="brush">Brush</button>
+    <button class="tab" data-panel="symmetry-brush">Symmetry</button>
+  </div>
+  <div class="sheetBody">
+    <div class="panel active" id="panel-brush">
+      <div class="row"><label>Palette</label></div>
+      <div class="palette" id="paletteGrid"></div>
+      <div class="row"><label>Style</label><div class="ctrl"><select id="setBrushStyle"><option value="solid">Solid line</option><option value="dotted">Dotted</option><option value="dashed">Dashed</option><option value="tapered">Tapered</option><option value="glow">Glow</option></select></div></div>
+      <div class="row"><label>Strand count</label><div class="ctrl"><select id="setStrandCount"><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="5">5</option></select></div></div>
+      <div class="row"><label>Size</label><div class="ctrl"><input type="range" id="setSize" min="0.8" max="10" step="0.2" value="2.2"></div><span class="value" id="setSizeVal">2.2</span></div>
+      <div class="row"><label>Opacity</label><div class="ctrl"><input type="range" id="setOpacity" min="0.1" max="1" step="0.05" value="0.85"></div><span class="value" id="setOpacityVal">0.85</span></div>
+      <div class="row"><label>Neon</label><div class="toggle" id="setNeon"></div></div>
+      <div class="row"><label>Per-strand hue</label><div class="toggle" id="setStrandHue"></div></div>
+
+      <div class="sectionDivider">Drawing assist</div>
+      <div class="row"><label>Stabilize</label><div class="ctrl"><input type="range" id="setStabilize" min="0" max="100" step="1" value="0"></div><span class="value" id="setStabilizeVal">0%</span></div>
+      <div class="row"><label>Snap to center</label><div class="toggle" id="setSnap"></div></div>
+      <div class="row"><label>Simplify on release</label><div class="toggle" id="setSimplify"></div></div>
+      <div class="infoSection">
+        <p><strong>Stabilize</strong> smooths hand jitter. Higher = smoother but the line lags slightly behind your pen. Try 30–50% if you're finding lines wobbly.</p>
+        <p><strong>Snap to center</strong> — when you draw near the middle of the canvas, the point snaps exactly to the symmetry center. Useful for closing lines at the center.</p>
+        <p><strong>Simplify</strong> — after you release, trims redundant points. Keeps strokes clean without visibly changing the shape.</p>
+      </div>
+    </div>
+    <div class="panel" id="panel-symmetry-brush">
+      <div class="row"><label>Drawing symmetry</label><div class="ctrl"><select id="setSymmetry"><option value="none">None</option><option value="radial">Radial</option><option value="kaleidoscope">Kaleidoscope</option><option value="mirrorX">Mirror X</option><option value="mirrorY">Mirror Y</option><option value="spiral">Spiral</option></select></div></div>
+      <div class="row"><label>Fold count</label><div class="ctrl"><select id="setSymN"><option value="2">2</option><option value="4">4</option><option value="6">6</option><option value="8" selected>8</option><option value="12">12</option><option value="16">16</option></select></div></div>
+      <div class="infoSection">
+        <p><strong>Drawing symmetry</strong> is how your pen maps while you draw — one line becomes N copies. You see the pattern forming in real time as you draw.</p>
+        <p>How the finished pattern tiles across the screen is separate: <strong>Loop → Screen</strong>.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="loopSheet">
+  <div class="sheetHeader"><h2>Loop</h2><button class="sheetClose" data-close="loopSheet">×</button></div>
+  <div class="tabs" id="loopTabs">
+    <button class="tab active" data-panel="motion">Motion</button>
+    <button class="tab" data-panel="screen">Screen</button>
+  </div>
+  <div class="sheetBody">
+    <div class="panel active" id="panel-motion">
+      <div class="sectionDivider">Motion</div>
+      <div class="row"><label>Mode</label><div class="ctrl"><select id="setMotion"><option value="none">None</option><option value="rotate">Rotate</option><option value="orbit">Orbit</option><option value="wobble">Wobble</option><option value="drift">Drift</option><option value="pulse">Pulse</option><option value="spiral">Spiral</option></select></div></div>
+      <div class="row" id="amountRow"><label>Amount</label><div class="ctrl"><input type="range" id="setMotionAmount"></div><span class="value" id="setMotionAmountVal">45°</span></div>
+      <div class="row" id="directionRow"><label>Direction</label><div class="ctrl"><select id="setMotionDirection"></select></div></div>
+      <div class="row"><label>Cycles</label><div class="ctrl"><select id="setMotionCycles"><option value="1" selected>1×</option><option value="2">2×</option><option value="3">3×</option></select></div></div>
+      <div class="row"><label>Phase</label><div class="ctrl"><input type="range" id="setMotionPhase" min="0" max="100" step="1" value="0"></div><span class="value" id="setMotionPhaseVal">0%</span></div>
+      <div class="infoSection"><p><strong>Phase</strong>: 0% = strokes move together as one unit. 100% = each stroke at a different point in the motion cycle (scattered).</p></div>
+      <div class="sectionDivider">Life</div>
+      <div class="row"><label>Mode</label><div class="ctrl"><select id="setLife"><option value="fade">Fade</option><option value="bloom">Bloom</option><option value="grow">Grow</option><option value="shrink">Shrink</option><option value="scatter">Scatter</option><option value="blink">Blink</option><option value="comet">Comet</option></select></div></div>
+      <div class="row"><label>Cycles</label><div class="ctrl"><select id="setLifeCycles"><option value="1" selected>1×</option><option value="2">2×</option><option value="3">3×</option></select></div></div>
+      <div class="row"><label>Stagger</label><div class="ctrl"><input type="range" id="setLifeStagger" min="0" max="100" step="1" value="60"></div><span class="value" id="setLifeStaggerVal">60%</span></div>
+      <div class="infoSection"><p><strong>Stagger</strong>: 0% = all fade together (pulsing). 100% = strokes fade in the sequence drawn (flowing).</p></div>
+      <div class="row"><label>Loop length</label><div class="ctrl"><select id="setLoop"><option value="2000">2s</option><option value="4000" selected>4s</option><option value="6000">6s</option><option value="8000">8s</option><option value="12000">12s</option></select></div></div>
+    </div>
+    <div class="panel" id="panel-screen">
+      <div class="row"><label>Screen tiling</label><div class="ctrl"><select id="setTiling"><option value="none">None</option><option value="ring">Ring</option><option value="ringCenter">Ring + center</option><option value="grid2">Grid 2×2</option><option value="grid3">Grid 3×3</option><option value="grid4">Grid 4×4</option><option value="grid5">Grid 5×5</option></select></div></div>
+      <div class="row"><label>Background</label><div class="ctrl"><input type="color" id="setBg" value="#07070a"></div></div>
+      <div class="row"><label>Transparent bg</label><div class="toggle" id="setTransparent"></div></div>
+      <div class="row"><label>Max strokes</label><div class="ctrl"><input type="range" id="setMaxStrokes" min="20" max="200" step="10" value="60"></div><span class="value" id="setMaxStrokesVal">60</span></div>
+      <div class="infoSection"><p><strong>Screen tiling</strong> repeats the finished pattern across the screen. Different from drawing symmetry (how one stroke multiplies while you draw).</p></div>
+    </div>
+  </div>
+</div>
+
+<div class="sheet" id="exportSheet">
+  <div class="sheetHeader"><h2>Export</h2><button class="sheetClose" data-close="exportSheet">×</button></div>
+  <div class="sheetBody">
+    <div class="presetList" id="presetList">
+      <div class="preset active" data-w="3840" data-h="2160"><div><div>4K 16:9</div><div class="meta">3840 × 2160 — projection</div></div></div>
+      <div class="preset" data-w="4096" data-h="4096"><div><div>4K Square</div><div class="meta">4096 × 4096 — square LED</div></div></div>
+      <div class="preset" data-w="1080" data-h="1920"><div><div>Reels</div><div class="meta">1080 × 1920 — stories / TikTok</div></div></div>
+      <div class="preset" data-w="1080" data-h="1080"><div><div>Square</div><div class="meta">1080 × 1080 — feed</div></div></div>
+    </div>
+    <div class="row"><label>Loops</label><div class="ctrl"><select id="exportLoops"><option value="1" selected>1 loop</option><option value="2">2 loops</option><option value="4">4 loops</option></select></div></div>
+    <button class="exportBtn" id="doExport">Render video</button>
+    <button class="exportBtn" id="doExportPNG" style="background:rgba(255,255,255,0.1); margin-top:8px;">Download single PNG frame</button>
+    <div id="progressWrap"><div id="progressBar"><div id="progressFill"></div></div><div id="progressText">Preparing…</div></div>
+  </div>
+</div>
+
+<div class="sheet" id="infoSheet">
+  <div class="sheetHeader"><h2>How Flow works</h2><button class="sheetClose" data-close="infoSheet">×</button></div>
+  <div class="sheetBody">
+    <div class="infoSection"><h3>Two menus</h3><p><strong>Brush</strong> — how each stroke looks and multiplies as you draw. <strong>Loop</strong> — global animation, tiling, and background.</p></div>
+    <div class="infoSection"><h3>Live preview</h3><p>As you draw, you see the current stroke with symmetry and tiling applied — but without motion or life (those start when you release). Small jump on release is normal.</p></div>
+    <div class="infoSection"><h3>Motion vs Life</h3><ul><li><strong>Phase 0%</strong> — strokes move together</li><li><strong>Phase 100%</strong> — scattered (v1 look)</li><li><strong>Stagger 0%</strong> — fade together (pulsing)</li><li><strong>Stagger 100%</strong> — fade in draw order (flowing)</li></ul></div>
+    <div class="infoSection"><h3>Drawing assist</h3><ul><li><strong>Stabilize</strong> — smooths jitter, slight lag at higher values</li><li><strong>Snap to center</strong> — near-center points snap exactly to center</li><li><strong>Simplify</strong> — trims redundant points on release</li></ul></div>
+    <div class="infoSection"><h3>Why it loops perfectly</h3><p>Every frame is calculated from the clock. At time t and t + loopLength, every stroke has the same phase — so the picture is identical.</p></div>
+    <div class="infoSection"><h3>Quality: Full / Single</h3><ul><li><strong>Full</strong> — symmetry + screen tiling</li><li><strong>Single</strong> — one centered pattern, no tiling</li></ul><p>Quality only affects what's on screen — export always renders at Full quality.</p></div>
+    <div class="infoSection"><h3>Autosave</h3><p>Your drawing and settings are saved automatically to your browser after every stroke and settings change. Reload the page and it picks up where you left off.</p></div>
+    <div class="infoSection"><h3>Export</h3><p>Rendered offline at full quality — expect 1–3 minutes for 4K. Keep the tab open. If the render is much slower than expected, a timing-drift warning will appear after export.</p></div>
+  </div>
+</div>
+
+<script>
+/* ============ 1. SETTINGS ============ */
+const PALETTE = [
+  { from:'#ff7f9f',to:'#ff4f7f' },{ from:'#7f9fff',to:'#5f5fff' },{ from:'#7fffbf',to:'#4fffa0' },
+  { from:'#ffdf7f',to:'#ff8f4f' },{ from:'#bf7fff',to:'#7f4fff' },{ from:'#7fffff',to:'#4f9fff' },
+  { from:'#ffbf7f',to:'#ff5f5f' },{ from:'#7fff7f',to:'#4fff7f' },{ from:'#ff7fff',to:'#bf4fff' },
+  { from:'#ffffff',to:'#7f7f7f' },{ from:'#5fffdf',to:'#5f7fff' },{ from:'#ffff7f',to:'#ff7f7f' },
+];
+const MOTION_CONFIG = {
+  none: { amount: null, direction: null },
+  rotate: { amount: { min:0,max:360,step:5,default:45,unit:'°' }, direction: ['CW','CCW'] },
+  orbit: { amount: { min:0,max:50,step:1,default:20,unit:'%' }, direction: ['CW','CCW'] },
+  wobble: { amount: { min:0,max:90,step:1,default:15,unit:'°' }, direction: ['CW','CCW'] },
+  drift: { amount: { min:0,max:50,step:1,default:15,unit:'%' }, direction: ['Horizontal','Vertical','Both'] },
+  pulse: { amount: { min:0,max:100,step:1,default:25,unit:'%' }, direction: ['Out','In'] },
+  spiral: { amount: { min:0,max:50,step:1,default:15,unit:'%' }, direction: ['CW','CCW'] },
+};
+const DEFAULTS = {
+  brushStyle:'solid', strandCount:1, size:2.2, opacity:0.85,
+  color:'#ff7f9f', gradient:{ from:'#ff7f9f', to:'#ff4f7f' },
+  neon:false, perStrandHue:true,
+  stabilize:0, snap:false, simplify:true,
+  symmetry:'kaleidoscope', symmetryN:8,
+  motion:'rotate', motionAmount:45, motionDirection:'CW', motionCycles:1, motionPhase:0,
+  life:'fade', lifeCycles:1, lifeStagger:60,
+  loopLength:4000,
+  multiplication:'none', background:'#07070a', transparentBg:false,
+  maxStrokes:60, quality:'full',
+};
+
+/* --- IndexedDB autosave setup --- */
+const DB_NAME = 'flow-db';
+const DB_VERSION = 1;
+const STORE_NAME = 'state';
+const STATE_KEY = 'current';
+let dbPromise = null;
+let saveTimer = null;
+let restoring = false;
+
+function openDB(){
+  if(dbPromise) return dbPromise;
+  dbPromise = new Promise((resolve, reject) => {
+    try {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if(!db.objectStoreNames.contains(STORE_NAME)){
+          db.createObjectStore(STORE_NAME);
+        }
+      };
+      req.onsuccess = e => resolve(e.target.result);
+      req.onerror = e => reject(e.target.error);
+    } catch(e) { reject(e); }
+  });
+  return dbPromise;
+}
+
+function scheduleSave(){
+  if(restoring) return;
+  if(saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 300);
+}
+
+async function saveNow(){
+  try {
+    const db = await openDB();
+    const tx = db.transaction(STORE_NAME, 'readwrite');
+    const store = tx.objectStore(STORE_NAME);
+    const data = {
+      settings: JSON.parse(JSON.stringify(state.settings)),
+      strokes: state.strokes.map(s => ({
+        points: s.points,
+        t0: s.t0,
+        brushStyle: s.brushStyle,
+        strandCount: s.strandCount,
+        size: s.size,
+        opacity: s.opacity,
+        color: s.color,
+        gradient: s.gradient,
+        neon: s.neon,
+        perStrandHue: s.perStrandHue,
+      })),
+      clock: state.clock,
+      savedAt: Date.now(),
+    };
+    store.put(data, STATE_KEY);
+  } catch(e) {
+    console.warn('Autosave failed:', e);
+  }
+}
+
+function makeSaveableSettings(obj){
+  return new Proxy(obj, {
+    set(target, key, value){
+      target[key] = value;
+      scheduleSave();
+      return true;
+    }
+  });
+}
+
+const state = {
+  settings: makeSaveableSettings(JSON.parse(JSON.stringify(DEFAULTS))),
+  strokes:[], history:[], redoStack:[],
+  currentStroke:null, clock:0,
+  lastFrameTime: performance.now(), paused:false,
+};
+/* --- end autosave setup --- */
+
+/* ============ 2. UTILS ============ */
+function hexToRgb(h){return{r:parseInt(h.slice(1,3),16)/255,g:parseInt(h.slice(3,5),16)/255,b:parseInt(h.slice(5,7),16)/255};}
+function rgbToHex(r,g,b){const h=v=>Math.round(Math.max(0,Math.min(1,v))*255).toString(16).padStart(2,'0');return '#'+h(r)+h(g)+h(b);}
+function shiftHue(hex,deg){
+  let{r,g,b}=hexToRgb(hex);const max=Math.max(r,g,b),min=Math.min(r,g,b);let h,s,l=(max+min)/2;
+  if(max===min){h=s=0;}else{const d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);
+    if(max===r)h=((g-b)/d+(g<b?6:0))/6;else if(max===g)h=((b-r)/d+2)/6;else h=((r-g)/d+4)/6;}
+  h=(h+deg/360+1)%1;
+  const h2r=(p,q,t)=>{if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;};
+  let nr,ng,nb;if(s===0){nr=ng=nb=l;}else{const q=l<0.5?l*(1+s):l+s-l*s;const p=2*l-q;nr=h2r(p,q,h+1/3);ng=h2r(p,q,h);nb=h2r(p,q,h-1/3);}
+  return rgbToHex(nr,ng,nb);
+}
+function lerpColor(c1,c2,t){const a=hexToRgb(c1),b=hexToRgb(c2);return rgbToHex(a.r+(b.r-a.r)*t,a.g+(b.g-a.g)*t,a.b+(b.b-a.b)*t);}
+
+/* ============ 3. LIFE ============ */
+function getLife(u,type){
+  switch(type){
+    case 'fade':{const fi=0.12,fo=0.35;let op;if(u<fi)op=u/fi;else if(u>1-fo)op=(1-u)/fo;else op=1;return{opacity:op,sizeMul:1,spacingMul:1};}
+    case 'bloom':{let op;if(u<0.05)op=u/0.05;else if(u>0.5)op=(1-u)/0.5;else op=1;return{opacity:op,sizeMul:1,spacingMul:1};}
+    case 'grow':{const op=u<0.1?u/0.1:(u>0.7?(1-u)/0.3:1);return{opacity:op,sizeMul:0.5+u*1.5,spacingMul:1};}
+    case 'shrink':{const op=u<0.1?u/0.1:(1-u)/0.9;return{opacity:op,sizeMul:1-u*0.9,spacingMul:1};}
+    case 'scatter':{const op=u<0.1?u/0.1:(u>0.3?(1-u)/0.7:1);return{opacity:op,sizeMul:1-u*0.6,spacingMul:1+u*3};}
+    case 'blink':{const on=Math.floor(u*8)%2===0;return{opacity:on?1:0,sizeMul:1,spacingMul:1};}
+    case 'comet':{return{opacity:Math.max(0,1-u),sizeMul:1-u*0.3,spacingMul:1};}
+    default:return{opacity:1,sizeMul:1,spacingMul:1};
+  }
+}
+/* ============ 4. MOTION ============ */
+function getMotion(u,type,amount,direction,cycles){
+  const uu=(u*cycles)%1;const tau=Math.PI*2;
+  const ccw=direction==='CCW'||direction==='In';const dir=ccw?-1:1;
+  switch(type){
+    case 'rotate':return{angle:dir*uu*(amount*Math.PI/180),dx:0,dy:0,scale:1};
+    case 'wobble':return{angle:dir*Math.sin(uu*tau)*(amount*Math.PI/180),dx:0,dy:0,scale:1};
+    case 'drift':{const a=Math.sin(uu*tau)*(amount/100);
+      if(direction==='Horizontal')return{angle:0,dx:a,dy:0,scale:1};
+      if(direction==='Vertical')return{angle:0,dx:0,dy:a,scale:1};
+      return{angle:0,dx:a*0.7,dy:a*0.7,scale:1};}
+    case 'pulse':{const s=1+dir*Math.sin(uu*tau)*(amount/100);return{angle:0,dx:0,dy:0,scale:Math.max(0.01,s)};}
+    case 'spiral':{const r=Math.sin(uu*tau)*(amount/100);const a=dir*uu*tau;return{angle:a,dx:Math.cos(a)*r,dy:Math.sin(a)*r,scale:1};}
+    case 'orbit':{const a=dir*uu*tau;const r=amount/100;return{angle:0,dx:Math.cos(a)*r,dy:Math.sin(a)*r,scale:1};}
+    default:return{angle:0,dx:0,dy:0,scale:1};
+  }
+}
+
+/* ============ 5. SYMMETRY & TILING ============ */
+function getSymmetryTransforms(type,N){
+  const t=[];const tau=Math.PI*2;
+  switch(type){
+    case 'none':t.push({angle:0,mirror:false});break;
+    case 'radial':for(let i=0;i<N;i++)t.push({angle:i/N*tau,mirror:false});break;
+    case 'kaleidoscope':for(let i=0;i<N;i++){t.push({angle:i/N*tau,mirror:false});t.push({angle:i/N*tau,mirror:true});}break;
+    case 'mirrorX':t.push({angle:0,mirror:false});t.push({angle:0,mirror:true,axis:'x'});break;
+    case 'mirrorY':t.push({angle:0,mirror:false});t.push({angle:0,mirror:true,axis:'y'});break;
+    case 'spiral':for(let i=0;i<N;i++)t.push({angle:i/N*tau,mirror:false,scale:0.6+0.4*(i/N)});break;
+  }
+  return t;
+}
+function getMultiplicationTransforms(type,W,H,quality){
+  if(quality==='single')return[{cx:W/2,cy:H/2,scale:1,angle:0}];
+  const t=[];
+  switch(type){
+    case 'none':t.push({cx:W/2,cy:H/2,scale:1,angle:0});break;
+    case 'ring':{const M=6;for(let i=0;i<M;i++){const a=i/M*Math.PI*2;t.push({cx:W/2+Math.cos(a)*W*0.28,cy:H/2+Math.sin(a)*H*0.28,scale:0.38,angle:a});}break;}
+    case 'ringCenter':{const M=6;for(let i=0;i<M;i++){const a=i/M*Math.PI*2;t.push({cx:W/2+Math.cos(a)*W*0.28,cy:H/2+Math.sin(a)*H*0.28,scale:0.32,angle:a});}t.push({cx:W/2,cy:H/2,scale:0.32,angle:0});break;}
+    case 'grid2':for(let y=0;y<2;y++)for(let x=0;x<2;x++)t.push({cx:W*(x+0.5)/2,cy:H*(y+0.5)/2,scale:0.5,angle:0});break;
+    case 'grid3':for(let y=0;y<3;y++)for(let x=0;x<3;x++)t.push({cx:W*(x+0.5)/3,cy:H*(y+0.5)/3,scale:1/3,angle:0});break;
+    case 'grid4':for(let y=0;y<4;y++)for(let x=0;x<4;x++)t.push({cx:W*(x+0.5)/4,cy:H*(y+0.5)/4,scale:1/4,angle:0});break;
+    case 'grid5':for(let y=0;y<5;y++)for(let x=0;x<5;x++)t.push({cx:W*(x+0.5)/5,cy:H*(y+0.5)/5,scale:1/5,angle:0});break;
+  }
+  return t;
+}
+
+/* ============ 6. BRUSH ============ */
+function applyPerpendicularOffset(points,offset){
+  if(offset===0)return points;
+  const n=points.length,result=new Array(n);
+  for(let i=0;i<n;i++){
+    const a=points[Math.max(0,i-1)],b=points[Math.min(n-1,i+1)];
+    const dx=b.x-a.x,dy=b.y-a.y;const len=Math.hypot(dx,dy)||1;
+    result[i]={x:points[i].x-dy/len*offset,y:points[i].y+dx/len*offset};
+  }
+  return result;
+}
+function sampleDots(points,spacing){
+  const result=[{x:points[0].x,y:points[0].y}];let carry=0;
+  for(let i=1;i<points.length;i++){
+    const ax=points[i-1].x,ay=points[i-1].y,bx=points[i].x,by=points[i].y;
+    const dx=bx-ax,dy=by-ay,segLen=Math.hypot(dx,dy);if(segLen===0)continue;
+    const ux=dx/segLen,uy=dy/segLen;let pos=0;
+    while(pos+(spacing-carry)<=segLen){pos+=spacing-carry;carry=0;result.push({x:ax+ux*pos,y:ay+uy*pos});}
+    carry+=segLen-pos;
+  }
+  return result;
+}
+function strokePath(ctx,points,style,size,spacingMul,gradient,solidColor){
+  if(points.length<2)return;
+  switch(style){
+    case 'solid':{
+      if(gradient){const CHUNK=6,n=points.length;
+        for(let i=0;i<n-1;i+=CHUNK){const end=Math.min(i+CHUNK+1,n);
+          ctx.strokeStyle=lerpColor(gradient.from,gradient.to,i/(n-1));
+          ctx.beginPath();ctx.moveTo(points[i].x,points[i].y);
+          for(let j=i+1;j<end;j++)ctx.lineTo(points[j].x,points[j].y);ctx.stroke();}
+      }else{ctx.strokeStyle=solidColor;ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
+        for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);ctx.stroke();}
+      break;}
+    case 'dotted':{const spacing=Math.max(4,size*3*spacingMul);const dots=sampleDots(points,spacing);
+      const radius=Math.max(0.8,size*0.5);ctx.fillStyle=gradient?gradient.from:solidColor;
+      for(const d of dots){ctx.beginPath();ctx.arc(d.x,d.y,radius,0,Math.PI*2);ctx.fill();}break;}
+    case 'dashed':{const dashLen=Math.max(4,size*2.5*spacingMul);
+      ctx.setLineDash([dashLen,dashLen]);
+      ctx.strokeStyle=gradient?lerpColor(gradient.from,gradient.to,0.5):solidColor;
+      ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
+      for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);ctx.stroke();ctx.setLineDash([]);break;}
+    case 'tapered':{const n=points.length;
+      ctx.strokeStyle=gradient?lerpColor(gradient.from,gradient.to,0.5):solidColor;
+      for(let i=1;i<n;i++){const t=i/(n-1),taper=1-Math.abs(t-0.5)*2;
+        ctx.lineWidth=size*(0.3+taper*0.7);
+        ctx.beginPath();ctx.moveTo(points[i-1].x,points[i-1].y);ctx.lineTo(points[i].x,points[i].y);ctx.stroke();}break;}
+    case 'glow':{const col=gradient?gradient.from:solidColor;
+      ctx.globalAlpha*=0.35;ctx.strokeStyle=col;ctx.lineWidth=size*3.5;
+      ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
+      for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);ctx.stroke();
+      ctx.globalAlpha/=0.35;ctx.lineWidth=size;
+      ctx.beginPath();ctx.moveTo(points[0].x,points[0].y);
+      for(let i=1;i<points.length;i++)ctx.lineTo(points[i].x,points[i].y);ctx.stroke();break;}
+  }
+}
+
+/* ============ 7. RENDER ============ */
+function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPreview){
+  let life,motion;
+  if(isPreview){
+    life={opacity:1,sizeMul:1,spacingMul:1};
+    motion={angle:0,dx:0,dy:0,scale:1};
+  }else{
+    const L=settings.loopLength;
+    const naturalU=((clock-stroke.t0)%L+L)%L/L;
+    const staggerOffset=(settings.lifeStagger/100)*(totalStrokes>0?strokeIndex/totalStrokes:0);
+    const lifeU=((naturalU+staggerOffset)%1+1)%1;
+    const lifeCycleU=(lifeU*settings.lifeCycles)%1;
+    life=getLife(lifeCycleU,settings.life);
+    const globalMotionU=(clock/L)%1;
+    const phaseOffset=(settings.motionPhase/100)*(totalStrokes>0?strokeIndex/totalStrokes:0);
+    const motionU=((globalMotionU+phaseOffset)%1+1)%1;
+    motion=getMotion(motionU,settings.motion,settings.motionAmount,settings.motionDirection,settings.motionCycles);
+  }
+  if(life.opacity<=0.01)return;
+  if(life.sizeMul<=0.02)return;
+  const syms=getSymmetryTransforms(settings.symmetry,settings.symmetryN);
+  const mults=getMultiplicationTransforms(settings.multiplication,W,H,settings.quality);
+  const S=Math.min(W,H);const cx=W/2,cy=H/2;
+  const pxPoints=stroke.points.map(p=>({x:cx+(p.x-0.5)*S,y:cy+(p.y-0.5)*S}));
+  const baseSize=stroke.size*life.sizeMul;
+  const baseOpacity=stroke.opacity*life.opacity;
+  for(const m of mults){
+    for(const sym of syms){
+      for(let s=0;s<stroke.strandCount;s++){
+        let color=stroke.color;
+        if(stroke.perStrandHue&&stroke.strandCount>1)color=shiftHue(stroke.color,s*(360/stroke.strandCount));
+        const strandOffset=(s-(stroke.strandCount-1)/2)*(baseSize*2.2);
+        const offsetPoints=applyPerpendicularOffset(pxPoints,strandOffset);
+        ctx.save();
+        ctx.translate(m.cx,m.cy);ctx.rotate(m.angle);ctx.scale(m.scale,m.scale);ctx.translate(-cx,-cy);
+        ctx.translate(cx,cy);ctx.rotate(sym.angle);
+        if(sym.mirror){if(sym.axis==='y')ctx.scale(-1,1);else ctx.scale(1,-1);}
+        if(sym.scale)ctx.scale(sym.scale,sym.scale);
+        ctx.translate(-cx,-cy);
+        ctx.translate(cx,cy);ctx.rotate(motion.angle);
+        ctx.translate(motion.dx*S,motion.dy*S);
+        ctx.scale(motion.scale,motion.scale);ctx.translate(-cx,-cy);
+        ctx.lineCap='round';ctx.lineJoin='round';
+        ctx.lineWidth=baseSize;ctx.globalAlpha=baseOpacity;
+        if(stroke.neon){
+          const nc=stroke.gradient?stroke.gradient.from:color;
+          ctx.globalAlpha=baseOpacity*0.25;ctx.strokeStyle=nc;ctx.lineWidth=baseSize*4;
+          ctx.beginPath();ctx.moveTo(offsetPoints[0].x,offsetPoints[0].y);
+          for(let i=1;i<offsetPoints.length;i++)ctx.lineTo(offsetPoints[i].x,offsetPoints[i].y);ctx.stroke();
+          ctx.globalAlpha=baseOpacity*0.6;ctx.lineWidth=baseSize*2;
+          ctx.beginPath();ctx.moveTo(offsetPoints[0].x,offsetPoints[0].y);
+          for(let i=1;i<offsetPoints.length;i++)ctx.lineTo(offsetPoints[i].x,offsetPoints[i].y);ctx.stroke();
+        }
+        ctx.globalAlpha=baseOpacity;ctx.lineWidth=baseSize;
+        strokePath(ctx,offsetPoints,stroke.brushStyle,baseSize,life.spacingMul,stroke.gradient,color);
+        ctx.restore();
+      }
+    }
+  }
+}
+function renderFrame(ctx,W,H,clock,settings,strokes,previewStroke){
+  if(settings.transparentBg)ctx.clearRect(0,0,W,H);
+  else{ctx.fillStyle=settings.background;ctx.fillRect(0,0,W,H);}
+  const total=strokes.length;
+  for(let i=0;i<total;i++)drawStroke(ctx,strokes[i],i,total,clock,W,H,settings,false);
+  if(previewStroke&&previewStroke.points.length>=2){
+    drawStroke(ctx,previewStroke,0,1,clock,W,H,settings,true);
+  }
+  ctx.globalAlpha=1;ctx.setLineDash([]);
+}
+/* ============ 8. INPUT ============ */
+const canvas=document.getElementById('c');
+const ctx=canvas.getContext('2d');
+let W,H,dpr;
+function resize(){
+  dpr=Math.min(window.devicePixelRatio||1,2);
+  W=Math.floor(window.innerWidth*dpr);H=Math.floor(window.innerHeight*dpr);
+  canvas.width=W;canvas.height=H;
+  canvas.style.width=window.innerWidth+'px';canvas.style.height=window.innerHeight+'px';
+}
+resize();
+window.addEventListener('resize',resize);
+window.addEventListener('orientationchange',()=>setTimeout(resize,200));
+
+function getPointer(e){
+  const r=canvas.getBoundingClientRect();
+  const t=e.touches?e.touches[0]:e;
+  return{x:(t.clientX-r.left)*dpr,y:(t.clientY-r.top)*dpr};
+}
+function beginStroke(e){
+  if(e.button!==undefined&&e.button!==0&&!e.touches)return;
+  e.preventDefault();
+  const s=state.settings;
+  if(state.strokes.length>=s.maxStrokes){flashBarWarning();return;}
+  const p=getPointer(e);const S=Math.min(W,H),cx=W/2,cy=H/2;
+  state.currentStroke={
+    points:[{x:(p.x-cx)/S+0.5,y:(p.y-cy)/S+0.5}],
+    t0:state.clock,
+    brushStyle:s.brushStyle,strandCount:parseInt(s.strandCount,10)||1,
+    size:s.size,opacity:s.opacity,
+    color:s.gradient?s.gradient.from:s.color,
+    gradient:s.gradient?{...s.gradient}:null,
+    neon:s.neon,perStrandHue:s.perStrandHue,
+  };
+}
+function moveStroke(e){
+  if(!state.currentStroke)return;
+  e.preventDefault();
+  const p=getPointer(e);const S=Math.min(W,H),cx=W/2,cy=H/2;
+  let nx=(p.x-cx)/S+0.5,ny=(p.y-cy)/S+0.5;
+
+  if(state.settings.snap){
+    const t=0.025;
+    if(Math.abs(nx-0.5)<t&&Math.abs(ny-0.5)<t){nx=0.5;ny=0.5;}
+  }
+
+  const pts=state.currentStroke.points;
+  const last=pts[pts.length-1];
+
+  const stabilize=state.settings.stabilize/100;
+  if(stabilize>0){
+    const factor=1-stabilize*0.7;
+    nx=last.x+(nx-last.x)*factor;
+    ny=last.y+(ny-last.y)*factor;
+  }
+
+  const dx=(nx-last.x)*S,dy=(ny-last.y)*S;
+  const minDist=stabilize>0.5?1:4;
+  if(dx*dx+dy*dy<minDist*minDist)return;
+  if(pts.length>800)return;
+  pts.push({x:nx,y:ny});
+}
+function simplifyPoints(points,tol){
+  if(points.length<=2)return points;
+  const sqTol=tol*tol;
+  function sqSeg(p,p1,p2){
+    let x=p1.x,y=p1.y;let dx=p2.x-x,dy=p2.y-y;
+    if(dx!==0||dy!==0){const t=((p.x-x)*dx+(p.y-y)*dy)/(dx*dx+dy*dy);
+      if(t>1){x=p2.x;y=p2.y;}else if(t>0){x+=dx*t;y+=dy*t;}}
+    dx=p.x-x;dy=p.y-y;return dx*dx+dy*dy;
+  }
+  function step(pts,first,last,sqTol,out){
+    let maxSq=sqTol,idx=-1;
+    for(let i=first+1;i<last;i++){
+      const d=sqSeg(pts[i],pts[first],pts[last]);
+      if(d>maxSq){idx=i;maxSq=d;}
+    }
+    if(idx>0){
+      if(idx-first>1)step(pts,first,idx,sqTol,out);
+      out.push(pts[idx]);
+      if(last-idx>1)step(pts,idx,last,sqTol,out);
+    }
+  }
+  const out=[points[0]];
+  step(points,0,points.length-1,sqTol,out);
+  out.push(points[points.length-1]);
+  return out;
+}
+function endStroke(){
+  if(!state.currentStroke)return;
+  if(state.currentStroke.points.length>=2){
+    if(state.settings.simplify){
+      state.currentStroke.points=simplifyPoints(state.currentStroke.points,0.002);
+    }
+    state.currentStroke.t0=state.clock-state.settings.loopLength*0.15;
+    state.strokes.push(state.currentStroke);
+    state.history.push({type:'draw',stroke:state.currentStroke});
+    state.redoStack=[];
+    scheduleSave();
+  }
+  state.currentStroke=null;
+}
+canvas.addEventListener('touchstart',beginStroke,{passive:false});
+canvas.addEventListener('touchmove',moveStroke,{passive:false});
+canvas.addEventListener('touchend',endStroke);
+canvas.addEventListener('touchcancel',endStroke);
+canvas.addEventListener('mousedown',beginStroke);
+canvas.addEventListener('mousemove',moveStroke);
+canvas.addEventListener('mouseup',endStroke);
+canvas.addEventListener('mouseleave',endStroke);
+
+/* ============ 9. EXPORT ============ */
+function downloadBlob(blob,filename){
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=filename;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+async function exportVideo(){
+  const presetEl=document.querySelector('.preset.active');
+  const presetW=parseInt(presetEl.dataset.w,10);
+  const presetH=parseInt(presetEl.dataset.h,10);
+  const loops=parseInt(document.getElementById('exportLoops').value,10);
+  const fps=30;
+  const totalMs=state.settings.loopLength*loops;
+  const totalFrames=Math.ceil(totalMs/1000*fps);
+  const off=document.createElement('canvas');
+  off.width=presetW;off.height=presetH;
+  const octx=off.getContext('2d');
+  const mimes=['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm','video/mp4'];
+  let mime=null;
+  for(const m of mimes)if(window.MediaRecorder&&MediaRecorder.isTypeSupported(m)){mime=m;break;}
+  const pw=document.getElementById('progressWrap');
+  const pf=document.getElementById('progressFill');
+  const pt=document.getElementById('progressText');
+  pw.classList.add('show');pf.style.width='0%';pt.textContent='Starting…';
+  if(!mime){
+    pt.textContent='Video export not supported. Downloading PNG…';
+    renderFrame(octx,presetW,presetH,state.clock,{...state.settings, quality:'full'},state.strokes,null);
+    off.toBlob(b=>downloadBlob(b,'flow.png'));return;
+  }
+  const stream=off.captureStream(0);const track=stream.getVideoTracks()[0];
+  if(!track||!track.requestFrame){
+    pt.textContent="Video export isn't supported in this browser. Try Chrome or the desktop version.";
+    return;
+  }
+  const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:16_000_000});
+  const chunks=[];
+  recorder.ondataavailable=e=>{if(e.data.size>0)chunks.push(e.data);};
+  const wallStart=performance.now();
+  recorder.start();
+  for(let f=0;f<totalFrames;f++){
+    const t=(f/fps)*1000;
+    renderFrame(octx,presetW,presetH,t,{...state.settings, quality:'full'},state.strokes,null);
+    track.requestFrame();
+    await new Promise(r=>setTimeout(r,1000/fps));
+    pf.style.width=((f+1)/totalFrames*100)+'%';
+    pt.textContent=`Rendering frame ${f+1} / ${totalFrames}`;
+  }
+  const wallEnd=performance.now();
+  await new Promise(r=>setTimeout(r,300));
+  recorder.stop();
+  await new Promise(r=>{recorder.onstop=r;});
+  const blob=new Blob(chunks,{type:mime});
+  const ext=mime.includes('mp4')?'mp4':'webm';
+  downloadBlob(blob,`flow-${presetW}x${presetH}.${ext}`);
+  const wallMs=wallEnd-wallStart;
+  const drift=Math.abs(wallMs-totalMs)/totalMs;
+  if(drift>0.10){
+    pt.textContent=`Done — timing drift ${(drift*100).toFixed(1)}% (actual ${(wallMs/1000).toFixed(2)}s vs expected ${(totalMs/1000).toFixed(2)}s). Video may be slowed down.`;
+  } else {
+    pt.textContent='Done — check your downloads.';
+  }
+  pf.style.width='100%';
+}
+function exportPNG(){
+  const presetEl=document.querySelector('.preset.active');
+  const presetW=parseInt(presetEl.dataset.w,10);
+  const presetH=parseInt(presetEl.dataset.h,10);
+  const off=document.createElement('canvas');
+  off.width=presetW;off.height=presetH;
+  const octx=off.getContext('2d');
+  renderFrame(octx,presetW,presetH,state.clock,{...state.settings, quality:'full'},state.strokes,null);
+  off.toBlob(b=>downloadBlob(b,`flow-${presetW}x${presetH}.png`));
+}
+
+/* ============ 10. UI ============ */
+function updateColorSwatch(){
+  const el=document.getElementById('colorSwatch');
+  const g=state.settings.gradient;
+  if(g)el.style.background=`linear-gradient(135deg,${g.from},${g.to})`;
+  else el.style.background=state.settings.color;
+}
+const QUALITY_CYCLE=['full','single'];
+function updateQualityUI(){
+  const q=state.settings.quality;
+  document.getElementById('qualityLabel').textContent=q==='full'?'Full':'Single';
+  document.getElementById('qualityIcon').textContent=q==='full'?'▦':'▢';
+  document.getElementById('qualityBtn').classList.toggle('active',q!=='full');
+}
+function cycleQuality(){
+  const idx=QUALITY_CYCLE.indexOf(state.settings.quality);
+  state.settings.quality=QUALITY_CYCLE[(idx+1)%QUALITY_CYCLE.length];
+  updateQualityUI();
+}
+function updatePauseUI(){
+  document.getElementById('pauseLabel').textContent=state.paused?'Play':'Pause';
+  document.getElementById('pauseBtn').querySelector('.icon').textContent=state.paused?'▶️':'⏸';
+  document.getElementById('pausedTint').classList.toggle('on',state.paused);
+}
+function togglePause(){state.paused=!state.paused;state.lastFrameTime=performance.now();updatePauseUI();}
+function openSheet(id){document.getElementById(id).classList.add('open');}
+function closeSheet(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.sheetClose').forEach(b=>b.addEventListener('click',()=>closeSheet(b.dataset.close)));
+document.querySelectorAll('.sheet').forEach(sh=>sh.addEventListener('click',e=>{if(e.target===sh)closeSheet(sh.id);}));
+document.querySelectorAll('#brushTabs .tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('#brushTabs .tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('#brushSheet .panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');document.getElementById('panel-'+t.dataset.panel).classList.add('active');
+}));
+document.querySelectorAll('#loopTabs .tab').forEach(t=>t.addEventListener('click',()=>{
+  document.querySelectorAll('#loopTabs .tab').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('#loopSheet .panel').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active');document.getElementById('panel-'+t.dataset.panel).classList.add('active');
+}));
+function buildPalette(){
+  const grid=document.getElementById('paletteGrid');grid.innerHTML='';
+  PALETTE.forEach(p=>{
+    const d=document.createElement('div');d.className='swatch';
+    d.style.background=`linear-gradient(135deg,${p.from},${p.to})`;
+    if(state.settings.gradient&&state.settings.gradient.from===p.from&&state.settings.gradient.to===p.to)d.classList.add('active');
+    d.addEventListener('click',()=>{
+      state.settings.gradient={from:p.from,to:p.to};state.settings.color=p.from;
+      document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));d.classList.add('active');
+      updateColorSwatch();
+    });
+    grid.appendChild(d);
+  });
+  const custom=document.createElement('div');
+  custom.className='swatch custom';custom.textContent='🎨';custom.style.position='relative';
+  const inp=document.createElement('input');inp.type='color';inp.value=state.settings.color;
+  inp.style.position='absolute';inp.style.inset='0';inp.style.opacity='0';inp.style.width='100%';inp.style.height='100%';
+  inp.addEventListener('input',()=>{
+    state.settings.gradient=null;state.settings.color=inp.value;
+    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));custom.classList.add('active');
+    updateColorSwatch();
+  });
+  custom.appendChild(inp);grid.appendChild(custom);
+}
+buildPalette();
+function bindSelect(id,key,cast){
+  const el=document.getElementById(id);el.value=state.settings[key];
+  el.addEventListener('change',()=>{state.settings[key]=cast?cast(el.value):el.value;});
+}
+function bindRange(id,key,valueId,cast,suffix){
+  const el=document.getElementById(id);const val=document.getElementById(valueId);
+  el.value=state.settings[key];val.textContent=state.settings[key]+(suffix||'');
+  el.addEventListener('input',()=>{
+    const v=cast?cast(el.value):el.value;state.settings[key]=v;val.textContent=v+(suffix||'');
+  });
+}
+function bindToggle(id,key){
+  const el=document.getElementById(id);el.classList.toggle('on',!!state.settings[key]);
+  el.addEventListener('click',()=>{state.settings[key]=!state.settings[key];el.classList.toggle('on',state.settings[key]);});
+}
+bindSelect('setBrushStyle','brushStyle');
+bindSelect('setStrandCount','strandCount',parseInt);
+bindRange('setSize','size','setSizeVal',parseFloat);
+bindRange('setOpacity','opacity','setOpacityVal',parseFloat);
+bindRange('setStabilize','stabilize','setStabilizeVal',parseInt,'%');
+bindSelect('setSymmetry','symmetry');
+bindSelect('setSymN','symmetryN',parseInt);
+bindSelect('setLife','life');
+bindSelect('setLifeCycles','lifeCycles',parseInt);
+bindRange('setLifeStagger','lifeStagger','setLifeStaggerVal',parseInt,'%');
+bindSelect('setMotionCycles','motionCycles',parseInt);
+bindRange('setMotionPhase','motionPhase','setMotionPhaseVal',parseInt,'%');
+bindSelect('setLoop','loopLength',parseInt);
+bindSelect('setTiling','multiplication');
+bindRange('setMaxStrokes','maxStrokes','setMaxStrokesVal',parseInt);
+bindToggle('setNeon','neon');
+bindToggle('setStrandHue','perStrandHue');
+bindToggle('setSnap','snap');
+bindToggle('setSimplify','simplify');
+bindToggle('setTransparent','transparentBg');
+document.getElementById('setBg').addEventListener('input',e=>{state.settings.background=e.target.value;});
+function updateMotionUI(){
+  const cfg=MOTION_CONFIG[state.settings.motion];
+  const amountRow=document.getElementById('amountRow');
+  const amountSlider=document.getElementById('setMotionAmount');
+  const amountLabel=document.getElementById('setMotionAmountVal');
+  const dirRow=document.getElementById('directionRow');
+  const dirSelect=document.getElementById('setMotionDirection');
+  if(!cfg.amount){amountRow.style.display='none';dirRow.style.display='none';return;}
+  amountRow.style.display='flex';
+  amountSlider.min=cfg.amount.min;amountSlider.max=cfg.amount.max;amountSlider.step=cfg.amount.step;
+  amountSlider.value=state.settings.motionAmount;
+  amountLabel.textContent=state.settings.motionAmount+cfg.amount.unit;
+  amountSlider.oninput=e=>{
+    const v=parseFloat(e.target.value);state.settings.motionAmount=v;
+    amountLabel.textContent=v+cfg.amount.unit;
+  };
+  if(cfg.direction){
+    dirRow.style.display='flex';dirSelect.innerHTML='';
+    cfg.direction.forEach(d=>{
+      const opt=document.createElement('option');opt.value=d;opt.textContent=d;
+      if(d===state.settings.motionDirection)opt.selected=true;
+      dirSelect.appendChild(opt);
+    });
+   dirSelect.onchange=()=>{state.settings.motionDirection=dirSelect.value;};
+  }else dirRow.style.display='none';
+}
+document.getElementById('setMotion').addEventListener('change',e=>{
+  state.settings.motion=e.target.value;
+  const cfg=MOTION_CONFIG[e.target.value];
+  if(cfg.amount)state.settings.motionAmount=cfg.amount.default;
+  if(cfg.direction)state.settings.motionDirection=cfg.direction[0];
+  updateMotionUI();
+});
+updateMotionUI();
+function undo(){
+  const a=state.history.pop();if(!a)return;
+  state.redoStack.push(a);
+  if(a.type==='draw'){const i=state.strokes.indexOf(a.stroke);if(i>=0)state.strokes.splice(i,1);}
+  else if(a.type==='clear')state.strokes=[...a.strokes];
+  scheduleSave();
+}
+function redo(){
+  const a=state.redoStack.pop();if(!a)return;
+  state.history.push(a);
+  if(a.type==='draw')state.strokes.push(a.stroke);
+  else if(a.type==='clear')state.strokes=[];
+  scheduleSave();
+}
+document.getElementById('undoBtn').addEventListener('click',undo);
+document.getElementById('redoBtn').addEventListener('click',redo);
+document.getElementById('clearBtn').addEventListener('click',()=>{
+  if(state.strokes.length===0)return;
+  state.history.push({type:'clear',strokes:[...state.strokes]});
+  state.strokes=[];state.redoStack=[];
+  scheduleSave();
+});
+document.getElementById('pauseBtn').addEventListener('click',togglePause);
+document.getElementById('qualityBtn').addEventListener('click',cycleQuality);
+document.getElementById('brushBtn').addEventListener('click',()=>openSheet('brushSheet'));
+document.getElementById('loopBtn').addEventListener('click',()=>openSheet('loopSheet'));
+document.getElementById('exportBtn').addEventListener('click',()=>openSheet('exportSheet'));
+document.getElementById('infoBtn').addEventListener('click',()=>openSheet('infoSheet'));
+document.querySelectorAll('.preset').forEach(p=>p.addEventListener('click',()=>{
+  document.querySelectorAll('.preset').forEach(x=>x.classList.remove('active'));p.classList.add('active');
+}));
+document.getElementById('doExport').addEventListener('click',exportVideo);
+document.getElementById('doExportPNG').addEventListener('click',exportPNG);
+window.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='SELECT')return;
+  if((e.metaKey||e.ctrlKey)&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo();}
+  else if((e.metaKey||e.ctrlKey)&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redo();}
+  else if(e.key===' '){e.preventDefault();togglePause();}
+});
+function flashBarWarning(){
+  const bar=document.getElementById('bar');bar.style.background='rgba(255,80,80,0.35)';
+  setTimeout(()=>{bar.style.background='';},300);
+}
+function updatePathBadge(count){
+  const b=document.getElementById('pathBadge');
+  if(count>1000){b.textContent=count.toLocaleString();b.classList.add('show');}
+  else b.classList.remove('show');
+}
+updateColorSwatch();updateQualityUI();updatePauseUI();
+
+/* --- Restore from IndexedDB --- */
+function syncUIFromSettings(){
+  const s=state.settings;
+  document.getElementById('setBrushStyle').value=s.brushStyle;
+  document.getElementById('setStrandCount').value=s.strandCount;
+  document.getElementById('setSize').value=s.size;
+  document.getElementById('setSizeVal').textContent=s.size;
+  document.getElementById('setOpacity').value=s.opacity;
+  document.getElementById('setOpacityVal').textContent=s.opacity;
+  document.getElementById('setStabilize').value=s.stabilize;
+  document.getElementById('setStabilizeVal').textContent=s.stabilize+'%';
+  document.getElementById('setSymmetry').value=s.symmetry;
+  document.getElementById('setSymN').value=s.symmetryN;
+  document.getElementById('setLife').value=s.life;
+  document.getElementById('setLifeCycles').value=s.lifeCycles;
+  document.getElementById('setLifeStagger').value=s.lifeStagger;
+  document.getElementById('setLifeStaggerVal').textContent=s.lifeStagger+'%';
+  document.getElementById('setMotion').value=s.motion;
+  document.getElementById('setMotionCycles').value=s.motionCycles;
+  document.getElementById('setMotionPhase').value=s.motionPhase;
+  document.getElementById('setMotionPhaseVal').textContent=s.motionPhase+'%';
+  document.getElementById('setLoop').value=s.loopLength;
+  document.getElementById('setTiling').value=s.multiplication;
+  document.getElementById('setMaxStrokes').value=s.maxStrokes;
+  document.getElementById('setMaxStrokesVal').textContent=s.maxStrokes;
+  document.getElementById('setBg').value=s.background;
+  document.getElementById('setNeon').classList.toggle('on',!!s.neon);
+  document.getElementById('setStrandHue').classList.toggle('on',!!s.perStrandHue);
+  document.getElementById('setSnap').classList.toggle('on',!!s.snap);
+  document.getElementById('setSimplify').classList.toggle('on',!!s.simplify);
+  document.getElementById('setTransparent').classList.toggle('on',!!s.transparentBg);
+  updateMotionUI();
+  updateColorSwatch();
+  buildPalette();
+  updateQualityUI();
+}
+
+async function loadState(){
+  try {
+    const db=await openDB();
+    const tx=db.transaction(STORE_NAME,'readonly');
+    const store=tx.objectStore(STORE_NAME);
+    const req=store.get(STATE_KEY);
+    const data=await new Promise((res,rej)=>{
+      req.onsuccess=()=>res(req.result);
+      req.onerror=()=>rej(req.error);
+    });
+    if(!data)return;
+    restoring=true;
+    if(data.settings){
+      Object.keys(data.settings).forEach(k=>{
+        state.settings[k]=data.settings[k];
+      });
+    }
+    if(data.strokes){
+      state.strokes=data.strokes.map(s=>({...s}));
+    }
+    if(typeof data.clock==='number'){
+      state.clock=data.clock;
+    }
+    restoring=false;
+    syncUIFromSettings();
+  } catch(e) {
+    restoring=false;
+    console.warn('Autosave restore failed:',e);
+  }
+}
+/* --- Video export capability check (disable button on Safari) --- */
+(function checkVideoSupport(){
+  let supported=false;
+  try {
+    const testCanvas=document.createElement('canvas');
+    testCanvas.width=16;testCanvas.height=16;
+    const testStream=testCanvas.captureStream(0);
+    const testTrack=testStream.getVideoTracks()[0];
+    supported=!!(window.MediaRecorder&&testTrack&&testTrack.requestFrame);
+    testStream.getTracks().forEach(x=>x.stop());
+  } catch(e) { supported=false; }
+  if(!supported){
+    const btn=document.getElementById('doExport');
+    if(btn){
+      btn.disabled=true;
+      btn.textContent="Video export isn't supported in this browser. Try Chrome or the desktop version.";
+      btn.style.fontSize='11px';
+      btn.style.padding='10px';
+      btn.style.lineHeight='1.4';
+    }
+  }
+})();
+
+/* ============ 11. MAIN LOOP ============ */
+function frame(now){
+  const dt=now-state.lastFrameTime;state.lastFrameTime=now;
+  if(!state.paused)state.clock+=Math.min(dt,100);
+  renderFrame(ctx,W,H,state.clock,state.settings,state.strokes,state.currentStroke);
+  const s=state.settings;
+  const symCount=s.symmetry==='kaleidoscope'?s.symmetryN*2
+                  :(s.symmetry==='radial'||s.symmetry==='spiral')?s.symmetryN
+                  :s.symmetry==='none'?1:2;
+  const multCount=s.quality==='single'?1
+                  :s.multiplication==='grid2'?4
+                  :s.multiplication==='grid3'?9
+                  :s.multiplication==='grid4'?16
+                  :s.multiplication==='grid5'?25
+                  :s.multiplication==='ring'?6
+                  :s.multiplication==='ringCenter'?7:1;
+  const strands=s.strandCount||1;
+  updatePathBadge(state.strokes.length*strands*symCount*multCount);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* Kick off restore after everything else is set up */
+loadState();
+</script>
+</body>
+</html>
