@@ -104,11 +104,10 @@
       <div class="infoSection">
         <p><strong>Stabilize</strong> smooths hand jitter. Higher = smoother but the line lags slightly behind your pen. Try 30–50% if you're finding lines wobbly.</p>
         <p><strong>Snap to center</strong> — when you draw near the middle of the canvas, the point snaps exactly to the symmetry center.</p>
-        <p>Strokes are now drawn with smooth curves, so shaky input looks smooth automatically.</p>
+        <p>Strokes are drawn with smooth curves automatically.</p>
       </div>
     </div>
-
-    <div class="panel" id="panel-symmetry-brush">
+  <div class="panel" id="panel-symmetry-brush">
       <div class="row"><label>Drawing symmetry</label><div class="ctrl"><select id="setSymmetry"><option value="none">None</option><option value="radial">Radial</option><option value="kaleidoscope">Kaleidoscope</option><option value="pinwheel">Pinwheel</option><option value="mirrorX">Mirror X</option><option value="mirrorY">Mirror Y</option></select></div></div>
       <div class="row"><label>Fold count</label><div class="ctrl"><select id="setSymN"><option value="2">2</option><option value="4">4</option><option value="6">6</option><option value="8" selected>8</option><option value="12">12</option><option value="16">16</option></select></div></div>
       <div class="infoSection">
@@ -141,8 +140,7 @@
       <div class="infoSection"><p><strong>Stagger</strong>: 0% = all fade together (pulsing). 100% = strokes fade in the sequence drawn (flowing).</p></div>
       <div class="row"><label>Loop length</label><div class="ctrl"><select id="setLoop"><option value="2000">2s</option><option value="4000" selected>4s</option><option value="6000">6s</option><option value="8000">8s</option><option value="12000">12s</option><option value="15000">15s</option></select></div></div>
     </div>
-
-    <div class="panel" id="panel-screen">
+ <div class="panel" id="panel-screen">
       <div class="row"><label>Screen tiling</label><div class="ctrl"><select id="setTiling"><option value="none">None</option><option value="ring">Ring</option><option value="ringCenter">Ring + center</option><option value="grid2">Grid 2×2</option><option value="grid3">Grid 3×3</option><option value="grid4">Grid 4×4</option><option value="grid5">Grid 5×5</option><option value="staggered3">Staggered 3×3</option><option value="staggered4">Staggered 4×4</option></select></div></div>
       <div class="row"><label>Background</label><div class="ctrl"><input type="color" id="setBg" value="#07070a"></div></div>
       <div class="row"><label>Transparent bg</label><div class="toggle" id="setTransparent"></div></div>
@@ -167,8 +165,7 @@
     <div id="progressWrap"><div id="progressBar"><div id="progressFill"></div></div><div id="progressText">Preparing…</div></div>
   </div>
 </div>
-
-  <div class="sheet" id="infoSheet">
+<div class="sheet" id="infoSheet">
   <div class="sheetHeader"><h2>How Flow works (v5)</h2><button class="sheetClose" data-close="infoSheet">×</button></div>
   <div class="sheetBody">
     <div class="infoSection"><h3>Two menus</h3><p><strong>Brush</strong> — how each stroke looks and multiplies as you draw. <strong>Loop</strong> — global animation, tiling, and background.</p></div>
@@ -209,14 +206,6 @@ const DEFAULTS = {
   multiplication:'none', background:'#07070a', transparentBg:false,
   maxStrokes:60, quality:'full',
 };
-const DB_NAME = 'flow-db';
-const DB_VERSION = 1;
-const STORE_NAME = 'state';
-const STATE_KEY = 'current';
-let dbPromise = null;
-let saveTimer = null;
-let restoring = false;
-
 const DB_NAME = 'flow-db';
 const DB_VERSION = 1;
 const STORE_NAME = 'state';
@@ -497,7 +486,6 @@ function renderFrame(ctx,W,H,clock,settings,strokes,previewStroke){
   }
   ctx.globalAlpha=1;ctx.setLineDash([]);
 }
-
 /* ============ 8. INPUT ============ */
 const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
@@ -581,7 +569,6 @@ canvas.addEventListener('mousedown',beginStroke);
 canvas.addEventListener('mousemove',moveStroke);
 canvas.addEventListener('mouseup',endStroke);
 canvas.addEventListener('mouseleave',endStroke);
-
 /* ============ 9. EXPORT ============ */
 function downloadBlob(blob,filename){
   const url=URL.createObjectURL(blob);
@@ -789,6 +776,7 @@ document.getElementById('setMotion').addEventListener('change',e=>{
   updateMotionUI();
 });
 updateMotionUI();
+
 function undo(){
   const a=state.history.pop();if(!a)return;
   state.redoStack.push(a);
@@ -1004,7 +992,6 @@ function frame(now){
 }
 requestAnimationFrame(frame);
 loadState();
-
 </script>
 </body>
-</html>
+</html> 
