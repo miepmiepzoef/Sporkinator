@@ -435,27 +435,33 @@ function sampleDots(points,spacing){
   };
   switch(style){
     case 'solid':{
-      if(gradient){const CHUNK=10,n=points.length;
-        for(let i=0;i<n-1;i+=CHUNK){const end=Math.min(i+CHUNK+1,n);
-          ctx.strokeStyle=lerpColor(gradient.from,gradient.to,i/(n-1));
-          drawSmooth(points.slice(i,end));ctx.stroke();}
-      }else{
-        ctx.strokeStyle=solidColor;
-        drawSmooth(points);ctx.stroke();
-      }
-      break;}
-    case 'dotted':{const spacing=Math.max(4,size*3*spacingMul);const dots=sampleDots(points,spacing);
-      const radius=Math.max(0.8,size*0.5);
-      if(gradient){
-        for(let i=0;i<dots.length;i++){
-          ctx.fillStyle=lerpColor(gradient.from,gradient.to,dots.length>1?i/(dots.length-1):0);
-          ctx.beginPath();ctx.arc(dots[i].x,dots[i].y,radius,0,Math.PI*2);ctx.fill();
-        }
-      }else{
-        ctx.fillStyle=solidColor;
-        for(const d of dots){ctx.beginPath();ctx.arc(d.x,d.y,radius,0,Math.PI*2);ctx.fill();}
-      }
-      break;}
+  if(gradient){
+    const first=points[0], last=points[points.length-1];
+    const grad=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
+    grad.addColorStop(0,gradient.from);
+    grad.addColorStop(1,gradient.to);
+    ctx.strokeStyle=grad;
+    drawSmooth(points);ctx.stroke();
+  }else{
+    ctx.strokeStyle=solidColor;
+    drawSmooth(points);ctx.stroke();
+  }
+  break;}
+
+case 'dashed':{const dashLen=Math.max(4,size*2.5*spacingMul);
+  ctx.setLineDash([dashLen,dashLen]);
+  if(gradient){
+    const first=points[0], last=points[points.length-1];
+    const grad=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
+    grad.addColorStop(0,gradient.from);
+    grad.addColorStop(1,gradient.to);
+    ctx.strokeStyle=grad;
+    drawSmooth(points);ctx.stroke();
+  }else{
+    ctx.strokeStyle=solidColor;
+    drawSmooth(points);ctx.stroke();
+  }
+  ctx.setLineDash([]);break;}
     case 'dashed':{const dashLen=Math.max(4,size*2.5*spacingMul);
       ctx.setLineDash([dashLen,dashLen]);
       if(gradient){const CHUNK=10,n=points.length;
@@ -609,7 +615,7 @@ const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
 let W,H,dpr;
 function resize(){
-  dpr=Math.min(window.devicePixelRatio||1,2);
+  dpr=Math.min(window.devicePixelRatio||1,1.5);
   W=Math.floor(window.innerWidth*dpr);H=Math.floor(window.innerHeight*dpr);
   canvas.width=W;canvas.height=H;
   canvas.style.width=window.innerWidth+'px';canvas.style.height=window.innerHeight+'px';
@@ -1196,7 +1202,7 @@ function frame(now){
   window.__fpsCount++;
   if(now-window.__fpsLast>=500){
     const fps=window.__fpsCount*1000/(now-window.__fpsLast);
-    window.__fpsEl.textContent='FPS: '+Math.round(fps)+' | '+(dt<100?Math.round(dt*10)/10:'--')+'ms';
+    window.__fpsEl.textContent='FPS: '+Math.round(fps)+' | '+Math.round(dt)+'ms';
     window.__fpsLast=now;
     window.__fpsCount=0;
   }
