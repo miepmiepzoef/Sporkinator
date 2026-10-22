@@ -327,7 +327,7 @@ function getLife(u,type){
     case 'shrink':{const op=u<0.1?u/0.1:(1-u)/0.9;result={opacity:op,sizeMul:1-u*0.9,spacingMul:1};break;}
     case 'scatter':{const op=u<0.1?u/0.1:(u>0.3?(1-u)/0.7:1);result={opacity:op,sizeMul:1-u*0.6,spacingMul:1+u*3};break;}
     case 'blink':{const on=Math.floor(u*8)%2===0;result={opacity:on?1:0,sizeMul:1,spacingMul:1};break;}
-    case 'comet':{result={opacity:Math.max(0,1-u),sizeMul:1-u*0.3,spacingMul:1};break;}
+    case 'comet':{const op = u<0.08 ? u/0.08 : Math.max(0, 1-u);{result={opacity:Math.max(0,1-u),sizeMul:1-u*0.3,spacingMul:1};break;}
     default:result={opacity:1,sizeMul:1,spacingMul:1};
   }
   const edge=0.03;let edgeMul=1;
@@ -521,7 +521,7 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
         let color=stroke.color;
         const strandOffset=(s-(stroke.strandCount-1)/2)*(baseSize*2.2);
         const offsetPoints=applyPerpendicularOffset(pxPoints,strandOffset);
-        const shouldChunk = !isPreview && offsetPoints.length > 20;
+        const shouldChunk = !isPreview && offsetPoints.length > 20 && settings.life !== 'comet';
         const chunkCount = shouldChunk ? Math.min(8, Math.ceil(offsetPoints.length / 40)) : 1;
         const isClosed = offsetPoints.length > 4 &&
           Math.hypot(offsetPoints[0].x-offsetPoints[offsetPoints.length-1].x,
@@ -552,7 +552,7 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
               if(chunkEnd <= chunkStart) continue;
               const chunkPoints = offsetPoints.slice(chunkStart, chunkEnd);
               const t = ci / (chunkCount - 1);
-              const chunkPhase = isClosed ? Math.sin(Math.PI * t) * 0.02 : t * 0.02;
+              const chunkPhase = isClosed ? Math.sin(Math.PI * t) * 0.008 : t * 0.008;
               const chunkU = ((lifeU + chunkPhase) % 1 + 1) % 1;
               const chunkLife = getLife((chunkU * settings.lifeCycles) % 1, settings.life);
               if(chunkLife.opacity <= 0.01) continue;
@@ -578,7 +578,7 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
             if(chunkEnd <= chunkStart) continue;
             const chunkPoints = offsetPoints.slice(chunkStart, chunkEnd);
             const t = ci / (chunkCount - 1);
-            const chunkPhase = isClosed ? Math.sin(Math.PI * t) * 0.02 : t * 0.02;
+            const chunkPhase = isClosed ? Math.sin(Math.PI * t) * 0.008 : t * 0.008;
             const chunkU = ((lifeU + chunkPhase) % 1 + 1) % 1;
             const chunkLife = getLife((chunkU * settings.lifeCycles) % 1, settings.life);
             if(chunkLife.opacity <= 0.01) continue;
