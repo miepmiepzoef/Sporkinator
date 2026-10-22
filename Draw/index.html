@@ -521,8 +521,8 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
         let color=stroke.color;
         const strandOffset=(s-(stroke.strandCount-1)/2)*(baseSize*2.2);
         const offsetPoints=applyPerpendicularOffset(pxPoints,strandOffset);
-        const shouldChunk = !isPreview && offsetPoints.length > 20 && settings.life !== 'comet';
-        const chunkCount = shouldChunk ? Math.min(8, Math.ceil(offsetPoints.length / 40)) : 1;
+        const shouldChunk = false;
+        const chunkCount = 1;
         const isClosed = offsetPoints.length > 4 &&
           Math.hypot(offsetPoints[0].x-offsetPoints[offsetPoints.length-1].x,
                      offsetPoints[0].y-offsetPoints[offsetPoints.length-1].y) < baseSize*2;
