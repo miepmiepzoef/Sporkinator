@@ -330,10 +330,10 @@ function getLife(u,type){
     case 'comet':{const op = u<0.08 ? u/0.08 : Math.max(0, 1-u);result={opacity:op,sizeMul:1-u*0.3,spacingMul:1};break;}
     default:result={opacity:1,sizeMul:1,spacingMul:1};
   }
-  const edge=0.03;let edgeMul=1;
+  /*const edge=0.03;let edgeMul=1;
   if(u<edge)edgeMul=u/edge;
   else if(u>1-edge)edgeMul=(1-u)/edge;
-  result.opacity*=edgeMul;
+  result.opacity*=edgeMul;*/
   return result;
 }
 
@@ -1184,6 +1184,22 @@ function frame(now){
                   :s.multiplication==='ringCenter'?7:1;
   const strands=s.strandCount||1;
   updatePathBadge(state.strokes.length*strands*symCount*multCount);
+  if(!window.__fpsEl){
+    const d=document.createElement('div');
+    d.style.cssText='position:fixed;top:8px;right:8px;padding:4px 8px;background:rgba(0,0,0,0.75);color:#0f0;font:12px monospace;border-radius:4px;z-index:9999;pointer-events:none;';
+    d.textContent='FPS: --';
+    document.body.appendChild(d);
+    window.__fpsEl=d;
+    window.__fpsLast=now;
+    window.__fpsCount=0;
+  }
+  window.__fpsCount++;
+  if(now-window.__fpsLast>=500){
+    const fps=window.__fpsCount*1000/(now-window.__fpsLast);
+    window.__fpsEl.textContent='FPS: '+Math.round(fps)+' | '+(dt<100?Math.round(dt*10)/10:'--')+'ms';
+    window.__fpsLast=now;
+    window.__fpsCount=0;
+  }
   requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
