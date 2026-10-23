@@ -1239,12 +1239,6 @@ async function loadState(){
   }
 })();
 function frame(now){
-const minFrameMs = 1000 / (state.settings.fpsCap || 60);
-if (!state.paused && now - state.lastRenderTime < minFrameMs - 2) {
-  requestAnimationFrame(frame);
-  return;
-}
-state.lastRenderTime = now;
  const dt=now-state.lastFrameTime;state.lastFrameTime=now;
   if(!state.paused)state.clock+=Math.min(dt,100);
   renderFrame(ctx,W,H,state.clock,state.settings,state.strokes,state.currentStroke);
