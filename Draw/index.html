@@ -608,7 +608,7 @@ const canvas=document.getElementById('c');
 const ctx=canvas.getContext('2d');
 let W,H,dpr;
 function resize(){
-  dpr=Math.min(window.devicePixelRatio||1,1.5);
+  dpr=Math.min(window.devicePixelRatio||1,1);
   W=Math.floor(window.innerWidth*dpr);H=Math.floor(window.innerHeight*dpr);
   canvas.width=W;canvas.height=H;
   canvas.style.width=window.innerWidth+'px';canvas.style.height=window.innerHeight+'px';
