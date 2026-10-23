@@ -1183,6 +1183,7 @@ function frame(now){
                   :s.multiplication==='ringCenter'?7:1;
   const strands=s.strandCount||1;
   updatePathBadge(state.strokes.length*strands*symCount*multCount);
+  requestAnimationFrame(frame);
 }
 requestAnimationFrame(frame);
 loadState();
