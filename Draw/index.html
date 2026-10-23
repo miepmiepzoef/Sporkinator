@@ -321,7 +321,7 @@ function lerpColor(c1,c2,t){const a=hexToRgb(c1),b=hexToRgb(c2);return rgbToHex(
 function getLife(u,type){
   let result;
   switch(type){
-    case 'fade':{const minOp=0.15;const op=minOp+(1-minOp)*(1-Math.cos(u*2*Math.PI))/2;result={opacity:op,sizeMul:1,spacingMul:1};break;}
+    case 'fade':{const fi=0.45,fo=0.45,minOp=0.15;let op;if(u<fi)op=minOp+(1-minOp)*(u/fi);else if(u>1-fo)op=minOp+(1-minOp)*((1-u)/fo);else op=1;result={opacity:op,sizeMul:1,spacingMul:1};break;}
     case 'bloom':{let op;if(u<0.05)op=u/0.05;else if(u>0.5)op=(1-u)/0.5;else op=1;result={opacity:op,sizeMul:1,spacingMul:1};break;}
     case 'grow':{const op=u<0.1?u/0.1:(u>0.7?(1-u)/0.3:1);result={opacity:op,sizeMul:0.5+u*1.5,spacingMul:1};break;}
     case 'shrink':{const op=u<0.1?u/0.1:(1-u)/0.9;result={opacity:op,sizeMul:1-u*0.9,spacingMul:1};break;}
@@ -1239,7 +1239,13 @@ async function loadState(){
   }
 })();
 function frame(now){
-  const dt=now-state.lastFrameTime;state.lastFrameTime=now;
+const minFrameMs = 1000 / (state.settings.fpsCap || 60);
+if (!state.paused && now - state.lastRenderTime < minFrameMs - 2) {
+  requestAnimationFrame(frame);
+  return;
+}
+state.lastRenderTime = now;
+ const dt=now-state.lastFrameTime;state.lastFrameTime=now;
   if(!state.paused)state.clock+=Math.min(dt,100);
   renderFrame(ctx,W,H,state.clock,state.settings,state.strokes,state.currentStroke);
   const s=state.settings;
