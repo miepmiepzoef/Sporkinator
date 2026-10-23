@@ -1185,7 +1185,7 @@ function frame(now){
   updatePathBadge(state.strokes.length*strands*symCount*multCount);
   if(!window.__fpsEl){
     const d=document.createElement('div');
-    d.style.cssText='position:fixed;top:8px;right:8px;padding:4px 8px;background:rgba(0,0,0,0.75);color:#0f0;font:12px monospace;border-radius:4px;z-index:9999;pointer-events:none;';
+    d.style.cssText='position:fixed;top:8px;right:8px;padding:4px 8px;background:rgba(0,0,0,0.75);color:#0f0;font:12px monospace;border-radius:4px;z-index:9999;pointer-events:none;contain:content;';
     d.textContent='FPS: --';
     document.body.appendChild(d);
     window.__fpsEl=d;
@@ -1195,7 +1195,9 @@ function frame(now){
   window.__fpsCount++;
   if(now-window.__fpsLast>=500){
     const fps=window.__fpsCount*1000/(now-window.__fpsLast);
-    window.__fpsEl.textContent='FPS: '+Math.round(fps)+' | '+Math.round(dt)+'ms';
+    let totalPts=0;
+    for(let i=0;i<state.strokes.length;i++)totalPts+=state.strokes[i].points.length;
+    window.__fpsEl.textContent='FPS: '+Math.round(fps)+' | '+Math.round(dt)+'ms | '+state.strokes.length+'s '+totalPts+'p';
     window.__fpsLast=now;
     window.__fpsCount=0;
   }
