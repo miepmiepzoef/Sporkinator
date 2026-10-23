@@ -417,7 +417,33 @@ function sampleDots(points,spacing){
   return result;
 }
 
-  function strokePath(ctx,points,style,size,spacingMul,gradient,solidColor){
+ function buildStrokePath(stroke, W, H, exportScale) {
+  const S = Math.min(W, H);
+  const cx = W / 2, cy = H / 2;
+  const points = stroke.points;
+  if (points.length < 2) return null;
+  const path = new Path2D();
+  const px = i => cx + (points[i].x - 0.5) * S * exportScale;
+  const py = i => cy + (points[i].y - 0.5) * S * exportScale;
+  path.moveTo(px(0), py(0));
+  for (let i = 1; i < points.length - 1; i++) {
+    const mx = (px(i) + px(i + 1)) / 2;
+    const my = (py(i) + py(i + 1)) / 2;
+    path.quadraticCurveTo(px(i), py(i), mx, my);
+  }
+  path.lineTo(px(points.length - 1), py(points.length - 1));
+  return path;
+}
+
+function getOrBuildPath2D(stroke, W, H, exportScale) {
+  const key = W + 'x' + H + 'x' + exportScale;
+  if (stroke._p2dKey === key) return stroke._p2d;
+  stroke._p2d = buildStrokePath(stroke, W, H, exportScale);
+  stroke._p2dKey = key;
+  return stroke._p2d;
+}
+
+function strokePath(ctx,points,style,size,spacingMul,gradient,solidColor){
   if(points.length<2)return;
   const drawSmooth=(pts)=>{
     ctx.beginPath();
@@ -435,39 +461,39 @@ function sampleDots(points,spacing){
   };
   switch(style){
     case 'solid':{
-  if(gradient){
-    const first=points[0], last=points[points.length-1];
-    const grad=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
-    grad.addColorStop(0,gradient.from);
-    grad.addColorStop(1,gradient.to);
-    ctx.strokeStyle=grad;
-    drawSmooth(points);ctx.stroke();
-  }else{
-    ctx.strokeStyle=solidColor;
-    drawSmooth(points);ctx.stroke();
-  }
-  break;}
-
-case 'dashed':{const dashLen=Math.max(4,size*2.5*spacingMul);
-  ctx.setLineDash([dashLen,dashLen]);
-  if(gradient){
-    const first=points[0], last=points[points.length-1];
-    const grad=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
-    grad.addColorStop(0,gradient.from);
-    grad.addColorStop(1,gradient.to);
-    ctx.strokeStyle=grad;
-    drawSmooth(points);ctx.stroke();
-  }else{
-    ctx.strokeStyle=solidColor;
-    drawSmooth(points);ctx.stroke();
-  }
-  ctx.setLineDash([]);break;}
+      if(gradient){
+        const first=points[0], last=points[points.length-1];
+        const grad=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
+        grad.addColorStop(0,gradient.from);
+        grad.addColorStop(1,gradient.to);
+        ctx.strokeStyle=grad;
+        drawSmooth(points);ctx.stroke();
+      }else{
+        ctx.strokeStyle=solidColor;
+        drawSmooth(points);ctx.stroke();
+      }
+      break;}
+    case 'dotted':{const spacing=Math.max(4,size*3*spacingMul);const dots=sampleDots(points,spacing);
+      const radius=Math.max(0.8,size*0.5);
+      if(gradient){
+        for(let i=0;i<dots.length;i++){
+          ctx.fillStyle=lerpColor(gradient.from,gradient.to,dots.length>1?i/(dots.length-1):0);
+          ctx.beginPath();ctx.arc(dots[i].x,dots[i].y,radius,0,Math.PI*2);ctx.fill();
+        }
+      }else{
+        ctx.fillStyle=solidColor;
+        for(const d of dots){ctx.beginPath();ctx.arc(d.x,d.y,radius,0,Math.PI*2);ctx.fill();}
+      }
+      break;}
     case 'dashed':{const dashLen=Math.max(4,size*2.5*spacingMul);
       ctx.setLineDash([dashLen,dashLen]);
-      if(gradient){const CHUNK=10,n=points.length;
-        for(let i=0;i<n-1;i+=CHUNK){const end=Math.min(i+CHUNK+1,n);
-          ctx.strokeStyle=lerpColor(gradient.from,gradient.to,i/(n-1));
-          drawSmooth(points.slice(i,end));ctx.stroke();}
+      if(gradient){
+        const first=points[0], last=points[points.length-1];
+        const grad=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
+        grad.addColorStop(0,gradient.from);
+        grad.addColorStop(1,gradient.to);
+        ctx.strokeStyle=grad;
+        drawSmooth(points);ctx.stroke();
       }else{
         ctx.strokeStyle=solidColor;
         drawSmooth(points);ctx.stroke();
@@ -521,17 +547,16 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
   const pxPoints=stroke.points.map(p=>({x:cx+(p.x-0.5)*S*exportScale,y:cy+(p.y-0.5)*S*exportScale}));
   const baseSize=stroke.size*life.sizeMul*exportScale;
   const baseOpacity=stroke.opacity*life.opacity;
+  const useP2D = stroke.brushStyle === 'solid' && stroke.strandCount === 1;
+  const p2d = useP2D ? getOrBuildPath2D(stroke, W, H, exportScale) : null;
   for(const m of mults){
     for(const sym of syms){
       for(let s=0;s<stroke.strandCount;s++){
         let color=stroke.color;
         const strandOffset=(s-(stroke.strandCount-1)/2)*(baseSize*2.2);
-        const offsetPoints=applyPerpendicularOffset(pxPoints,strandOffset);
+        const offsetPoints=(strandOffset === 0) ? pxPoints : applyPerpendicularOffset(pxPoints,strandOffset);
         const shouldChunk = false;
         const chunkCount = 1;
-        const isClosed = offsetPoints.length > 4 &&
-          Math.hypot(offsetPoints[0].x-offsetPoints[offsetPoints.length-1].x,
-                     offsetPoints[0].y-offsetPoints[offsetPoints.length-1].y) < baseSize*2;
         ctx.save();
         ctx.translate(m.cx,m.cy);ctx.rotate(m.angle);ctx.scale(m.scale,m.scale);ctx.translate(-cx,-cy);
         ctx.translate(cx,cy);ctx.rotate(sym.angle);
@@ -544,56 +569,27 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
         ctx.lineWidth=baseSize;ctx.globalAlpha=baseOpacity;
         if(stroke.neon){
           const nc=stroke.gradient?stroke.gradient.from:color;
-          if(chunkCount === 1){
-            ctx.globalAlpha=baseOpacity*0.25;ctx.strokeStyle=nc;ctx.lineWidth=baseSize*4;
-            ctx.beginPath();ctx.moveTo(offsetPoints[0].x,offsetPoints[0].y);
-            for(let i=1;i<offsetPoints.length;i++)ctx.lineTo(offsetPoints[i].x,offsetPoints[i].y);ctx.stroke();
-            ctx.globalAlpha=baseOpacity*0.6;ctx.lineWidth=baseSize*2;
-            ctx.beginPath();ctx.moveTo(offsetPoints[0].x,offsetPoints[0].y);
-            for(let i=1;i<offsetPoints.length;i++)ctx.lineTo(offsetPoints[i].x,offsetPoints[i].y);ctx.stroke();
-          } else {
-            for(let ci=0; ci<chunkCount; ci++){
-              const chunkStart = Math.floor(ci * offsetPoints.length / chunkCount);
-              const chunkEnd = Math.min(offsetPoints.length, Math.floor((ci+1) * offsetPoints.length / chunkCount) + 1);
-              if(chunkEnd <= chunkStart) continue;
-              const chunkPoints = offsetPoints.slice(chunkStart, chunkEnd);
-              const t = ci / (chunkCount - 1);
-              const chunkPhase = isClosed ? Math.sin(Math.PI * t) * 0.008 : t * 0.008;
-              const chunkU = ((lifeU + chunkPhase) % 1 + 1) % 1;
-              const chunkLife = getLife((chunkU * settings.lifeCycles) % 1, settings.life);
-              if(chunkLife.opacity <= 0.01) continue;
-              ctx.globalAlpha = stroke.opacity * chunkLife.opacity * 0.25;
-              ctx.strokeStyle = nc;
-              ctx.lineWidth = stroke.size * chunkLife.sizeMul * 4 * exportScale;
-              ctx.beginPath();ctx.moveTo(chunkPoints[0].x,chunkPoints[0].y);
-              for(let i=1;i<chunkPoints.length;i++)ctx.lineTo(chunkPoints[i].x,chunkPoints[i].y);ctx.stroke();
-              ctx.globalAlpha = stroke.opacity * chunkLife.opacity * 0.6;
-              ctx.lineWidth = stroke.size * chunkLife.sizeMul * 2 * exportScale;
-              ctx.beginPath();ctx.moveTo(chunkPoints[0].x,chunkPoints[0].y);
-              for(let i=1;i<chunkPoints.length;i++)ctx.lineTo(chunkPoints[i].x,chunkPoints[i].y);ctx.stroke();
-            }
-          }
+          ctx.globalAlpha=baseOpacity*0.25;ctx.strokeStyle=nc;ctx.lineWidth=baseSize*4;
+          ctx.beginPath();ctx.moveTo(offsetPoints[0].x,offsetPoints[0].y);
+          for(let i=1;i<offsetPoints.length;i++)ctx.lineTo(offsetPoints[i].x,offsetPoints[i].y);ctx.stroke();
+          ctx.globalAlpha=baseOpacity*0.6;ctx.lineWidth=baseSize*2;
+          ctx.beginPath();ctx.moveTo(offsetPoints[0].x,offsetPoints[0].y);
+          for(let i=1;i<offsetPoints.length;i++)ctx.lineTo(offsetPoints[i].x,offsetPoints[i].y);ctx.stroke();
           ctx.globalAlpha=baseOpacity;ctx.lineWidth=baseSize;
         }
-        if(chunkCount === 1){
-          strokePath(ctx, offsetPoints, stroke.brushStyle, baseSize, life.spacingMul, stroke.gradient, color);
-        } else {
-          for(let ci=0; ci<chunkCount; ci++){
-            const chunkStart = Math.floor(ci * offsetPoints.length / chunkCount);
-            const chunkEnd = Math.min(offsetPoints.length, Math.floor((ci+1) * offsetPoints.length / chunkCount) + 1);
-            if(chunkEnd <= chunkStart) continue;
-            const chunkPoints = offsetPoints.slice(chunkStart, chunkEnd);
-            const t = ci / (chunkCount - 1);
-            const chunkPhase = isClosed ? Math.sin(Math.PI * t) * 0.008 : t * 0.008;
-            const chunkU = ((lifeU + chunkPhase) % 1 + 1) % 1;
-            const chunkLife = getLife((chunkU * settings.lifeCycles) % 1, settings.life);
-            if(chunkLife.opacity <= 0.01) continue;
-            ctx.globalAlpha = stroke.opacity * chunkLife.opacity;
-            ctx.lineWidth = stroke.size * chunkLife.sizeMul * exportScale;
-            strokePath(ctx, chunkPoints, stroke.brushStyle, stroke.size * chunkLife.sizeMul * exportScale, chunkLife.spacingMul, stroke.gradient, color);
+        if(p2d){
+          if(stroke.gradient){
+            const first=pxPoints[0], last=pxPoints[pxPoints.length-1];
+            const grad=ctx.createLinearGradient(first.x,first.y,last.x,last.y);
+            grad.addColorStop(0,stroke.gradient.from);
+            grad.addColorStop(1,stroke.gradient.to);
+            ctx.strokeStyle=grad;
+          }else{
+            ctx.strokeStyle=color;
           }
-          ctx.globalAlpha = stroke.opacity * life.opacity;
-          ctx.lineWidth = baseSize;
+          ctx.stroke(p2d);
+        } else {
+          strokePath(ctx, offsetPoints, stroke.brushStyle, baseSize, life.spacingMul, stroke.gradient, color);
         }
         ctx.restore();
       }
