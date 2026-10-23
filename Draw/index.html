@@ -529,7 +529,7 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
   } else {
     const L = settings.loopLength;
     const naturalU = ((clock - stroke.t0) % L + L) % L / L;
-    const staggerOffset = (settings.lifeStagger/100) * (totalStrokes>0 ? strokeIndex/totalStrokes : 0);
+    const staggerOffset = (settings.lifeStagger/100) * Math.max(0, 1-(totalStrokes>1?strokeIndex/Math.max(1,totalStrokes-1):0)) * 0.15;
     lifeU = ((naturalU + staggerOffset) % 1 + 1) % 1;
     lifeCycleU = (lifeU * settings.lifeCycles) % 1;
     life = getLife(lifeCycleU, settings.life);
