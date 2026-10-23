@@ -469,6 +469,32 @@ function getOrBuildPath2D(stroke, W, H, exportScale) {
   return stroke._p2d;
 }
 
+function buildStrokePath(stroke, W, H, exportScale) {
+  const S = Math.min(W, H);
+  const cx = W / 2, cy = H / 2;
+  const points = stroke.points;
+  if (points.length < 2) return null;
+  const path = new Path2D();
+  const px = i => cx + (points[i].x - 0.5) * S * exportScale;
+  const py = i => cy + (points[i].y - 0.5) * S * exportScale;
+  path.moveTo(px(0), py(0));
+  for (let i = 1; i < points.length - 1; i++) {
+    const mx = (px(i) + px(i + 1)) / 2;
+    const my = (py(i) + py(i + 1)) / 2;
+    path.quadraticCurveTo(px(i), py(i), mx, my);
+  }
+  path.lineTo(px(points.length - 1), py(points.length - 1));
+  return path;
+}
+
+function getOrBuildPath2D(stroke, W, H, exportScale) {
+  const key = W + 'x' + H + 'x' + exportScale;
+  if (stroke._p2dKey === key) return stroke._p2d;
+  stroke._p2d = buildStrokePath(stroke, W, H, exportScale);
+  stroke._p2dKey = key;
+  return stroke._p2d;
+}
+
 function strokePath(ctx,points,style,size,spacingMul,gradient,solidColor){
   if(points.length<2)return;
   const drawSmooth=(pts)=>{
@@ -572,8 +598,15 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
   const S=Math.min(W,H);const cx=W/2,cy=H/2;
   const baseSize=stroke.size*life.sizeMul*exportScale;
   const baseOpacity=stroke.opacity*life.opacity;
-  const useP2D = stroke.brushStyle === 'solid' && stroke.strandCount === 1 && !stroke.neon;
-  const p2d = useP2D ? getOrBuildPath2D(stroke, W, H, exportScale) : null;
+  const useP2D = stroke.brushStyle === 'solid' && stroke.strandCount === 1;
+  let p2d = null;
+  if(useP2D){
+    if(isPreview){
+      p2d = buildStrokePath(stroke, W, H, exportScale);
+    } else {
+      p2d = getOrBuildPath2D(stroke, W, H, exportScale);
+    }
+  }
   const needsPxPoints = !p2d;
   const pxPoints = needsPxPoints ? stroke.points.map(p=>({x:cx+(p.x-0.5)*S*exportScale,y:cy+(p.y-0.5)*S*exportScale})) : null;
   let strokeGrad = null;
@@ -603,11 +636,33 @@ function drawStroke(ctx,stroke,strokeIndex,totalStrokes,clock,W,H,settings,isPre
         ctx.scale(motion.scale,motion.scale);ctx.translate(-cx,-cy);
         ctx.lineCap='round';ctx.lineJoin='round';
         ctx.lineWidth=baseSize;ctx.globalAlpha=baseOpacity;
-        if(p2d){
-          ctx.strokeStyle = strokeGrad || color;
-          ctx.stroke(p2d);
+        if(stroke.neon){
+          const nc=stroke.gradient?stroke.gradient.from:color;
+          if(p2d){
+            ctx.globalAlpha=baseOpacity*0.25;ctx.strokeStyle=nc;ctx.lineWidth=baseSize*4;
+            ctx.stroke(p2d);
+            ctx.globalAlpha=baseOpacity*0.6;ctx.lineWidth=baseSize*2;
+            ctx.stroke(p2d);
+            ctx.globalAlpha=baseOpacity;ctx.lineWidth=baseSize;
+            ctx.strokeStyle=strokeGrad||color;
+            ctx.stroke(p2d);
+          } else {
+            ctx.globalAlpha=baseOpacity*0.25;ctx.strokeStyle=nc;ctx.lineWidth=baseSize*4;
+            ctx.beginPath();ctx.moveTo(offsetPoints[0].x,offsetPoints[0].y);
+            for(let i=1;i<offsetPoints.length;i++)ctx.lineTo(offsetPoints[i].x,offsetPoints[i].y);ctx.stroke();
+            ctx.globalAlpha=baseOpacity*0.6;ctx.lineWidth=baseSize*2;
+            ctx.beginPath();ctx.moveTo(offsetPoints[0].x,offsetPoints[0].y);
+            for(let i=1;i<offsetPoints.length;i++)ctx.lineTo(offsetPoints[i].x,offsetPoints[i].y);ctx.stroke();
+            ctx.globalAlpha=baseOpacity;ctx.lineWidth=baseSize;
+            strokePath(ctx, offsetPoints, stroke.brushStyle, baseSize, life.spacingMul, stroke.gradient, color);
+          }
         } else {
-          strokePath(ctx, offsetPoints, stroke.brushStyle, baseSize, life.spacingMul, stroke.gradient, color);
+          if(p2d){
+            ctx.strokeStyle = strokeGrad || color;
+            ctx.stroke(p2d);
+          } else {
+            strokePath(ctx, offsetPoints, stroke.brushStyle, baseSize, life.spacingMul, stroke.gradient, color);
+          }
         }
         ctx.restore();
       }
